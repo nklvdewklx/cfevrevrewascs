@@ -1,6 +1,5 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import Button from '../../components/common/Button';
 
 const EmployeeForm = ({ employee, onSave, onCancel }) => {
     const { register, handleSubmit, formState: { errors } } = useForm({
@@ -54,8 +53,8 @@ const EmployeeForm = ({ employee, onSave, onCancel }) => {
                 </div>
             </div>
             <div className="pt-4 flex justify-end space-x-4">
-                <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
-                <Button type="submit" variant="primary">Save Employee</Button>
+                <button type="button" onClick={onCancel} className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg">Cancel</button>
+                <button type="submit" className="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg">Save Employee</button>
             </div>
         </form>
     );

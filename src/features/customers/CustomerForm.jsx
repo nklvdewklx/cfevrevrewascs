@@ -1,68 +1,81 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
 
 const CustomerForm = ({ customer, onSave, onCancel, agents }) => {
-    const [formData, setFormData] = useState({
-        name: '',
-        company: '',
-        email: '',
-        phone: '',
-        agentId: '',
+    const { register, handleSubmit, formState: { errors } } = useForm({
+        defaultValues: customer ? {
+            ...customer,
+            agentId: customer.agentId || agents[0]?.id || '',
+        } : {
+            name: '',
+            company: '',
+            email: '',
+            phone: '',
+            agentId: agents[0]?.id || '',
+        }
     });
 
-    useEffect(() => {
-        // If we are editing, populate the form with the customer's data
-        if (customer) {
-            setFormData({
-                name: customer.name || '',
-                company: customer.company || '',
-                email: customer.email || '',
-                phone: customer.phone || '',
-                agentId: customer.agentId || '',
-            });
-        } else {
-            // If adding new, reset to blank (or default)
-            setFormData({ name: '', company: '', email: '', phone: '', agentId: agents[0]?.id || '' });
-        }
-    }, [customer, agents]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSave(formData);
+    const onSubmit = (data) => {
+        onSave({ ...data, agentId: parseInt(data.agentId) });
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">Name</label>
-                <input type="text" name="name" value={formData.name} onChange={handleChange} className="form-input" required />
+                <input
+                    type="text"
+                    {...register('name', { required: 'Name is required' })}
+                    className="form-input"
+                />
+                {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
             </div>
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">Company</label>
-                <input type="text" name="company" value={formData.company} onChange={handleChange} className="form-input" />
+                <input
+                    type="text"
+                    {...register('company')}
+                    className="form-input"
+                />
             </div>
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">Email</label>
-                <input type="email" name="email" value={formData.email} onChange={handleChange} className="form-input" />
+                <input
+                    type="email"
+                    {...register('email', {
+                        pattern: {
+                            value: /^\S+@\S+$/i,
+                            message: 'Invalid email address'
+                        }
+                    })}
+                    className="form-input"
+                />
+                {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
             </div>
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">Phone</label>
-                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="form-input" />
+                <input
+                    type="tel"
+                    {...register('phone')}
+                    className="form-input"
+                />
             </div>
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">Assigned Agent</label>
-                <select name="agentId" value={formData.agentId} onChange={handleChange} className="form-select" required>
+                <select
+                    {...register('agentId', { required: 'An agent must be selected' })}
+                    className="form-select"
+                >
                     {agents.map(agent => (
                         <option key={agent.id} value={agent.id}>{agent.name}</option>
                     ))}
                 </select>
+                {errors.agentId && <p className="text-red-400 text-xs mt-1">{errors.agentId.message}</p>}
             </div>
-            {/* Form submission is handled by the Modal footer */}
             <div className="pt-4 flex justify-end">
+                <button type="button" onClick={onCancel} className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Cancel
+                </button>
                 <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
                     Save Customer
                 </button>

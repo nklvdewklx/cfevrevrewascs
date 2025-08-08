@@ -1,10 +1,9 @@
 import React from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { Plus, Trash2 } from 'lucide-react';
-import Button from '../../components/common/Button';
 
 const PurchaseOrderForm = ({ po, onSave, onCancel, suppliers, components }) => {
-    const { register, control, handleSubmit } = useForm({
+    const { register, control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: po || {
             supplierId: suppliers[0]?.id || '',
             status: 'draft',
@@ -39,22 +38,25 @@ const PurchaseOrderForm = ({ po, onSave, onCancel, suppliers, components }) => {
                 <label className="block text-md font-semibold text-custom-light-blue">Components to Order</label>
                 {fields.map((field, index) => (
                     <div key={field.id} className="flex items-center space-x-2">
-                        <select {...register(`items.${index}.componentId`)} className="form-select flex-grow">
+                        <select {...register(`items.${index}.componentId`, { required: 'Component is required' })} className="form-select flex-grow">
                             {components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
-                        <input type="number" {...register(`items.${index}.quantity`, { valueAsNumber: true, min: 1 })} className="form-input w-24" min="1" />
-                        <Button type="button" onClick={() => remove(index)} variant="ghost-glow" size="sm" className="text-red-400"><Trash2 size={18} /></Button>
+                        <input
+                            type="number"
+                            {...register(`items.${index}.quantity`, { valueAsNumber: true, min: { value: 1, message: 'Quantity must be at least 1' } })}
+                            className="form-input w-24"
+                            min="1"
+                        />
+                        <button type="button" onClick={() => remove(index)} className="p-2 text-red-400"><Trash2 size={18} /></button>
+                        {errors.items?.[index]?.quantity && <p className="text-red-400 text-xs mt-1">{errors.items[index].quantity.message}</p>}
                     </div>
                 ))}
-                <Button type="button" onClick={() => append({ componentId: components[0]?.id, quantity: 1 })} variant="ghost" className="text-blue-400 flex items-center space-x-2" size="sm">
-                    <Plus size={16} />
-                    <span>Add Component</span>
-                </Button>
+                <button type="button" onClick={() => append({ componentId: components[0]?.id, quantity: 1 })} className="text-sm text-blue-400 flex items-center space-x-2"><Plus size={16} /><span>Add Component</span></button>
             </div>
 
             <div className="pt-4 flex justify-end space-x-4">
-                <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
-                <Button type="submit" variant="primary">Save Purchase Order</Button>
+                <button type="button" onClick={onCancel} className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg">Cancel</button>
+                <button type="submit" className="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg">Save Purchase Order</button>
             </div>
         </form>
     );

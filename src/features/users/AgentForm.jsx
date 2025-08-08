@@ -1,6 +1,5 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import Button from '../../components/common/Button';
 
 const AgentForm = ({ agent, onSave, onCancel }) => {
     const { register, handleSubmit, formState: { errors } } = useForm({
@@ -21,7 +20,11 @@ const AgentForm = ({ agent, onSave, onCancel }) => {
             </div>
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">Email Address</label>
-                <input type="email" {...register('email', { required: 'Email is required' })} className="form-input" />
+                <input
+                    type="email"
+                    {...register('email', { required: 'Email is required', pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' } })}
+                    className="form-input"
+                />
                 {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
             </div>
             <div>
@@ -36,8 +39,8 @@ const AgentForm = ({ agent, onSave, onCancel }) => {
                 </select>
             </div>
             <div className="pt-4 flex justify-end space-x-4">
-                <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
-                <Button type="submit" variant="primary">Save Agent</Button>
+                <button type="button" onClick={onCancel} className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg">Cancel</button>
+                <button type="submit" className="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg">Save Agent</button>
             </div>
         </form>
     );

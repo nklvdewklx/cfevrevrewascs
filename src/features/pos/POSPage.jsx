@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addOrder } from '../orders/ordersSlice';
 import { adjustStockForOrder } from '../inventory/productsSlice';
 import { showToast } from '../../lib/toast';
 import {
     addToCart,
+    updateCartItem,
+    removeFromCart,
     clearCart,
     openTransaction,
     loadTransaction,
     setCustomerId
 } from './posSlice';
-import { calculateOrderTotal } from '../../lib/dataHelpers';
 
 const POSPage = () => {
     const dispatch = useDispatch();
@@ -24,9 +25,14 @@ const POSPage = () => {
         dispatch(addToCart({ product, quantity: 1 }));
     };
 
-    // Unused functions removed to fix warnings
-    // const handleUpdateQuantity = (productId, quantity) => { ... }
-    // const handleRemoveItem = (productId) => { ... }
+    const handleUpdateQuantity = (productId, quantity) => {
+        if (quantity < 1) return;
+        dispatch(updateCartItem({ productId, quantity }));
+    };
+
+    const handleRemoveItem = (productId) => {
+        dispatch(removeFromCart(productId));
+    };
 
     const handleOpenTransaction = () => {
         dispatch(openTransaction());
@@ -36,6 +42,14 @@ const POSPage = () => {
     const handleLoadTransaction = (index) => {
         dispatch(loadTransaction(index));
         showToast('Transaction loaded.', 'info');
+    };
+
+    const calculateTotal = () => {
+        return cart.reduce((total, item) => {
+            const product = products.find(p => p.id === item.productId);
+            const price = product?.pricingTiers[0]?.price || 0;
+            return total + (price * item.quantity);
+        }, 0);
     };
 
     const handleFinalizeSale = async () => {
@@ -108,7 +122,7 @@ const POSPage = () => {
                 <div className="space-y-4">
                     <div className="flex justify-between text-2xl font-bold">
                         <span>Total</span>
-                        <span>${calculateOrderTotal(cart, products).toFixed(2)}</span>
+                        <span>${calculateTotal().toFixed(2)}</span>
                     </div>
                     <button onClick={handleFinalizeSale} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg text-xl">
                         Pay

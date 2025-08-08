@@ -1,40 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { Plus, Trash2 } from 'lucide-react';
 
 const OrderForm = ({ order, onSave, onCancel, customers, products }) => {
-    const [customerId, setCustomerId] = useState('');
-    const [items, setItems] = useState([{ productId: '', quantity: 1 }]);
-
-    useEffect(() => {
-        if (order) {
-            setCustomerId(order.customerId || '');
-            setItems(order.items && order.items.length > 0 ? order.items : [{ productId: '', quantity: 1 }]);
-        } else {
-            // Reset form for new order
-            setCustomerId(customers[0]?.id || '');
-            setItems([{ productId: products[0]?.id || '', quantity: 1 }]);
+    const { register, control, handleSubmit, formState: { errors } } = useForm({
+        defaultValues: order || {
+            customerId: customers[0]?.id || '',
+            items: [{ productId: products[0]?.id || '', quantity: 1 }],
         }
-    }, [order, customers, products]);
+    });
 
-    const handleItemChange = (index, field, value) => {
-        const newItems = [...items];
-        newItems[index][field] = value;
-        setItems(newItems);
-    };
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: 'items'
+    });
 
-    const handleAddItem = () => {
-        setItems([...items, { productId: products[0]?.id || '', quantity: 1 }]);
-    };
-
-    const handleRemoveItem = (index) => {
-        const newItems = items.filter((_, i) => i !== index);
-        setItems(newItems);
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const onSubmit = (data) => {
         // Filter out any line items that might not have a product selected
-        const validItems = items.filter(item => item.productId).map(item => ({
+        const validItems = data.items.filter(item => item.productId).map(item => ({
             productId: parseInt(item.productId),
             quantity: parseInt(item.quantity)
         }));
@@ -44,25 +27,28 @@ const OrderForm = ({ order, onSave, onCancel, customers, products }) => {
             return;
         }
 
-        onSave({ customerId: parseInt(customerId), items: validItems });
+        onSave({ customerId: parseInt(data.customerId), items: validItems });
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">Customer</label>
-                <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="form-select" required>
+                <select
+                    {...register('customerId', { required: 'Customer is required' })}
+                    className="form-select"
+                >
                     {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
+                {errors.customerId && <p className="text-red-400 text-xs mt-1">{errors.customerId.message}</p>}
             </div>
 
             <div className="space-y-3">
                 <label className="block text-sm text-custom-grey">Products</label>
-                {items.map((item, index) => (
-                    <div key={index} className="flex items-center space-x-2">
+                {fields.map((field, index) => (
+                    <div key={field.id} className="flex items-center space-x-2">
                         <select
-                            value={item.productId}
-                            onChange={(e) => handleItemChange(index, 'productId', e.target.value)}
+                            {...register(`items.${index}.productId`, { required: 'Product is required' })}
                             className="form-select flex-grow"
                         >
                             <option value="">Select a product...</option>
@@ -70,18 +56,18 @@ const OrderForm = ({ order, onSave, onCancel, customers, products }) => {
                         </select>
                         <input
                             type="number"
-                            value={item.quantity}
-                            onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                            {...register(`items.${index}.quantity`, { required: 'Quantity is required', valueAsNumber: true, min: { value: 1, message: 'Quantity must be at least 1' } })}
                             className="form-input w-24"
                             min="1"
-                            required
                         />
-                        <button type="button" onClick={() => handleRemoveItem(index)} className="p-2 text-red-400 hover:text-red-300">
+                        <button type="button" onClick={() => remove(index)} className="p-2 text-red-400 hover:text-red-300">
                             <Trash2 size={18} />
                         </button>
+                        {errors.items?.[index]?.productId && <p className="text-red-400 text-xs mt-1">{errors.items[index].productId.message}</p>}
+                        {errors.items?.[index]?.quantity && <p className="text-red-400 text-xs mt-1">{errors.items[index].quantity.message}</p>}
                     </div>
                 ))}
-                <button type="button" onClick={handleAddItem} className="text-sm text-blue-400 hover:text-blue-300 flex items-center space-x-2">
+                <button type="button" onClick={() => append({ productId: products[0]?.id || '', quantity: 1 })} className="text-sm text-blue-400 hover:text-blue-300 flex items-center space-x-2">
                     <Plus size={16} />
                     <span>Add Product</span>
                 </button>

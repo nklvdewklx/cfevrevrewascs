@@ -25,14 +25,17 @@ const LeadForm = ({ lead, onSave, onCancel, agents }) => {
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">Company</label>
                 <input {...register('company')} className="form-input" />
+                {errors.company && <p className="text-red-400 text-xs mt-1">{errors.company.message}</p>}
             </div>
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">Email</label>
-                <input type="email" {...register('email')} className="form-input" />
+                <input type="email" {...register('email', { pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' } })} className="form-input" />
+                {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
             </div>
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">Phone</label>
                 <input type="tel" {...register('phone')} className="form-input" />
+                {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone.message}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
