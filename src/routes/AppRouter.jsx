@@ -14,7 +14,7 @@ import CustomersPage from '../features/customers/CustomersPage';
 import OrdersPage from '../features/orders/OrdersPage';
 import InvoicesPage from '../features/orders/InvoicesPage';
 import ProductsPage from '../features/inventory/ProductsPage';
-import ComponentsPage from '../features/inventory/ComponentsPage'; // NEW: Import ComponentsPage
+import ComponentsPage from '../features/inventory/ComponentsPage';
 import SuppliersPage from '../features/purchasing/SuppliersPage';
 import PurchaseOrdersPage from '../features/purchasing/PurchaseOrdersPage';
 import ProductionOrdersPage from '../features/production/ProductionOrdersPage';
@@ -36,6 +36,7 @@ import ProductionOrderDetailsPage from '../features/production/ProductionOrderDe
 import InvoiceDetailsPage from '../features/orders/InvoiceDetailsPage';
 import SettingsPage from '../features/settings/SettingsPage';
 import ProductDetailsPage from '../features/inventory/ProductDetailsPage';
+import ComponentDetailsPage from '../features/inventory/ComponentDetailsPage'; // NEW: Import ComponentDetailsPage
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -67,7 +68,8 @@ const AppRouter = () => {
                 <Route path="invoices" element={<InvoicesPage />} />
                 <Route path="invoices/:invoiceNumber" element={<InvoiceDetailsPage />} />
                 <Route path="inventory" element={<ProductsPage />} />
-                <Route path="inventory/components" element={<ComponentsPage />} /> {/* NEW: Components Route */}
+                <Route path="inventory/components" element={<ComponentsPage />} />
+                <Route path="inventory/components/:componentId" element={<ComponentDetailsPage />} /> {/* NEW: Component Details Route */}
                 <Route path="inventory/:productId" element={<ProductDetailsPage />} />
                 <Route path="suppliers" element={<SuppliersPage />} />
                 <Route path="purchase-orders" element={<PurchaseOrdersPage />} />

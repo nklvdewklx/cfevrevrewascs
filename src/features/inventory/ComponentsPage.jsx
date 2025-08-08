@@ -7,6 +7,7 @@ import ComponentForm from './ComponentForm';
 import { addComponent, updateComponent, deleteComponent } from './componentsSlice';
 import Button from '../../components/common/Button';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom'; // NEW: Import Link
 
 const ComponentsPage = () => {
     const { t } = useTranslation();
@@ -30,7 +31,6 @@ const ComponentsPage = () => {
         if (editingComponent) {
             dispatch(updateComponent({ ...data, id: editingComponent.id }));
         } else {
-            // Ensure new components have a stockBatches array
             dispatch(addComponent({ ...data, stockBatches: [] }));
         }
         handleCloseModal();
@@ -54,7 +54,12 @@ const ComponentsPage = () => {
         const totalStock = component.stockBatches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0;
         return (
             <tr key={component.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
-                <td className="p-4">{component.name}</td>
+                <td className="p-4">
+                    {/* UPDATED: Link to component detail page */}
+                    <Link to={`/inventory/components/${component.id}`} className="text-blue-400 hover:underline">
+                        {component.name}
+                    </Link>
+                </td>
                 <td className="p-4">${component.cost.toFixed(2)}</td>
                 <td className="p-4 font-semibold">{totalStock}</td>
                 <td className="p-4">{component.reorderPoint}</td>
@@ -68,7 +73,6 @@ const ComponentsPage = () => {
         );
     };
 
-    // Add totalStock to each component for sorting purposes
     const componentsWithStock = components.map(c => ({
         ...c,
         totalStock: c.stockBatches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0,

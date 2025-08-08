@@ -80,6 +80,9 @@
     "product": "المنتج",
     "productNotFound": "المنتج غير موجود.",
     "backToInventory": "العودة إلى المخزون",
+    "backToComponents": "العودة إلى المكونات",
+    "componentNotFound": "المكون غير موجود.",
+    "receivedDate": "تاريخ الاستلام",
     "editProduct": "تعديل المنتج",
     "shelfLife": "مدة الصلاحية",
     "days": "أيام",
@@ -338,5 +341,16 @@
     "Warehouse": "المستودع",
     "Finance": "المالية",
     "Management": "الإدارة",
-    "HR": "الموارد البشرية"
+    "HR": "الموارد البشرية",
+    "adjustStock": "تعديل المخزون",
+    "manualStockAdjustment": "تعديل المخزون اليدوي",
+    "selectBatch": "اختر دفعة...",
+    "adjustmentType": "نوع التعديل",
+    "add": "إضافة",
+    "remove": "إزالة",
+    "reason": "السبب",
+    "reasonRequired": "السبب مطلوب",
+    "quantityMustBePositive": "يجب أن تكون الكمية موجبة",
+    "insufficientStock": "مخزون غير كافٍ لهذا التعديل",
+    "stockAdjusted": "تم تعديل المخزون بنجاح"
 }
