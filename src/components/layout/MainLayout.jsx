@@ -1,19 +1,24 @@
 import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/authentication/authSlice';
 import Sidebar from './Sidebar';
 import Button from '../common/Button';
 import SearchBar from '../common/SearchBar';
-import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
+import { useTranslation } from 'react-i18next';
 
 const MainLayout = () => {
-    const { t } = useTranslation(); // NEW: Get the translation function
+    const { t } = useTranslation();
     const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
+    const navigate = useNavigate(); // NEW: Initialize the navigate hook
 
     const handleLogout = () => {
         dispatch(logout());
+    };
+
+    const handleLaunchPos = () => {
+        navigate('/pos'); // NEW: Navigate to the POS page
     };
 
     return (
@@ -31,21 +36,17 @@ const MainLayout = () => {
                     </div>
                     <div className="flex items-center space-x-4">
                         <Button
-                            onClick={() => {
-                                // Add navigation logic here if needed
-                            }}
+                            onClick={handleLaunchPos} // CHANGED: Use the new handleLaunchPos function
                             className="text-white"
                         >
                             <span>Launch POS</span>
                         </Button>
-                        {/* NEW: Translate the user greeting */}
                         <span>{t('helloUser', { name: user?.name })}</span>
                         <Button
                             onClick={() => handleLogout()}
                             variant="danger"
                             className="text-white"
                         >
-                            {/* NEW: Translate the button text */}
                             <span>{t('logout')}</span>
                         </Button>
                     </div>
