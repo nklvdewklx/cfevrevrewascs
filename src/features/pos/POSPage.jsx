@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addOrder } from '../orders/ordersSlice';
-import { adjustStockForOrder } from '../inventory/productsSlice';
+import { adjustStockForSale } from '../inventory/productsSlice'; // UPDATED: Import the correct thunk
 import { showToast } from '../../lib/toast';
 import {
     addToCart,
@@ -22,6 +22,9 @@ const POSPage = () => {
     const customers = useSelector((state) => state.customers.items);
     const { user } = useSelector((state) => state.auth);
     const { cart, selectedCustomerId, openTransactions } = useSelector((state) => state.pos);
+
+    // Filter out archived products so they don't appear on the POS
+    const activeProducts = products.filter(p => p.status !== 'archived');
 
     const handleAddProductToCart = (product) => {
         dispatch(addToCart({ product, quantity: 1 }));
@@ -48,9 +51,7 @@ const POSPage = () => {
 
     const calculateTotal = () => {
         return cart.reduce((total, item) => {
-            const product = products.find(p => p.id === item.productId);
-            const price = product?.pricingTiers[0]?.price || 0;
-            return total + (price * item.quantity);
+            return total + (item.price * item.quantity);
         }, 0);
     };
 
@@ -69,7 +70,8 @@ const POSPage = () => {
         };
 
         try {
-            await dispatch(adjustStockForOrder(newOrderData)).unwrap();
+            // UPDATED: Dispatch the correct thunk for automated stock adjustment
+            await dispatch(adjustStockForSale(newOrderData)).unwrap();
             dispatch(addOrder(newOrderData));
             showToast(t('saleCompleted'), 'success');
             dispatch(clearCart());
@@ -82,7 +84,7 @@ const POSPage = () => {
         <div className="grid grid-cols-3 gap-4 h-full">
             <div className="col-span-2 bg-gray-800/50 p-4 rounded-lg overflow-y-auto custom-scrollbar">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {products.map(product => (
+                    {activeProducts.map(product => (
                         <button key={product.id} onClick={() => handleAddProductToCart(product)} className="bg-gray-700 aspect-square rounded-lg p-2 flex flex-col justify-between items-center text-center hover:bg-blue-600 transition-colors">
                             <span className="font-semibold text-sm">{product.name}</span>
                             <span className="text-lg font-bold">${(product.pricingTiers[0]?.price || 0).toFixed(2)}</span>
@@ -95,7 +97,8 @@ const POSPage = () => {
                 <h2 className="text-xl font-bold mb-4">{t('currentSale')}</h2>
                 <div>
                     <label className="block mb-1 text-sm text-custom-grey">{t('customer')}</label>
-                    <select value={selectedCustomerId} onChange={(e) => dispatch(setCustomerId(e.target.value))} className="form-input bg-gray-700 border-gray-600">
+                    <select value={selectedCustomerId || ''} onChange={(e) => dispatch(setCustomerId(e.target.value))} className="form-input bg-gray-700 border-gray-600">
+                        <option value="" disabled>{t('selectCustomer')}</option>
                         {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                 </div>
