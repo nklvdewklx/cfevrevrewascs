@@ -5,7 +5,6 @@ import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
-    // The AuthProvider is no longer needed here
     <BrowserRouter>
       <AppRouter />
       <Toaster position="top-right" />

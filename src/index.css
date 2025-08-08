@@ -75,7 +75,7 @@ body {
     box-shadow: 0 0 0 2px rgba(162, 210, 255, 0.5);
 }
 
-/* Status Pills */
+/* NEW: Refined Status Pills with fixed width */
 .status-pill {
     display: inline-block;
     padding: 4px 10px;

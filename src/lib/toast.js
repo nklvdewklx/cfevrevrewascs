@@ -1,18 +1,20 @@
-// src/lib/toast.js
 import { toast } from 'react-hot-toast';
+import CustomToast from '../components/common/Toast';
 
 export const showToast = (message, type = 'success') => {
-  switch (type) {
-    case 'success':
-      toast.success(message);
-      break;
-    case 'error':
-      toast.error(message);
-      break;
-    case 'info':
-      toast(message);
-      break;
-    default:
-      toast(message);
-  }
+  const options = {
+    duration: 3000,
+    style: {
+      background: 'transparent',
+      boxShadow: 'none',
+    },
+  };
+
+  const id = toast.custom((t) => (
+    <CustomToast
+      message={message}
+      type={type}
+      id={t.id}
+    />
+  ), options);
 };
