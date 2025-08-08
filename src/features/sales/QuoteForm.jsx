@@ -4,7 +4,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 
 const QuoteForm = ({ quote, onSave, onCancel, customers, leads, products }) => {
-    const { t } = useTranslation(); // NEW: Get translation function
+    const { t } = useTranslation(); // NEW: Get the translation function
     const { register, control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: quote || {
             customerId: '',

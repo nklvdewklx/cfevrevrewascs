@@ -1,18 +1,19 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { useSelector } from 'react-redux'; // NEW: Import useSelector
+import { useSelector } from 'react-redux';
 import AppRouter from './routes/AppRouter';
 import { Toaster } from 'react-hot-toast';
+import SettingsMenu from './components/common/SettingsMenu'; 
 
 function App() {
-  const theme = useSelector((state) => state.settings.items.theme); // NEW: Get the current theme
+  const theme = useSelector((state) => state.settings.items.theme);
 
   return (
     <BrowserRouter>
-      {/* NEW: Apply the theme class to a wrapper div */}
       <div className={`app-container ${theme === 'light' ? 'theme-light' : ''}`}>
         <AppRouter />
         <Toaster position="top-right" />
+        <SettingsMenu /> {/* NEW: Add the SettingsMenu component here */}
       </div>
     </BrowserRouter>
   );

@@ -18,7 +18,6 @@ const OrderForm = ({ order, onSave, onCancel, customers, products }) => {
     });
 
     const onSubmit = (data) => {
-        // Filter out any line items that might not have a product selected
         const validItems = data.items.filter(item => item.productId).map(item => ({
             productId: parseInt(item.productId),
             quantity: parseInt(item.quantity)

@@ -1,9 +1,9 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
+import { useTranslation } from 'react-i18next';
 
 const LeadForm = ({ lead, onSave, onCancel, agents }) => {
-    const { t } = useTranslation(); // NEW: Get translation function
+    const { t } = useTranslation();
     const { register, handleSubmit, formState: { errors } } = useForm({
         defaultValues: lead || {
             name: '',
@@ -31,7 +31,7 @@ const LeadForm = ({ lead, onSave, onCancel, agents }) => {
             </div>
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">{t('email')}</label>
-                <input type="email" {...register('email', { pattern: { value: /^\S+@\S+$/i, message: t('invalidEmail') } })} className="form-input" />
+                <input type="email" {...register('email', { pattern: { value: /^\S+@\S+$/i, message: t('invalidEmailAddress') } })} className="form-input" />
                 {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
             </div>
             <div>
