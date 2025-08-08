@@ -13,6 +13,7 @@ import {
     CircleDollarSign,
     Handshake,
     ChevronDown,
+    Settings,
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -64,6 +65,7 @@ const Sidebar = () => {
             links: [
                 { name: 'Agents', path: '/agents', icon: <Shield size={20} /> },
                 { name: 'Employees', path: '/employees', icon: <Users size={20} /> },
+                { name: 'Settings', path: '/settings', icon: <Settings size={20} /> }, // New link for settings
             ],
             adminOnly: true
         },

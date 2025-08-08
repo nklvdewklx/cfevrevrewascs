@@ -16,7 +16,8 @@ import purchaseOrdersReducer from '../features/purchasing/purchaseOrdersSlice';
 import productionOrdersReducer from '../features/production/productionOrdersSlice';
 import leadsReducer from '../features/sales/leadsSlice';
 import approvalsReducer from '../features/approvals/approvalsSlice';
-import posReducer from '../features/pos/posSlice'; // NEW
+import posReducer from '../features/pos/posSlice'; 
+import settingsReducer from '../features/settings/settingsSlice'; // Import the new settings slice
 
 // Load the persisted state from local storage
 const preloadedState = storageService.loadState();
@@ -37,7 +38,9 @@ export const store = configureStore({
     productionOrders: productionOrdersReducer,
     leads: leadsReducer,
     approvals: approvalsReducer,
-    pos: posReducer, // NEW
+    pos: posReducer, 
+    settings: settingsReducer,
+
   },
   preloadedState, // Initialize the store with the persisted state
 });

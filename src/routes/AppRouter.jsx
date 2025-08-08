@@ -33,6 +33,7 @@ import AgentDetailsPage from '../features/users/AgentDetailsPage';
 import OrderDetailPage from '../features/orders/OrderDetailPage';
 import ProductionOrderDetailsPage from '../features/production/ProductionOrderDetailsPage';
 import InvoiceDetailsPage from '../features/orders/InvoiceDetailsPage'; // NEW: Import the new detail page
+import SettingsPage from '../features/settings/SettingsPage'; // Import the new settings page
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -72,6 +73,7 @@ const AppRouter = () => {
                 <Route path="agents" element={<ProtectedRoute roles={['admin']}><AgentsPage /></ProtectedRoute>} />
                 <Route path="agents/:agentId" element={<ProtectedRoute roles={['admin']}><AgentDetailsPage /></ProtectedRoute>} />
                 <Route path="employees" element={<ProtectedRoute roles={['admin']}><EmployeesPage /></ProtectedRoute>} />
+                <Route path="settings" element={<ProtectedRoute roles={['admin']}><SettingsPage /></ProtectedRoute>} /> {/* New route for settings */}
             </Route>
 
             <Route path="/agent" element={<ProtectedRoute roles={['sales']}><AgentLayout /></ProtectedRoute>}>
