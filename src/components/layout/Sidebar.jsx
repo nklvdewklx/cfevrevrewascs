@@ -18,6 +18,7 @@ import {
     Settings,
     ClipboardList,
     History,
+    SearchCode // NEW: Icon
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -59,7 +60,7 @@ const Sidebar = () => {
             links: [
                 { name: 'finishedProducts', path: '/inventory', icon: <Boxes size={20} /> },
                 { name: 'components', path: '/inventory/components', icon: <ClipboardList size={20} /> },
-                { name: 'inventoryLedger', path: '/inventory/ledger', icon: <History size={20} /> }, // UPDATED: Path and name
+                { name: 'inventoryLedger', path: '/inventory/ledger', icon: <History size={20} /> },
                 { name: 'productionHistory', path: '/production-orders', icon: <HardHat size={20} /> },
             ],
         },
@@ -74,6 +75,7 @@ const Sidebar = () => {
             title: 'reporting',
             links: [
                 { name: 'reports', path: '/reports', icon: <BarChart size={20} /> },
+                { name: 'traceabilityReport', path: '/reports/traceability', icon: <SearchCode size={20} /> }, // NEW: Link
             ],
         },
         {

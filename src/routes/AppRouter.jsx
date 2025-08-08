@@ -15,11 +15,12 @@ import OrdersPage from '../features/orders/OrdersPage';
 import InvoicesPage from '../features/orders/InvoicesPage';
 import ProductsPage from '../features/inventory/ProductsPage';
 import ComponentsPage from '../features/inventory/ComponentsPage';
-import InventoryLedgerPage from '../features/inventory/InventoryLedgerPage'; // UPDATED: Renamed component
+import InventoryLedgerPage from '../features/inventory/InventoryLedgerPage';
 import SuppliersPage from '../features/purchasing/SuppliersPage';
 import PurchaseOrdersPage from '../features/purchasing/PurchaseOrdersPage';
 import ProductionOrdersPage from '../features/production/ProductionOrdersPage';
 import ReportsPage from '../features/reports/ReportsPage';
+import TraceabilityReportPage from '../features/reports/TraceabilityReportPage'; // NEW: Import
 import AgentsPage from '../features/users/AgentsPage';
 import EmployeesPage from '../features/users/EmployeesPage';
 import LeadsPage from '../features/sales/LeadsPage';
@@ -71,13 +72,14 @@ const AppRouter = () => {
                 <Route path="inventory" element={<ProductsPage />} />
                 <Route path="inventory/components" element={<ComponentsPage />} />
                 <Route path="inventory/components/:componentId" element={<ComponentDetailsPage />} />
-                <Route path="inventory/ledger" element={<InventoryLedgerPage />} /> {/* UPDATED: Renamed path */}
+                <Route path="inventory/ledger" element={<InventoryLedgerPage />} />
                 <Route path="inventory/:productId" element={<ProductDetailsPage />} />
                 <Route path="suppliers" element={<SuppliersPage />} />
                 <Route path="purchase-orders" element={<PurchaseOrdersPage />} />
                 <Route path="production-orders" element={<ProductionOrdersPage />} />
                 <Route path="production-orders/:productionOrderId" element={<ProductionOrderDetailsPage />} />
                 <Route path="reports" element={<ReportsPage />} />
+                <Route path="reports/traceability" element={<TraceabilityReportPage />} /> {/* NEW: Route */}
                 <Route path="agents" element={<ProtectedRoute roles={['admin']}><AgentsPage /></ProtectedRoute>} />
                 <Route path="agents/:agentId" element={<ProtectedRoute roles={['admin']}><AgentDetailsPage /></ProtectedRoute>} />
                 <Route path="employees" element={<ProtectedRoute roles={['admin']}><EmployeesPage /></ProtectedRoute>} />
