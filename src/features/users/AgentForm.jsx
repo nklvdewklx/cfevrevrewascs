@@ -1,22 +1,23 @@
 import React from 'react';
-import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
+import { useFormWithValidation } from '../../hooks/useFormWithValidation';
+import { useTranslation } from 'react-i18next';
 
 const AgentForm = ({ agent, onSave, onCancel }) => {
-    const { t } = useTranslation(); // NEW: Get translation function
-    const { register, handleSubmit, formState: { errors } } = useForm({
-        defaultValues: agent || {
+    const { t } = useTranslation();
+    const { register, handleSubmit, errors } = useFormWithValidation( // CORRECTED: Get errors from the hook
+        agent || {
             name: '',
             email: '',
             phone: '',
             role: 'Agent',
-        }
-    });
+        },
+        onSave
+    );
 
     const roles = ['Agent', 'Administrator'];
 
     return (
-        <form onSubmit={handleSubmit(onSave)} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">{t('fullName')}</label>
                 <input {...register('name', { required: t('agentNameRequired') })} className="form-input" />
@@ -38,7 +39,7 @@ const AgentForm = ({ agent, onSave, onCancel }) => {
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">{t('role')}</label>
                 <select {...register('role')} className="form-select">
-                    {roles.map(r => <option key={r} value={r}>{t(r)}</option>)}
+                    {roles.map(r => <option key={r} value={r}>{t(r.replace(/\s/g, ''))}</option>)}
                 </select>
             </div>
             <div className="pt-4 flex justify-end space-x-4">

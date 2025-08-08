@@ -1,21 +1,20 @@
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import Button from '../../components/common/Button';
-import { useTranslation } from 'react-i18next';
+import { useFormWithValidation } from '../../hooks/useFormWithValidation'; // UPDATED: Import the new hook
 
 const SupplierForm = ({ supplier, onSave, onCancel }) => {
-    const { t } = useTranslation();
-    const { register, handleSubmit, formState: { errors } } = useForm({
-        defaultValues: supplier || {
+    const { register, handleSubmit, errors, t } = useFormWithValidation(
+        supplier || {
             name: '',
             contactPerson: '',
             email: '',
             phone: '',
-        }
-    });
+        },
+        onSave
+    );
 
     return (
-        <form onSubmit={handleSubmit(onSave)} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">{t('companyName')}</label>
                 <input {...register('name', { required: t('companyNameRequired') })} className="form-input" />

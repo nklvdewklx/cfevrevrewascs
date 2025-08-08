@@ -1,17 +1,19 @@
 import React from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useFormWithValidation } from '../../hooks/useFormWithValidation';
+import { useFieldArray } from 'react-hook-form';
 import { Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const PurchaseOrderForm = ({ po, onSave, onCancel, suppliers, components }) => {
     const { t } = useTranslation();
-    const { register, control, handleSubmit, formState: { errors } } = useForm({
-        defaultValues: po || {
+    const { register, handleSubmit, control, errors } = useFormWithValidation(
+        po || {
             supplierId: suppliers[0]?.id || '',
             status: 'draft',
             items: [{ componentId: components[0]?.id || '', quantity: 1 }],
-        }
-    });
+        },
+        onSave
+    );
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -19,7 +21,7 @@ const PurchaseOrderForm = ({ po, onSave, onCancel, suppliers, components }) => {
     });
 
     return (
-        <form onSubmit={handleSubmit(onSave)} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block mb-1 text-sm text-custom-grey">{t('supplier')}</label>

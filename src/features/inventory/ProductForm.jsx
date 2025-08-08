@@ -1,10 +1,10 @@
 import React from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { Plus, Trash2 } from 'lucide-react';
-import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
+import { useTranslation } from 'react-i18next';
 
 const ProductForm = ({ product, onSave, onCancel, components }) => {
-    const { t } = useTranslation(); // NEW: Get translation function
+    const { t } = useTranslation();
     const { register, control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: product || {
             name: '',
@@ -27,7 +27,6 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
     });
 
     const onSubmit = (data) => {
-        // Convert numbers from strings before saving
         const dataToSave = {
             ...data,
             cost: parseFloat(data.cost),
