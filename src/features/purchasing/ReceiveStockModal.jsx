@@ -1,0 +1,47 @@
+import React from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+
+const ReceiveStockModal = ({ purchaseOrder, components, onReceive, onCancel }) => {
+    const { register, control, handleSubmit } = useForm({
+        defaultValues: {
+            items: purchaseOrder.items.map(item => ({
+                componentId: item.componentId,
+                quantity: item.quantity,
+                supplierLotNumber: '',
+            }))
+        }
+    });
+
+    const { fields } = useFieldArray({ control, name: 'items' });
+
+    return (
+        <form onSubmit={handleSubmit(onReceive)}>
+            <div className="space-y-4">
+                {fields.map((field, index) => {
+                    const component = components.find(c => c.id === field.componentId);
+                    return (
+                        <div key={field.id} className="grid grid-cols-3 gap-4 items-center">
+                            <div className="col-span-2">
+                                <p className="font-semibold text-white">{component?.name || 'N/A'}</p>
+                                <p className="text-sm text-custom-grey">Quantity to Receive: {field.quantity}</p>
+                            </div>
+                            <div>
+                                <label className="block mb-1 text-xs text-custom-grey">Supplier Lot #</label>
+                                <input
+                                    {...register(`items.${index}.supplierLotNumber`, { required: true })}
+                                    className="form-input"
+                                />
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+            <div className="pt-6 flex justify-end space-x-4">
+                <button type="button" onClick={onCancel} className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg">Cancel</button>
+                <button type="submit" className="bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded-lg">Confirm Receipt</button>
+            </div>
+        </form>
+    );
+};
+
+export default ReceiveStockModal;
