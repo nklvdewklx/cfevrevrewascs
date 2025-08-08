@@ -84,7 +84,7 @@ export const fulfillOrderWithSpecificBatches = createAsyncThunk(
 );
 
 const persistedState = storageService.loadState();
-const initialState = persistedState?.products?.items || defaultDb.inventory;
+const initialState = persistedState?.products?.items || defaultDb.products; 
 
 const productsSlice = createGenericSlice({
     name: 'products',

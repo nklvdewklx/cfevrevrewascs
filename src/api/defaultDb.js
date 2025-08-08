@@ -7,99 +7,87 @@ const employees = [
 ];
 
 export const defaultDb = {
-    // Users for login
-    users: [
-        { id: 1, username: 'admin', password: '123', role: 'admin', name: 'System Admin' },
-        { id: 2, username: 'john.doe', password: '123', role: 'sales', name: 'John Doe' },
-        { id: 3, username: 'jane.inv', password: '123', role: 'inventory', name: 'Jane Inventory' },
-        { id: 4, username: 'finance.user', password: '123', role: 'finance', name: 'Finance User' }
-    ],
-    // Agents for sales
     agents: [
         { id: 1, name: 'John Doe', email: 'john.doe@roctec.com', phone: '+31 6 12345678', role: 'Agent', lat: 52.370216, lng: 4.895115 },
         { id: 2, name: 'Jane Smith', email: 'jane.smith@roctec.com', phone: '+31 6 87654321', role: 'Agent', lat: 52.090737, lng: 5.121420 },
     ],
-    // Customers assigned to agents
+    leads: [
+        { id: 1, name: 'Alina Popescu', company: 'Gourmet Imports SRL', email: 'alina.p@gourmet.ro', phone: '0722 123 456', status: 'new', agentId: 1 },
+        { id: 2, name: 'Mihai Ionescu', company: 'Delicii Rapide', email: 'mihai@delicii.ro', phone: '0745 987 654', status: 'contacted', agentId: 2 },
+        { id: 3, name: 'Elena Constantinescu', company: 'Bio Fresh Market', email: 'elena.c@biofresh.ro', phone: '0733 555 888', status: 'qualified', agentId: 1 }
+    ],
+    employees,
+
+    quotes: [
+        { id: 1, quoteNumber: 'Q-2025-001', leadId: 3, customerId: null, date: '2025-08-06', expiryDate: '2025-09-05', status: 'sent', items: [{ productId: 201, quantity: 200 }]},
+        { id: 2, quoteNumber: 'Q-2025-002', leadId: null, customerId: 101, date: '2025-08-07', expiryDate: '2025-09-06', status: 'accepted', items: [{ productId: 201, quantity: 50 }, { productId: 202, quantity: 100 }]}
+    ],
     customers: [
         { id: 101, name: 'GrocerChoice B.V.', company: 'GrocerChoice B.V.', email: 'purchase@grocerchoice.com', phone: '+31 174 123456', agentId: 1, lat: 52.379189, lng: 4.899431, notes: [], visitSchedule: { day: 'Sunday', frequency: 'weekly' } },
         { id: 102, name: 'EuroFood Imports', company: 'EuroFood Imports', email: 'ben.j@eurofood.com', phone: '+31 20 87654321', agentId: 2, lat: 52.0812, lng: 5.1252, notes: [], visitSchedule: { day: 'Sunday', frequency: 'weekly' } },
         { id: 103, name: 'Amsterdam Deli', company: 'Amsterdam Deli', email: 'orders@amdeli.com', phone: '+31 20 12345678', agentId: 1, lat: 52.3676, lng: 4.9041, notes: [], visitSchedule: { day: 'Sunday', frequency: 'weekly' } }
     ],
-    // Suppliers of raw materials
+    customerContracts: [
+        { id: 1, customerId: 101, productId: 201, contractPrice: 1.95, startDate: "2025-01-01", endDate: "2025-12-31" },
+        { id: 2, customerId: 102, productId: 201, contractPrice: 2.10, startDate: "2025-06-01", endDate: "2025-08-31" }
+    ],
     suppliers: [
         { id: 501, name: 'Fresh Veggie Farms', contactPerson: 'David Chen', email: 'sales@freshveg.farm', phone: '+31 6 11112222' },
         { id: 502, name: 'Packaging Solutions B.V.', contactPerson: 'Maria Garcia', email: 'maria.g@packagingsolutions.com', phone: '+31 10 9998888' },
         { id: 503, name: 'Spice & Herb Traders', contactPerson: 'Klaus Schmidt', email: 'k.schmidt@spice-traders.de', phone: '+49 30 123456' },
     ],
-    // Raw materials (components) with initial stock batches
     components: [
-        { id: 701, name: 'Cucumbers (kg)', cost: 1.50, reorderPoint: 100, stockBatches: [
-            { quantity: 350, supplierLotNumber: 'FVF-JUL25-01', receivedDate: '2025-07-25' }
-        ]},
-        { id: 702, name: 'Vinegar (L)', cost: 0.80, reorderPoint: 50, stockBatches: [
-            { quantity: 120, supplierLotNumber: 'CHEM-VIN-07A', receivedDate: '2025-07-22' }
-        ]},
-        { id: 703, name: 'Dill (g)', cost: 0.05, reorderPoint: 500, stockBatches: [
-            { quantity: 3000, supplierLotNumber: 'SHT-DILL-H1', receivedDate: '2025-07-20' }
-        ]},
-        { id: 704, name: 'Glass Jar (500g)', cost: 0.25, reorderPoint: 1000, stockBatches: [
-            { quantity: 800, supplierLotNumber: 'PACK-500G-B2', receivedDate: '2025-07-30' }
-        ]},
-        { id: 705, name: 'Jar Lid', cost: 0.05, reorderPoint: 1000, stockBatches: [
-            { quantity: 1200, supplierLotNumber: 'PACK-LID-B2', receivedDate: '2025-07-30' }
-        ]},
+        { id: 701, name: 'Cucumbers (kg)', cost: 1.50, reorderPoint: 100, stockBatches: [{ quantity: 50, supplierLotNumber: 'FVF-202507-1', receivedDate: '2025-07-20' }] },
+        { id: 702, name: 'Vinegar (L)', cost: 0.80, reorderPoint: 50, stockBatches: [{ quantity: 75, supplierLotNumber: 'FVF-202507-2', receivedDate: '2025-07-20' }] },
+        { id: 703, name: 'Dill (g)', cost: 0.05, reorderPoint: 500, stockBatches: [{ quantity: 1500, supplierLotNumber: 'SHT-202507-1', receivedDate: '2025-07-20' }] },
+        { id: 704, name: 'Glass Jar (500g)', cost: 0.25, reorderPoint: 1000, stockBatches: [{ quantity: 800, supplierLotNumber: 'PS-202507-1', receivedDate: '2025-07-22' }] },
+        { id: 705, name: 'Jar Lid', cost: 0.05, reorderPoint: 1000, stockBatches: [{ quantity: 1200, supplierLotNumber: 'PS-202507-1', receivedDate: '2025-07-22' }] },
+        { id: 706, name: 'Kalamata Olives (kg)', cost: 4.50, reorderPoint: 50, stockBatches: [{ quantity: 100, supplierLotNumber: 'FVF-202507-3', receivedDate: '2025-07-25' }] },
+        { id: 707, name: 'Olive Oil (L)', cost: 3.50, reorderPoint: 20, stockBatches: [{ quantity: 30, supplierLotNumber: 'FVF-202507-4', receivedDate: '2025-07-25' }] },
     ],
-    // Finished goods with their Bill of Materials
-    products: [
+    inventory: [
         {
-            id: 201, name: 'Dill Pickles (500g Jar)', sku: 'PIC-DIL-500G', cost: 1.25, status: 'active', reorderPoint: 50,
-            stockBatches: [
-                { lotNumber: 'PIC-DIL-500G-20250801-001', quantity: 80, expiryDate: '2026-08-01' }
-            ],
+            id: 201, name: 'Dill Pickles (500g Jar)', sku: 'PIC-DIL-500G', cost: 1.25,
+            stockBatches: [],
             pricingTiers: [ { minQty: 1, price: 2.50 }, { minQty: 100, price: 2.20 }, { minQty: 500, price: 2.00 } ],
             bom: [
                 { componentId: 701, quantity: 0.4 }, { componentId: 702, quantity: 0.2 },
                 { componentId: 703, quantity: 10 }, { componentId: 704, quantity: 1 }, { componentId: 705, quantity: 1 }
             ],
             shelfLifeDays: 365
-        }
+        },
+        {
+            id: 202, name: 'Marinated Olives (250g Jar)', sku: 'OLV-MAR-250G', cost: 2.10,
+            stockBatches: [],
+            pricingTiers: [ { minQty: 1, price: 4.00 }, { minQty: 100, price: 3.75 } ],
+            bom: [
+                { componentId: 706, quantity: 0.2 }, { componentId: 707, quantity: 0.1 },
+                { componentId: 704, quantity: 1 }, { componentId: 705, quantity: 1 }
+            ],
+            shelfLifeDays: 240
+        },
     ],
-    // Historical production order that created the initial stock of pickles
-    productionOrders: [
-        { id: 1, productId: 201, lotNumber: 'PIC-DIL-500G-20250801-001', quantityProduced: 100, date: '2025-08-01', 
-          componentsUsed: [
-            { componentId: 701, quantityUsed: 40, supplierLotNumber: 'FVF-JUL25-01' },
-            { componentId: 702, quantityUsed: 20, supplierLotNumber: 'CHEM-VIN-07A' },
-            { componentId: 703, quantityUsed: 1000, supplierLotNumber: 'SHT-DILL-H1' },
-            { componentId: 704, quantityUsed: 100, supplierLotNumber: 'PACK-500G-B2' },
-            { componentId: 705, quantityUsed: 100, supplierLotNumber: 'PACK-LID-B2' }
-          ]
-        }
-    ],
-    // Historical and pending sales orders
     orders: [
-        { id: 301, customerId: 101, agentId: 1, date: '2025-08-05', status: 'completed', items: [ { productId: 201, quantity: 20 } ] },
-        { id: 302, customerId: 103, agentId: 1, date: '2025-08-07', status: 'pending', items: [ { productId: 201, quantity: 50 } ] },
+        { id: 301, customerId: 101, agentId: 1, date: '2025-07-25', status: 'completed', items: [ { productId: 201, quantity: 50 } ], signature: null, shippingCarrier: null, trackingNumber: null },
+        { id: 302, customerId: 102, agentId: 2, date: '2025-07-24', status: 'shipped', items: [ { productId: 202, quantity: 100 } ], signature: null, shippingCarrier: 'DHL', trackingNumber: 'JD0123456789' },
     ],
-    // Historical and pending purchase orders
-    purchaseOrders: [
-        { id: 601, poNumber: 'PO-2025-001', supplierId: 501, issueDate: '2025-07-25', status: 'fulfilled', items: [ { componentId: 701, quantity: 400 } ] },
-        { id: 602, poNumber: 'PO-2025-002', supplierId: 502, issueDate: '2025-07-30', status: 'fulfilled', items: [ { componentId: 704, quantity: 1000 }, { componentId: 705, quantity: 1000 } ] },
-        { id: 603, poNumber: 'PO-2025-003', supplierId: 503, issueDate: '2025-08-06', status: 'sent', items: [ { componentId: 703, quantity: 5000 } ] }
-    ],
-    // Pre-populated inventory ledger that tells the story of the data
-    inventoryLedger: [
-        { id: 6, date: '2025-08-05T10:00:00Z', itemType: 'product', itemId: 201, quantityChange: -20, reason: 'Sale - Order #301 (Batch: PIC-DIL-500G-20250801-001)', userId: 1 },
-        { id: 5, date: '2025-08-01T09:00:00Z', itemType: 'product', itemId: 201, quantityChange: 100, reason: 'Production Order for 100x Dill Pickles (500g Jar) (Lot: PIC-DIL-500G-20250801-001)', userId: 1 },
-        { id: 4, date: '2025-08-01T08:59:00Z', itemType: 'component', itemId: 701, quantityChange: -40, reason: 'Production Order for 100x Dill Pickles (500g Jar) (Lot: PIC-DIL-500G-20250801-001)', userId: 1 },
-        { id: 3, date: '2025-07-30T14:00:00Z', itemType: 'component', itemId: 704, quantityChange: 1000, reason: 'Received from PO #PO-2025-002', userId: 1 },
-        { id: 2, date: '2025-07-25T11:30:00Z', itemType: 'component', itemId: 701, quantityChange: 400, reason: 'Received from PO #PO-2025-001', userId: 1 },
-        { id: 1, date: '2025-07-22T09:00:00Z', itemType: 'component', itemId: 702, quantityChange: 200, reason: 'Manual Adjustment: Initial Stock Count', userId: 1 },
-    ],
-    // --- Other Slices (empty to start) ---
-    leads: [],
-    quotes: [],
     invoices: [],
-    approvals: [],
-    employees,
+    creditNotes: [],
+    purchaseOrders: [
+        { id: 601, poNumber: 'PO-2025-001', supplierId: 501, issueDate: '2025-07-20', status: 'sent', items: [ { componentId: 701, quantity: 500, supplierLotNumber: null } ] },
+        { id: 602, poNumber: 'PO-2025-002', supplierId: 502, issueDate: '2025-07-22', status: 'sent', items: [ { componentId: 704, quantity: 2000, supplierLotNumber: null }, { componentId: 705, quantity: 2000, supplierLotNumber: null } ] }
+    ],
+    productionOrders: [],
+    events: [],
+    notifications: [],
+    taxRates: [
+        { id: 1, name: 'TVA Standard', rate: 0.19, isDefault: true },
+        { id: 2, name: 'TVA Redusă (Alimente)', rate: 0.09, isDefault: false }
+    ],
+    users: [
+        { id: 1, username: 'admin', password: '123', role: 'admin', name: 'System Admin' },
+        { id: 2, username: 'john.doe', password: '123', role: 'sales', name: 'John Doe' },
+        { id: 3, username: 'jane.inv', password: '123', role: 'inventory', name: 'Jane Inventory' },
+        { id: 4, username: 'finance.user', password: '123', role: 'finance', name: 'Finance User' }
+    ]
 };
