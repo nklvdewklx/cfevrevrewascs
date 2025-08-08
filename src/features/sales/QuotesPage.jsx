@@ -7,6 +7,7 @@ import QuoteForm from './QuoteForm';
 import { addQuote, updateQuote } from '../orders/quotesSlice';
 import { addOrder } from '../orders/ordersSlice';
 import { showToast } from '../../lib/toast';
+import Button from '../../components/common/Button';
 
 const QuotesPage = () => {
     const dispatch = useDispatch();
@@ -95,10 +96,10 @@ const QuotesPage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-white">Manage Quotes</h1>
-                <button onClick={() => handleOpenModal()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2">
+                <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2">
                     <Plus size={20} />
                     <span>New Quote</span>
-                </button>
+                </Button>
             </div>
             <DataTable headers={headers} data={quotes} renderRow={renderRow} />
             <Modal title={editingQuote ? 'Edit Quote' : 'New Quote'} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>

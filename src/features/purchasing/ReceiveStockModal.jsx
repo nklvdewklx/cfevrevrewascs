@@ -1,5 +1,6 @@
 import React from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
+import Button from '../../components/common/Button';
 
 const ReceiveStockModal = ({ purchaseOrder, components, onReceive, onCancel }) => {
     const { register, control, handleSubmit } = useForm({
@@ -37,8 +38,8 @@ const ReceiveStockModal = ({ purchaseOrder, components, onReceive, onCancel }) =
                 })}
             </div>
             <div className="pt-6 flex justify-end space-x-4">
-                <button type="button" onClick={onCancel} className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg">Cancel</button>
-                <button type="submit" className="bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded-lg">Confirm Receipt</button>
+                <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
+                <Button type="submit" variant="primary">Confirm Receipt</Button>
             </div>
         </form>
     );

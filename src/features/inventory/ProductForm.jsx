@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import BillOfMaterials from '../production/BillOfMaterials';
+import Button from '../../components/common/Button';
 
 const ProductForm = ({ product, onSave, onCancel, components }) => {
     const [formData, setFormData] = useState({
@@ -33,7 +34,6 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
     // --- Pricing Tier Handlers ---
     const handleTierChange = (index, field, value) => {
         const newTiers = [...formData.pricingTiers];
-        // FIX: Create a new object to prevent state mutation
         const updatedTier = { ...newTiers[index], [field]: value };
         newTiers[index] = updatedTier;
         setFormData(prev => ({ ...prev, pricingTiers: newTiers }));
@@ -48,7 +48,6 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
     // --- Bill of Materials (BOM) Handlers ---
     const handleBomChange = (index, field, value) => {
         const newBom = [...formData.bom];
-        // FIX: Create a new object to prevent state mutation
         const updatedBomItem = { ...newBom[index], [field]: value };
         newBom[index] = updatedBomItem;
         setFormData(prev => ({ ...prev, bom: newBom }));
@@ -62,7 +61,6 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Convert numbers from strings before saving
         const dataToSave = {
             ...formData,
             cost: parseFloat(formData.cost),
@@ -90,10 +88,13 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
                     <div key={index} className="flex items-center space-x-2">
                         <input type="number" placeholder="Min Qty" value={tier.minQty} onChange={(e) => handleTierChange(index, 'minQty', e.target.value)} className="form-input w-1/3" min="1" />
                         <input type="number" placeholder="Price" step="0.01" value={tier.price} onChange={(e) => handleTierChange(index, 'price', e.target.value)} className="form-input flex-grow" />
-                        <button type="button" onClick={() => removeTier(index)} className="p-2 text-red-400"><Trash2 size={18} /></button>
+                        <Button type="button" onClick={() => removeTier(index)} variant="ghost-glow" size="sm" className="text-red-400"><Trash2 size={18} /></Button>
                     </div>
                 ))}
-                <button type="button" onClick={addTier} className="text-sm text-blue-400 flex items-center space-x-2"><Plus size={16} /><span>Add Tier</span></button>
+                <Button type="button" onClick={addTier} variant="ghost" className="text-blue-400 flex items-center space-x-2" size="sm">
+                    <Plus size={16} />
+                    <span>Add Tier</span>
+                </Button>
             </div>
 
             {/* Bill of Materials */}
@@ -108,8 +109,8 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
             </div>
 
             <div className="pt-4 flex justify-end space-x-4">
-                <button type="button" onClick={onCancel} className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg">Cancel</button>
-                <button type="submit" className="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg">Save Product</button>
+                <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
+                <Button type="submit" variant="primary">Save Product</Button>
             </div>
         </form>
     );

@@ -18,6 +18,8 @@ const Button = ({ children, onClick, type = 'button', variant = 'primary', size 
         buttonClasses += ` btn-secondary`;
     } else if (variant === 'glass') {
         buttonClasses += ` btn-glass`;
+    } else if (variant === 'ghost-glow') {
+        buttonClasses += ` btn-ghost-glow`;
     }
 
     // Apply size-specific styles

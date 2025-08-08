@@ -5,9 +5,9 @@ import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import LeadForm from './LeadForm';
 import { addLead, updateLead, deleteLead } from './leadsSlice';
-import { addCustomer } from '../customers/customersSlice'; // To add the new customer
+import { addCustomer } from '../customers/customersSlice';
 import { showToast } from '../../lib/toast';
-import Button from '../../components/common/Button'; // NEW: Import the reusable Button component
+import Button from '../../components/common/Button';
 
 const LeadsPage = () => {
     const dispatch = useDispatch();
@@ -43,7 +43,6 @@ const LeadsPage = () => {
         }
     };
 
-    // --- NEW: Business Logic for Lead Conversion ---
     const handleConvertLead = (lead) => {
         if (window.confirm(`Convert "${lead.name}" to a new customer? The original lead will be deleted.`)) {
             const newCustomerData = {
@@ -52,7 +51,6 @@ const LeadsPage = () => {
                 email: lead.email,
                 phone: lead.phone,
                 agentId: lead.agentId,
-                // Add default properties for a new customer
                 lat: 52.3676,
                 lng: 4.9041,
                 notes: [],
@@ -78,12 +76,12 @@ const LeadsPage = () => {
                 <td className="p-4">
                     <div className="flex space-x-4">
                         {lead.status === 'qualified' && (
-                            <Button onClick={() => handleConvertLead(lead)} variant="ghost" className="text-green-400 hover:text-green-300" title="Convert to Customer">
+                            <Button onClick={() => handleConvertLead(lead)} variant="ghost" className="text-green-400 hover:text-green-300" title="Convert to Customer" size="sm">
                                 <UserCheck size={16} />
                             </Button>
                         )}
-                        <Button onClick={() => handleOpenModal(lead)} variant="ghost" className="text-custom-light-blue hover:text-white"><Edit size={16} /></Button>
-                        <Button onClick={() => handleDelete(lead.id)} variant="ghost" className="text-red-400 hover:text-red-300"><Trash2 size={16} /></Button>
+                        <Button onClick={() => handleOpenModal(lead)} variant="ghost" className="text-custom-light-blue hover:text-white" size="sm"><Edit size={16} /></Button>
+                        <Button onClick={() => handleDelete(lead.id)} variant="ghost" className="text-red-400 hover:text-red-300" size="sm"><Trash2 size={16} /></Button>
                     </div>
                 </td>
             </tr>
@@ -94,7 +92,7 @@ const LeadsPage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-white">Manage Leads</h1>
-                <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2">
+                <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2" size="sm">
                     <Plus size={20} />
                     <span>New Lead</span>
                 </Button>

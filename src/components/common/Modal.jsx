@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import Button from './Button';
 
 const Modal = ({ title, isOpen, onClose, children, footer }) => {
     if (!isOpen) return null;
@@ -10,9 +11,9 @@ const Modal = ({ title, isOpen, onClose, children, footer }) => {
                 {/* Header */}
                 <div className="p-4 border-b border-white/10 flex justify-between items-center">
                     <h2 className="text-xl font-bold text-white">{title}</h2>
-                    <button onClick={onClose} className="text-custom-grey hover:text-white">
+                    <Button onClick={onClose} variant="ghost" size="sm">
                         <X size={24} />
-                    </button>
+                    </Button>
                 </div>
 
                 {/* Body */}

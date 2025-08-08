@@ -5,6 +5,7 @@ import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import EmployeeForm from './EmployeeForm';
 import { addEmployee, updateEmployee, deleteEmployee } from './employeesSlice';
+import Button from '../../components/common/Button';
 
 const EmployeesPage = () => {
     const dispatch = useDispatch();
@@ -38,7 +39,13 @@ const EmployeesPage = () => {
         }
     };
 
-    const headers = ['Name', 'Department', 'Role', 'Email', 'Actions'];
+    const headers = [
+        { key: 'name', label: 'Name', sortable: true },
+        { key: 'department', label: 'Department', sortable: true },
+        { key: 'role', label: 'Role', sortable: true },
+        { key: 'email', label: 'Email', sortable: true },
+        { key: 'actions', label: 'Actions', sortable: false },
+    ];
 
     const renderRow = (employee) => (
         <tr key={employee.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
@@ -48,8 +55,8 @@ const EmployeesPage = () => {
             <td className="p-4">{employee.email}</td>
             <td className="p-4">
                 <div className="flex space-x-4">
-                    <button onClick={() => handleOpenModal(employee)} className="text-custom-light-blue hover:text-white"><Edit size={16} /></button>
-                    <button onClick={() => handleDelete(employee.id)} className="text-red-400 hover:text-red-300"><Trash2 size={16} /></button>
+                    <Button onClick={() => handleOpenModal(employee)} variant="ghost-glow" size="sm" className="text-custom-light-blue"><Edit size={16} /></Button>
+                    <Button onClick={() => handleDelete(employee.id)} variant="ghost-glow" size="sm" className="text-red-400"><Trash2 size={16} /></Button>
                 </div>
             </td>
         </tr>
@@ -59,10 +66,10 @@ const EmployeesPage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-white">Manage Employees</h1>
-                <button onClick={() => handleOpenModal()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2">
+                <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2" size="sm">
                     <Plus size={20} />
                     <span>New Employee</span>
-                </button>
+                </Button>
             </div>
             <DataTable headers={headers} data={employees} renderRow={renderRow} />
             <Modal title={editingEmployee ? 'Edit Employee' : 'Add New Employee'} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>

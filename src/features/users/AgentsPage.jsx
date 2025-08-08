@@ -6,6 +6,7 @@ import Modal from '../../components/common/Modal';
 import AgentForm from './AgentForm';
 import { addAgent, updateAgent, deleteAgent } from './agentsSlice';
 import { Link } from 'react-router-dom';
+import Button from '../../components/common/Button';
 
 const AgentsPage = () => {
     const dispatch = useDispatch();
@@ -40,7 +41,6 @@ const AgentsPage = () => {
         }
     };
 
-    // NEW: Updated headers for the new DataTable
     const headers = [
         { key: 'name', label: 'Name', sortable: true },
         { key: 'email', label: 'Email', sortable: true },
@@ -61,8 +61,8 @@ const AgentsPage = () => {
             <td className="p-4">{agent.role}</td>
             <td className="p-4">
                 <div className="flex space-x-4">
-                    <button onClick={() => handleOpenModal(agent)} className="text-custom-light-blue hover:text-white"><Edit size={16} /></button>
-                    <button onClick={() => handleDelete(agent.id)} className="text-red-400 hover:text-red-300"><Trash2 size={16} /></button>
+                    <Button onClick={() => handleOpenModal(agent)} variant="ghost-glow" size="sm" className="text-custom-light-blue"><Edit size={16} /></Button>
+                    <Button onClick={() => handleDelete(agent.id)} variant="ghost-glow" size="sm" className="text-red-400"><Trash2 size={16} /></Button>
                 </div>
             </td>
         </tr>
@@ -72,10 +72,10 @@ const AgentsPage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-white">Manage Agents</h1>
-                <button onClick={() => handleOpenModal()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2">
+                <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2" size="sm">
                     <Plus size={20} />
                     <span>New Agent</span>
-                </button>
+                </Button>
             </div>
             <DataTable headers={headers} data={agents} renderRow={renderRow} />
             <Modal title={editingAgent ? 'Edit Agent' : 'Add New Agent'} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>

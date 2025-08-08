@@ -10,7 +10,7 @@ import { generateInvoiceForOrder } from './invoicesSlice';
 import { showToast } from '../../lib/toast';
 import { Link } from 'react-router-dom';
 import { calculateOrderTotal } from '../../lib/dataHelpers';
-import Button from '../../components/common/Button'; // NEW: Import the reusable Button component
+import Button from '../../components/common/Button';
 
 const OrdersPage = () => {
     const dispatch = useDispatch();
@@ -106,10 +106,10 @@ const OrdersPage = () => {
                 </td>
                 <td className="p-4">
                     <div className="flex space-x-4">
-                        {order.status === 'pending' && <Button onClick={() => handleCompleteOrder(order)} variant="ghost" className="text-green-400 hover:text-green-300" title="Complete Order"><CheckCircle size={16} /></Button>}
-                        {order.status === 'completed' && <Button onClick={() => handleGenerateInvoice(order)} variant="ghost" className="text-yellow-400 hover:text-yellow-300" title="Generate Invoice"><FileText size={16} /></Button>}
-                        <Button onClick={() => handleOpenModal(order)} variant="ghost" className="text-custom-light-blue hover:text-white"><Edit size={16} /></Button>
-                        <Button onClick={() => handleDelete(order.id)} variant="ghost" className="text-red-400 hover:text-red-300"><Trash2 size={16} /></Button>
+                        {order.status === 'pending' && <Button onClick={() => handleCompleteOrder(order)} variant="ghost-glow" className="text-green-400" title="Complete Order"><CheckCircle size={16} /></Button>}
+                        {order.status === 'completed' && <Button onClick={() => handleGenerateInvoice(order)} variant="ghost-glow" className="text-yellow-400" title="Generate Invoice"><FileText size={16} /></Button>}
+                        <Button onClick={() => handleOpenModal(order)} variant="ghost-glow" className="text-custom-light-blue" title="Edit"><Edit size={16} /></Button>
+                        <Button onClick={() => handleDelete(order.id)} variant="ghost-glow" className="text-red-400" title="Delete"><Trash2 size={16} /></Button>
                     </div>
                 </td>
             </tr>

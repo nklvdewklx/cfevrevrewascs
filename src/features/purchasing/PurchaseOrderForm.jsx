@@ -1,6 +1,7 @@
 import React from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { Plus, Trash2 } from 'lucide-react';
+import Button from '../../components/common/Button';
 
 const PurchaseOrderForm = ({ po, onSave, onCancel, suppliers, components }) => {
     const { register, control, handleSubmit } = useForm({
@@ -42,15 +43,18 @@ const PurchaseOrderForm = ({ po, onSave, onCancel, suppliers, components }) => {
                             {components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
                         <input type="number" {...register(`items.${index}.quantity`, { valueAsNumber: true, min: 1 })} className="form-input w-24" min="1" />
-                        <button type="button" onClick={() => remove(index)} className="p-2 text-red-400"><Trash2 size={18} /></button>
+                        <Button type="button" onClick={() => remove(index)} variant="ghost-glow" size="sm" className="text-red-400"><Trash2 size={18} /></Button>
                     </div>
                 ))}
-                <button type="button" onClick={() => append({ componentId: components[0]?.id, quantity: 1 })} className="text-sm text-blue-400 flex items-center space-x-2"><Plus size={16} /><span>Add Component</span></button>
+                <Button type="button" onClick={() => append({ componentId: components[0]?.id, quantity: 1 })} variant="ghost" className="text-blue-400 flex items-center space-x-2" size="sm">
+                    <Plus size={16} />
+                    <span>Add Component</span>
+                </Button>
             </div>
 
             <div className="pt-4 flex justify-end space-x-4">
-                <button type="button" onClick={onCancel} className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg">Cancel</button>
-                <button type="submit" className="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg">Save Purchase Order</button>
+                <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
+                <Button type="submit" variant="primary">Save Purchase Order</Button>
             </div>
         </form>
     );

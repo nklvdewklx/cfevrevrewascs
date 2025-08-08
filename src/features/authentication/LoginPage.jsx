@@ -4,14 +4,13 @@ import { Navigate } from 'react-router-dom';
 import { loginSuccess, loginFailure } from './authSlice';
 import { defaultDb } from '../../api/defaultDb';
 import { showToast } from '../../lib/toast';
-import Button from '../../components/common/Button'; // NEW: Import the reusable Button component
+import Button from '../../components/common/Button';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('admin');
     const [password, setPassword] = useState('$2a$12$fD.g9b.ExU39Y5R..2535uR4D0n6oBCDRV3b2s.2s.3b4s.5s.6b7');
     const dispatch = useDispatch();
 
-    // Get the authentication state from the Redux store
     const { isAuthenticated, user } = useSelector((state) => state.auth);
 
     const handleSubmit = (e) => {
@@ -27,14 +26,11 @@ const LoginPage = () => {
         }
     };
 
-    // **THE FIX IS HERE:**
-    // If the user is already authenticated, redirect them away from the login page.
     if (isAuthenticated) {
         const redirectPath = user.role === 'sales' ? '/agent/home' : '/dashboard';
         return <Navigate to={redirectPath} />;
     }
 
-    // Render the login form if the user is not authenticated
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4">
             <div className="glass-panel rounded-lg w-full max-w-sm">
@@ -62,8 +58,7 @@ const LoginPage = () => {
                                 required
                             />
                         </div>
-                        {/* NEW: Use the reusable Button component */}
-                        <Button type="submit" className="w-full mt-4">
+                        <Button type="submit" size="lg" className="w-full mt-4">
                             Login
                         </Button>
                     </form>

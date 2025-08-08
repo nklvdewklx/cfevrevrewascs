@@ -5,6 +5,7 @@ import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import SupplierForm from './SupplierForm';
 import { addSupplier, updateSupplier, deleteSupplier } from './suppliersSlice';
+import Button from '../../components/common/Button';
 
 const SuppliersPage = () => {
     const dispatch = useDispatch();
@@ -38,7 +39,13 @@ const SuppliersPage = () => {
         }
     };
 
-    const headers = ['Company Name', 'Contact Person', 'Email', 'Phone', 'Actions'];
+    const headers = [
+        { key: 'name', label: 'Company Name', sortable: true },
+        { key: 'contactPerson', label: 'Contact Person', sortable: true },
+        { key: 'email', label: 'Email', sortable: true },
+        { key: 'phone', label: 'Phone', sortable: false },
+        { key: 'actions', label: 'Actions', sortable: false },
+    ];
 
     const renderRow = (supplier) => (
         <tr key={supplier.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
@@ -48,8 +55,8 @@ const SuppliersPage = () => {
             <td className="p-4">{supplier.phone}</td>
             <td className="p-4">
                 <div className="flex space-x-4">
-                    <button onClick={() => handleOpenModal(supplier)} className="text-custom-light-blue hover:text-white"><Edit size={16} /></button>
-                    <button onClick={() => handleDelete(supplier.id)} className="text-red-400 hover:text-red-300"><Trash2 size={16} /></button>
+                    <Button onClick={() => handleOpenModal(supplier)} variant="ghost-glow" size="sm"><Edit size={16} className="text-custom-light-blue" /></Button>
+                    <Button onClick={() => handleDelete(supplier.id)} variant="ghost-glow" size="sm"><Trash2 size={16} className="text-red-400" /></Button>
                 </div>
             </td>
         </tr>
@@ -59,10 +66,10 @@ const SuppliersPage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-white">Manage Suppliers</h1>
-                <button onClick={() => handleOpenModal()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2">
+                <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2" size="sm">
                     <Plus size={20} />
                     <span>New Supplier</span>
-                </button>
+                </Button>
             </div>
             <DataTable headers={headers} data={suppliers} renderRow={renderRow} />
             <Modal title={editingSupplier ? 'Edit Supplier' : 'Add New Supplier'} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>

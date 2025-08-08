@@ -8,7 +8,8 @@ import ReceiveStockModal from './ReceiveStockModal';
 import { addPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder } from './purchaseOrdersSlice';
 import { receiveStockForPO } from '../inventory/componentsSlice';
 import { showToast } from '../../lib/toast';
-import ReorderAlerts from './ReorderAlerts'; // NEW: Import the new component
+import Button from '../../components/common/Button';
+import ReorderAlerts from './ReorderAlerts';
 
 const PurchaseOrdersPage = () => {
     const dispatch = useDispatch();
@@ -38,7 +39,6 @@ const PurchaseOrdersPage = () => {
         setReceiveModalOpen(false);
     };
 
-    // NEW: Complete the handleSavePO logic
     const handleSavePO = (data) => {
         const poData = {
             ...data,
@@ -60,14 +60,12 @@ const PurchaseOrdersPage = () => {
         handleCloseFormModal();
     };
 
-
     const handleReceiveStock = (data) => {
         dispatch(receiveStockForPO({ purchaseOrder: selectedPO, receivedItems: data.items }));
         showToast(`Stock for P.O. #${selectedPO.poNumber} has been received!`, 'success');
         handleCloseReceiveModal();
     };
 
-    // NEW: Complete the handleDelete logic
     const handleDelete = (poId) => {
         if (window.confirm('Are you sure you want to delete this purchase order?')) {
             dispatch(deletePurchaseOrder(poId));
@@ -75,8 +73,13 @@ const PurchaseOrdersPage = () => {
         }
     };
 
-
-    const headers = ['P.O. #', 'Supplier', 'Issue Date', 'Status', 'Actions'];
+    const headers = [
+        { key: 'poNumber', label: 'P.O. #', sortable: true },
+        { key: 'supplierId', label: 'Supplier', sortable: true },
+        { key: 'issueDate', label: 'Issue Date', sortable: true },
+        { key: 'status', label: 'Status', sortable: true },
+        { key: 'actions', label: 'Actions', sortable: false },
+    ];
 
     const renderRow = (po) => {
         const supplier = suppliers.find(s => s.id === po.supplierId);
@@ -91,12 +94,12 @@ const PurchaseOrdersPage = () => {
                 <td className="p-4">
                     <div className="flex space-x-4">
                         {po.status === 'sent' && (
-                            <button onClick={() => handleOpenReceiveModal(po)} className="text-green-400 hover:text-green-300" title="Receive Stock">
+                            <Button onClick={() => handleOpenReceiveModal(po)} variant="ghost-glow" size="sm" className="text-green-400" title="Receive Stock">
                                 <PackageCheck size={16} />
-                            </button>
+                            </Button>
                         )}
-                        <button onClick={() => handleOpenFormModal(po)} className="text-custom-light-blue hover:text-white"><Edit size={16} /></button>
-                        <button onClick={() => handleDelete(po.id)} className="text-red-400 hover:text-red-300"><Trash2 size={16} /></button>
+                        <Button onClick={() => handleOpenFormModal(po)} variant="ghost-glow" size="sm" className="text-custom-light-blue"><Edit size={16} /></Button>
+                        <Button onClick={() => handleDelete(po.id)} variant="ghost-glow" size="sm" className="text-red-400"><Trash2 size={16} /></Button>
                     </div>
                 </td>
             </tr>
@@ -107,10 +110,10 @@ const PurchaseOrdersPage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-white">Manage Purchase Orders</h1>
-                <button onClick={() => handleOpenFormModal()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2">
+                <Button onClick={() => handleOpenFormModal()} variant="primary" className="flex items-center space-x-2" size="sm">
                     <Plus size={20} />
                     <span>New P.O.</span>
-                </button>
+                </Button>
             </div>
 
             <ReorderAlerts />

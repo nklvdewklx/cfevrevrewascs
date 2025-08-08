@@ -20,7 +20,7 @@ const AgentLayout = () => {
         { to: '/agent/products', icon: <Package size={24} />, label: 'Products' },
     ];
 
-    const activeLinkStyle = { color: '#a2d2ff' }; // custom-light-blue
+    const activeLinkStyle = { color: 'var(--color-accent)' };
 
     return (
         <div className="flex flex-col h-screen font-sans bg-gray-900">
@@ -29,7 +29,6 @@ const AgentLayout = () => {
                 <h1 className="text-xl font-bold text-white">ROCTEC Agent</h1>
                 <div className="flex items-center space-x-4">
                     <span className="text-sm text-gray-300">{user?.name}</span>
-                    {/* NEW: Use the reusable Button component for logout */}
                     <Button onClick={handleLogout} variant="ghost" title="Logout">
                         <LogOut size={20} className="text-red-400" />
                     </Button>

@@ -2,20 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap');
+
 :root {
-    --color-primary-start: #a78bfa;
-    --color-primary-end: #8b5cf6;
-    --color-danger-start: #fb7185;
-    --color-danger-end: #ef4444;
+    --color-primary-light: #a78bfa;
+    --color-primary-dark: #8b5cf6;
+    --color-danger-light: #fb7185;
+    --color-danger-dark: #ef4444;
     --color-background: #0d1a2e;
+    --color-surface: #1e293b;
+    --color-text: #e2e8f0;
+    --color-text-faded: #94a3b8;
+    --color-glass-bg: rgba(30, 41, 59, 0.6);
+    --color-accent: #a2d2ff;
+
+    /* NEW: Font weight variables */
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-bold: 700;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    /* NEW: Use 'DM Sans' as the primary font */
+    font-family: 'DM Sans', sans-serif;
     background-color: var(--color-background);
-    color: #ffffff;
+    color: var(--color-text);
     overflow: hidden;
-    /* NEW: Animation for the background */
     animation: background-move 60s infinite alternate;
     background-image: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(239, 68, 68, 0.2), transparent);
     background-size: 200% 200%;
@@ -28,7 +40,7 @@ body {
 
 /* Glassmorphism effect for panels */
 .glass-panel {
-    background-color: rgba(18, 35, 61, 0.8);
+    background-color: var(--color-glass-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -59,23 +71,27 @@ body {
 .form-input:focus,
 .form-select:focus {
     outline: none;
-    border-color: #a2d2ff;
+    border-color: var(--color-primary-light);
     box-shadow: 0 0 0 2px rgba(162, 210, 255, 0.5);
 }
 
 /* Status Pills */
 .status-pill {
+    display: inline-block;
     padding: 4px 10px;
     border-radius: 9999px;
     font-size: 0.75rem;
-    font-weight: 600;
+    font-weight: var(--font-bold);
     text-transform: capitalize;
-    color: #fff;
+    color: var(--color-text);
+    border: 1px solid;
+    text-align: center;
+    min-width: 80px;
 }
-.status-pending { background-color: #f59e0b; }
-.status-completed { background-color: #10b981; }
-.status-cancelled { background-color: #ef4444; }
-.status-shipped { background-color: #3b82f6; }
+.status-pending { background-color: rgba(245, 158, 11, 0.2); border-color: #f59e0b; }
+.status-completed { background-color: rgba(16, 185, 129, 0.2); border-color: #10b981; }
+.status-cancelled { background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; }
+.status-shipped { background-color: rgba(59, 130, 246, 0.2); border-color: #3b82f6; }
 
 /* Animation for highlighting recently added/edited rows */
 @keyframes highlight {
@@ -95,22 +111,22 @@ body {
         transform: translate3d(0, 0, 0);
     }
     .btn-primary {
-        background-image: linear-gradient(100deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
+        background-image: linear-gradient(100deg, var(--color-primary-light) 0%, var(--color-primary-dark) 100%);
         box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.39);
         color: white;
     }
     .btn-primary:hover {
-        background-image: linear-gradient(100deg, var(--color-primary-end) 0%, var(--color-primary-start) 100%);
+        background-image: linear-gradient(100deg, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
         box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
         transform: translateY(-2px);
     }
     .btn-danger {
-        background-image: linear-gradient(100deg, var(--color-danger-start) 0%, var(--color-danger-end) 100%);
+        background-image: linear-gradient(100deg, var(--color-danger-light) 0%, var(--color-danger-dark) 100%);
         box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.39);
         color: white;
     }
     .btn-danger:hover {
-        background-image: linear-gradient(100deg, var(--color-danger-end) 0%, var(--color-danger-start) 100%);
+        background-image: linear-gradient(100deg, var(--color-danger-dark) 0%, var(--color-danger-light) 100%);
         box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
         transform: translateY(-2px);
     }
@@ -125,7 +141,7 @@ body {
     }
     .btn-glass {
         @apply text-white;
-        background-color: rgba(30, 41, 59, 0.6);
+        background-color: var(--color-glass-bg);
         box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
@@ -135,5 +151,17 @@ body {
         background-color: rgba(30, 41, 59, 0.8);
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         transform: translateY(-2px);
+    }
+    .btn-ghost-glow {
+        @apply bg-transparent text-gray-400 hover:text-white transition-all duration-200;
+        box-shadow: none;
+    }
+    .btn-ghost-glow:hover {
+        box-shadow: 0 0px 10px 0 var(--color-primary-dark);
+        transform: scale(1.1);
+        z-index: 10;
+    }
+    .dt-row:hover {
+        background-color: rgba(255, 255, 255, 0.05);
     }
 }

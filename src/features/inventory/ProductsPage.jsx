@@ -4,9 +4,10 @@ import { Edit, Trash2, Plus, Factory } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import ProductForm from './ProductForm';
-import { addProduct, updateProduct } from './productsSlice'; // Removed unused `deleteProduct` import
+import { addProduct, updateProduct } from './productsSlice';
 import { executeProductionOrder } from '../production/productionOrdersSlice';
 import { showToast } from '../../lib/toast';
+import Button from '../../components/common/Button';
 
 const ProductsPage = () => {
     const dispatch = useDispatch();
@@ -64,7 +65,13 @@ const ProductsPage = () => {
     // NOTE: The delete logic is commented out in this component, so we remove the unused import.
     // const handleDelete = (productId) => { ... }
 
-    const headers = ['Product Name', 'SKU', 'Total Stock', 'Status', 'Actions'];
+    const headers = [
+        { key: 'name', label: 'Product Name', sortable: true },
+        { key: 'sku', label: 'SKU', sortable: true },
+        { key: 'totalStock', label: 'Total Stock', sortable: true },
+        { key: 'status', label: 'Status', sortable: true },
+        { key: 'actions', label: 'Actions', sortable: false },
+    ];
 
     const renderRow = (product) => {
         const totalStock = product.stockBatches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0;
@@ -79,9 +86,9 @@ const ProductsPage = () => {
                 <td className="p-4"><span className={`status-pill ${status.className}`}>{status.text}</span></td>
                 <td className="p-4">
                     <div className="flex space-x-4">
-                        {canProduce && <button onClick={() => handleOpenProduceModal(product)} className="text-green-400 hover:text-green-300" title="Produce Item"><Factory size={16} /></button>}
-                        <button onClick={() => handleOpenFormModal(product)} className="text-custom-light-blue hover:text-white"><Edit size={16} /></button>
-                        <button className="text-red-400 hover:text-red-300"><Trash2 size={16} /></button>
+                        {canProduce && <Button onClick={() => handleOpenProduceModal(product)} variant="ghost-glow" size="sm" className="text-green-400" title="Produce Item"><Factory size={16} /></Button>}
+                        <Button onClick={() => handleOpenFormModal(product)} variant="ghost-glow" size="sm" className="text-custom-light-blue"><Edit size={16} /></Button>
+                        <Button className="text-red-400" variant="ghost-glow" size="sm"><Trash2 size={16} /></Button>
                     </div>
                 </td>
             </tr>
@@ -92,22 +99,20 @@ const ProductsPage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-white">Manage Inventory</h1>
-                <button onClick={() => handleOpenFormModal()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2"><Plus size={20} /><span>New Product</span></button>
+                <Button onClick={() => handleOpenFormModal()} variant="primary" className="flex items-center space-x-2" size="sm"><Plus size={20} /><span>New Product</span></Button>
             </div>
 
             <DataTable headers={headers} data={products} renderRow={renderRow} />
 
-            {/* Modal for Adding/Editing a Product */}
             <Modal title={editingProduct ? 'Edit Product' : 'Create New Product'} isOpen={isFormModalOpen} onClose={handleCloseFormModal} footer={<></>}>
                 <ProductForm product={editingProduct} onSave={handleSaveProduct} onCancel={handleCloseFormModal} components={components} />
             </Modal>
 
-            {/* Modal for Executing Production */}
             <Modal title={`Produce: ${editingProduct?.name}`} isOpen={isProduceModalOpen} onClose={handleCloseProduceModal}
                 footer={
                     <>
-                        <button onClick={handleCloseProduceModal} className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg">Cancel</button>
-                        <button onClick={handleExecuteProduction} className="bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded-lg">Produce</button>
+                        <Button onClick={handleCloseProduceModal} variant="secondary" size="sm">Cancel</Button>
+                        <Button onClick={handleExecuteProduction} variant="primary" size="sm">Produce</Button>
                     </>
                 }
             >
