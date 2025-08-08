@@ -4,7 +4,7 @@ import { defaultDb } from '../../api/defaultDb';
 import { storageService } from '../../services/storageService';
 import { addLedgerEntry } from './inventoryLedgerSlice';
 
-// NEW: A dedicated thunk for simple sales (like POS) that uses automated FEFO depletion.
+// A dedicated thunk for simple sales (like POS) that uses automated FEFO depletion.
 export const adjustStockForSale = createAsyncThunk(
     'inventory/adjustStockForSale',
     async (order, { getState, dispatch, rejectWithValue }) => {
@@ -101,6 +101,26 @@ const productsSlice = createGenericSlice({
             const newId = state.items.length > 0 ? Math.max(...state.items.map(i => i.id)) + 1 : 1;
             state.items.push({ ...action.payload, id: newId, status: 'active', reorderPoint: 0 });
         },
+        addProductBatch: (state, action) => {
+            const { productId, newBatch } = action.payload;
+            const product = state.items.find(p => p.id === productId);
+            if (product) {
+                if (!product.stockBatches) {
+                    product.stockBatches = [];
+                }
+                product.stockBatches.push(newBatch);
+            }
+        },
+        updateStockBatch: (state, action) => {
+            const { productId, lotNumber, updates } = action.payload;
+            const product = state.items.find(p => p.id === productId);
+            if (product && product.stockBatches) {
+                const batchIndex = product.stockBatches.findIndex(b => b.lotNumber === lotNumber);
+                if (batchIndex !== -1) {
+                    product.stockBatches[batchIndex] = { ...product.stockBatches[batchIndex], ...updates };
+                }
+            }
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -113,7 +133,7 @@ const productsSlice = createGenericSlice({
                     }
                 });
             })
-            .addCase(adjustStockForSale.fulfilled, (state, action) => { // NEW: Handle success for the new thunk
+            .addCase(adjustStockForSale.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 action.payload.forEach(updatedProduct => {
                     const index = state.items.findIndex(p => p.id === updatedProduct.id);
@@ -142,6 +162,8 @@ export const {
   deleteItem: deleteProduct,
   archiveProduct,
   setItems: setProducts,
+  addProductBatch,
+  updateStockBatch,
 } = productsSlice.actions;
 
 export default productsSlice.reducer;

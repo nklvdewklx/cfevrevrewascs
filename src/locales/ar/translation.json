@@ -352,5 +352,6 @@
     "reasonRequired": "السبب مطلوب",
     "quantityMustBePositive": "يجب أن تكون الكمية موجبة",
     "insufficientStock": "مخزون غير كافٍ لهذا التعديل",
-    "stockAdjusted": "تم تعديل المخزون بنجاح"
+    "stockAdjusted": "تم تعديل المخزون بنجاح",
+    "originalOrderNotFound": "لم يتم العثور على الطلب الأصلي لهذا المرتجع."
 }

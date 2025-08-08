@@ -17,7 +17,9 @@ import leadsReducer from '../features/sales/leadsSlice';
 import approvalsReducer from '../features/approvals/approvalsSlice';
 import posReducer from '../features/pos/posSlice'; 
 import settingsReducer from '../features/settings/settingsSlice';
-import inventoryLedgerReducer from '../features/inventory/inventoryLedgerSlice'; // UPDATED: Import the new ledger slice
+import inventoryLedgerReducer from '../features/inventory/inventoryLedgerSlice';
+import returnsReducer from '../features/returns/returnsSlice'; // NEW: Import the new returns slice
+import creditNotesReducer from '../features/credit-notes/creditNotesSlice'; // NEW: Import slice
 
 const preloadedState = storageService.loadState();
 
@@ -39,7 +41,10 @@ export const store = configureStore({
     approvals: approvalsReducer,
     pos: posReducer, 
     settings: settingsReducer,
-    inventoryLedger: inventoryLedgerReducer, // UPDATED: Add the new ledger reducer
+    inventoryLedger: inventoryLedgerReducer,
+    returns: returnsReducer,
+    creditNotes: creditNotesReducer,
+
   },
   preloadedState,
 });

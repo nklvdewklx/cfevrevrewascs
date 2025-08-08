@@ -18,7 +18,10 @@ import {
     Settings,
     ClipboardList,
     History,
-    SearchCode // NEW: Icon
+    SearchCode,
+    CornerUpLeft, // NEW: Icon for Returns
+    FileMinus // NEW: Icon for Credit Notes
+
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -51,6 +54,8 @@ const Sidebar = () => {
                 { name: 'quotes', path: '/quotes', icon: <FileText size={20} /> },
                 { name: 'customers', path: '/customers', icon: <Users size={20} /> },
                 { name: 'orders', path: '/orders', icon: <ShoppingBag size={20} /> },
+                { name: 'returns', path: '/returns', icon: <CornerUpLeft size={20} /> },
+                { name: 'creditNotes', path: '/credit-notes', icon: <FileMinus size={20} /> }, // NEW: Link for Credit Notes
                 { name: 'invoices', path: '/invoices', icon: <CircleDollarSign size={20} /> },
             ],
         },
@@ -75,7 +80,7 @@ const Sidebar = () => {
             title: 'reporting',
             links: [
                 { name: 'reports', path: '/reports', icon: <BarChart size={20} /> },
-                { name: 'traceabilityReport', path: '/reports/traceability', icon: <SearchCode size={20} /> }, // NEW: Link
+                { name: 'traceabilityReport', path: '/reports/traceability', icon: <SearchCode size={20} /> },
             ],
         },
         {

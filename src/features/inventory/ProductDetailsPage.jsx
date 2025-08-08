@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Factory } from 'lucide-react';
+import { ArrowLeft, Edit, Factory, Check, X } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
 import ProductForm from './ProductForm';
-import { updateProduct } from './productsSlice';
+import { updateProduct, updateStockBatch } from './productsSlice'; // UPDATED: Import updateStockBatch
+import { addLedgerEntry } from './inventoryLedgerSlice'; // NEW: Import for logging
 import { executeProductionOrder } from '../production/productionOrdersSlice';
 import { showToast } from '../../lib/toast';
 import { useTranslation } from 'react-i18next';
@@ -19,21 +20,18 @@ const ProductDetailsPage = () => {
 
     const { items: products } = useSelector((state) => state.products);
     const { items: components } = useSelector((state) => state.components);
+    const { user } = useSelector((state) => state.auth); // NEW: Get user for logging
 
     const product = products.find(p => p.id === parseInt(productId));
 
-    // State for modals
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [isProduceModalOpen, setIsProduceModalOpen] = useState(false);
     const [productionQuantity, setProductionQuantity] = useState(1);
 
     if (!product) {
-        // It's good practice to redirect or show a proper not-found page
-        // For now, we'll just show a message.
         return <div className="text-center text-red-400">{t('productNotFound')}</div>;
     }
 
-    // --- Modal Handlers ---
     const handleOpenFormModal = () => setIsFormModalOpen(true);
     const handleCloseFormModal = () => setIsFormModalOpen(false);
     const handleOpenProduceModal = () => setIsProduceModalOpen(true);
@@ -42,7 +40,6 @@ const ProductDetailsPage = () => {
         setProductionQuantity(1);
     };
 
-    // --- Data Handlers ---
     const handleSaveProduct = (productData) => {
         dispatch(updateProduct({ ...productData, id: product.id }));
         handleCloseFormModal();
@@ -60,6 +57,24 @@ const ProductDetailsPage = () => {
         }
     };
 
+    // NEW: Handler for inspecting and updating a batch status
+    const handleBatchInspection = (lotNumber, newStatus) => {
+        if (window.confirm(t('confirmBatchStatusChange', { lotNumber, status: newStatus }))) {
+            const updates = { status: newStatus };
+            dispatch(updateStockBatch({ productId: product.id, lotNumber, updates }));
+
+            // Log this action to the inventory ledger
+            dispatch(addLedgerEntry({
+                itemType: 'product',
+                itemId: product.id,
+                quantityChange: 0, // No quantity change, just a status update
+                reason: `Inspection: Batch ${lotNumber} status changed to ${newStatus}`,
+                userId: user.id
+            }));
+
+            showToast(t('batchStatusUpdated'), 'success');
+        }
+    };
 
     const totalStock = product.stockBatches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0;
 
@@ -67,43 +82,46 @@ const ProductDetailsPage = () => {
         { key: 'lotNumber', label: t('lotNumber'), sortable: true },
         { key: 'quantity', label: t('quantity'), sortable: true },
         { key: 'expiryDate', label: t('expiryDate'), sortable: true },
+        { key: 'status', label: t('status'), sortable: true }, // NEW: Status column
+        { key: 'actions', label: t('actions'), sortable: false }, // NEW: Actions column
     ];
 
-    const pricingTiersHeaders = [
-        { key: 'minQty', label: t('minQty'), sortable: false },
-        { key: 'price', label: t('price'), sortable: false },
-    ];
+    const pricingTiersHeaders = [ /* ... no changes ... */];
+    const bomHeaders = [ /* ... no changes ... */];
+    const renderBomRow = (bomItem) => { /* ... no changes ... */ };
+    const renderPricingRow = (tier) => { /* ... no changes ... */ };
 
-    const bomHeaders = [
-        { key: 'component', label: t('component'), sortable: false },
-        { key: 'quantity', label: t('quantity'), sortable: false },
-    ];
+    // UPDATED: Render function for stock batches to include status and actions
+    const renderStockBatchRow = (batch) => {
+        const isInspectionRequired = batch.status === 'Returned - Inspection Required';
+        let statusPillClass = 'bg-gray-700';
+        if (isInspectionRequired) statusPillClass = 'status-pending animate-pulse';
+        if (batch.status === 'Quarantined') statusPillClass = 'status-cancelled';
+        if (batch.status === 'Sellable') statusPillClass = 'status-completed';
 
-    const renderBomRow = (bomItem) => {
-        const component = components.find(c => c.id === bomItem.componentId);
         return (
-            <tr key={bomItem.componentId} className="border-b border-white/10 last:border-b-0">
-                <td className="p-4">{component?.name || 'N/A'}</td>
-                <td className="p-4">{bomItem.quantity}</td>
+            <tr key={batch.lotNumber} className="border-b border-white/10 last:border-b-0">
+                <td className="p-4 font-mono">{batch.lotNumber}</td>
+                <td className="p-4">{batch.quantity}</td>
+                <td className="p-4">{batch.expiryDate || 'N/A'}</td>
+                <td className="p-4">
+                    <span className={`status-pill ${statusPillClass}`}>{batch.status || t('sellable')}</span>
+                </td>
+                <td className="p-4">
+                    {isInspectionRequired && (
+                        <div className="flex space-x-2">
+                            <Button onClick={() => handleBatchInspection(batch.lotNumber, 'Sellable')} variant="ghost-glow" size="sm" className="text-green-400" title={t('markAsSellable')}>
+                                <Check size={16} />
+                            </Button>
+                            <Button onClick={() => handleBatchInspection(batch.lotNumber, 'Quarantined')} variant="ghost-glow" size="sm" className="text-red-400" title={t('markAsQuarantined')}>
+                                <X size={16} />
+                            </Button>
+                        </div>
+                    )}
+                </td>
             </tr>
         );
     };
-
-    const renderPricingRow = (tier) => (
-        <tr key={tier.minQty} className="border-b border-white/10 last:border-b-0">
-            <td className="p-4">{tier.minQty}</td>
-            <td className="p-4">${tier.price.toFixed(2)}</td>
-        </tr>
-    );
-
-    const renderStockBatchRow = (batch) => (
-        <tr key={batch.lotNumber} className="border-b border-white/10 last:border-b-0">
-            <td className="p-4">{batch.lotNumber}</td>
-            <td className="p-4">{batch.quantity}</td>
-            <td className="p-4">{batch.expiryDate}</td>
-        </tr>
-    );
-
 
     return (
         <>

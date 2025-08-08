@@ -20,7 +20,7 @@ import SuppliersPage from '../features/purchasing/SuppliersPage';
 import PurchaseOrdersPage from '../features/purchasing/PurchaseOrdersPage';
 import ProductionOrdersPage from '../features/production/ProductionOrdersPage';
 import ReportsPage from '../features/reports/ReportsPage';
-import TraceabilityReportPage from '../features/reports/TraceabilityReportPage'; // NEW: Import
+import TraceabilityReportPage from '../features/reports/TraceabilityReportPage';
 import AgentsPage from '../features/users/AgentsPage';
 import EmployeesPage from '../features/users/EmployeesPage';
 import LeadsPage from '../features/sales/LeadsPage';
@@ -39,6 +39,8 @@ import InvoiceDetailsPage from '../features/orders/InvoiceDetailsPage';
 import SettingsPage from '../features/settings/SettingsPage';
 import ProductDetailsPage from '../features/inventory/ProductDetailsPage';
 import ComponentDetailsPage from '../features/inventory/ComponentDetailsPage';
+import ReturnsPage from '../features/returns/ReturnsPage'; // NEW: Import ReturnsPage
+import CreditNotesPage from '../features/credit-notes/CreditNotesPage'; // NEW: Import CreditNotesPage
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -67,6 +69,9 @@ const AppRouter = () => {
                 <Route path="customers/:customerId" element={<CustomerDetailsPage />} />
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="orders/:orderId" element={<OrderDetailPage />} />
+                <Route path="returns" element={<ReturnsPage />} /> {/* NEW: Route for returns */}
+                <Route path="credit-notes" element={<CreditNotesPage />} /> {/* NEW: Route for credit notes */}
+
                 <Route path="invoices" element={<InvoicesPage />} />
                 <Route path="invoices/:invoiceNumber" element={<InvoiceDetailsPage />} />
                 <Route path="inventory" element={<ProductsPage />} />
@@ -79,7 +84,7 @@ const AppRouter = () => {
                 <Route path="production-orders" element={<ProductionOrdersPage />} />
                 <Route path="production-orders/:productionOrderId" element={<ProductionOrderDetailsPage />} />
                 <Route path="reports" element={<ReportsPage />} />
-                <Route path="reports/traceability" element={<TraceabilityReportPage />} /> {/* NEW: Route */}
+                <Route path="reports/traceability" element={<TraceabilityReportPage />} />
                 <Route path="agents" element={<ProtectedRoute roles={['admin']}><AgentsPage /></ProtectedRoute>} />
                 <Route path="agents/:agentId" element={<ProtectedRoute roles={['admin']}><AgentDetailsPage /></ProtectedRoute>} />
                 <Route path="employees" element={<ProtectedRoute roles={['admin']}><EmployeesPage /></ProtectedRoute>} />

@@ -364,5 +364,6 @@
     "reasonRequired": "Reason is required",
     "quantityMustBePositive": "Quantity must be positive",
     "insufficientStock": "Insufficient stock for this adjustment",
-    "stockAdjusted": "Stock adjusted successfully"
+    "stockAdjusted": "Stock adjusted successfully",
+    "originalOrderNotFound": "The original order for this return could not be found."
 }
