@@ -4,10 +4,11 @@ import { Edit, User, Package, ShoppingCart, Clock, TrendingUp } from 'lucide-rea
 import DataTable from '../../components/common/DataTable';
 import ReactApexChart from 'react-apexcharts';
 import { calculateOrderTotal } from '../../lib/dataHelpers';
-import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
+import LowStockWarning from './LowStockWarning'; // NEW: Import the new component
+import { useTranslation } from 'react-i18next';
 
 const DashboardPage = () => {
-    const { t } = useTranslation(); // NEW: Get translation function
+    const { t } = useTranslation();
     const { user } = useSelector((state) => state.auth);
     const customers = useSelector((state) => state.customers.items);
     const orders = useSelector((state) => state.orders.items);
@@ -61,12 +62,15 @@ const DashboardPage = () => {
         colors: ['var(--color-primary-dark)']
     };
 
-    const chartSeries = [{ name: t('sales'), data: salesData.data }]; // NEW: Translate series name
+    const chartSeries = [{ name: t('sales'), data: salesData.data }];
 
 
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold text-white">{t('welcomeBack', { name: user?.name })}</h1>
+
+            {/* NEW: Low stock warning will appear here */}
+            <LowStockWarning />
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 <StatCard icon={<TrendingUp size={24} />} title={t('totalRevenue')} value={`$${(totalRevenue).toFixed(2)}`} />

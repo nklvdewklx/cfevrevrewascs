@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useSelector } from 'react-redux'; // NEW: Import useSelector
 import { useTranslation } from 'react-i18next';
 import {
     Home,
@@ -15,7 +16,7 @@ import {
     Handshake,
     ChevronDown,
     Settings,
-    ClipboardList, // NEW: Icon for Components
+    ClipboardList,
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -27,6 +28,15 @@ const Sidebar = () => {
         Reporting: true,
         Admin: true,
     });
+
+    // NEW: Check for low stock items to show notification
+    const { items: products } = useSelector((state) => state.products);
+    const { items: components } = useSelector((state) => state.components);
+
+    const hasLowStockItems =
+        products.some(p => (p.stockBatches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0) <= (p.reorderPoint || 0)) ||
+        components.some(c => (c.stockBatches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0) <= c.reorderPoint);
+
 
     const toggleSection = (title) => {
         setOpenSections(prev => ({ ...prev, [title]: !prev[title] }));
@@ -45,9 +55,10 @@ const Sidebar = () => {
         },
         {
             title: 'inventory',
+            hasNotification: hasLowStockItems, // NEW: Add notification flag
             links: [
                 { name: 'finishedProducts', path: '/inventory', icon: <Boxes size={20} /> },
-                { name: 'components', path: '/inventory/components', icon: <ClipboardList size={20} /> }, // NEW: Components Link
+                { name: 'components', path: '/inventory/components', icon: <ClipboardList size={20} /> },
                 { name: 'productionHistory', path: '/production-orders', icon: <HardHat size={20} /> },
             ],
         },
@@ -97,7 +108,11 @@ const Sidebar = () => {
                                 className="flex justify-between items-center cursor-pointer p-3 rounded-lg hover:bg-white/5 transition-colors duration-200"
                                 onClick={() => toggleSection(section.title)}
                             >
-                                <h3 className="text-sm font-semibold text-custom-grey uppercase">{t(section.title)}</h3>
+                                <div className="flex items-center space-x-2">
+                                    <h3 className="text-sm font-semibold text-custom-grey uppercase">{t(section.title)}</h3>
+                                    {/* NEW: Notification Dot */}
+                                    {section.hasNotification && <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>}
+                                </div>
                                 <ChevronDown size={16} className={`text-custom-grey transition-transform duration-200 ${openSections[section.title] ? '' : '-rotate-90'}`} />
                             </div>
                         )}
