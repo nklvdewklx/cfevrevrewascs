@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { useSelector } from 'react-redux'; // NEW: Import useSelector
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
     Home,
@@ -17,6 +17,7 @@ import {
     ChevronDown,
     Settings,
     ClipboardList,
+    History,
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -29,7 +30,6 @@ const Sidebar = () => {
         Admin: true,
     });
 
-    // NEW: Check for low stock items to show notification
     const { items: products } = useSelector((state) => state.products);
     const { items: components } = useSelector((state) => state.components);
 
@@ -55,10 +55,11 @@ const Sidebar = () => {
         },
         {
             title: 'inventory',
-            hasNotification: hasLowStockItems, // NEW: Add notification flag
+            hasNotification: hasLowStockItems,
             links: [
                 { name: 'finishedProducts', path: '/inventory', icon: <Boxes size={20} /> },
                 { name: 'components', path: '/inventory/components', icon: <ClipboardList size={20} /> },
+                { name: 'inventoryLedger', path: '/inventory/ledger', icon: <History size={20} /> }, // UPDATED: Path and name
                 { name: 'productionHistory', path: '/production-orders', icon: <HardHat size={20} /> },
             ],
         },
@@ -110,7 +111,6 @@ const Sidebar = () => {
                             >
                                 <div className="flex items-center space-x-2">
                                     <h3 className="text-sm font-semibold text-custom-grey uppercase">{t(section.title)}</h3>
-                                    {/* NEW: Notification Dot */}
                                     {section.hasNotification && <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>}
                                 </div>
                                 <ChevronDown size={16} className={`text-custom-grey transition-transform duration-200 ${openSections[section.title] ? '' : '-rotate-90'}`} />

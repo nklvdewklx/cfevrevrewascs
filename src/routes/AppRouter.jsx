@@ -15,6 +15,7 @@ import OrdersPage from '../features/orders/OrdersPage';
 import InvoicesPage from '../features/orders/InvoicesPage';
 import ProductsPage from '../features/inventory/ProductsPage';
 import ComponentsPage from '../features/inventory/ComponentsPage';
+import InventoryLedgerPage from '../features/inventory/InventoryLedgerPage'; // UPDATED: Renamed component
 import SuppliersPage from '../features/purchasing/SuppliersPage';
 import PurchaseOrdersPage from '../features/purchasing/PurchaseOrdersPage';
 import ProductionOrdersPage from '../features/production/ProductionOrdersPage';
@@ -36,7 +37,7 @@ import ProductionOrderDetailsPage from '../features/production/ProductionOrderDe
 import InvoiceDetailsPage from '../features/orders/InvoiceDetailsPage';
 import SettingsPage from '../features/settings/SettingsPage';
 import ProductDetailsPage from '../features/inventory/ProductDetailsPage';
-import ComponentDetailsPage from '../features/inventory/ComponentDetailsPage'; // NEW: Import ComponentDetailsPage
+import ComponentDetailsPage from '../features/inventory/ComponentDetailsPage';
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -69,7 +70,8 @@ const AppRouter = () => {
                 <Route path="invoices/:invoiceNumber" element={<InvoiceDetailsPage />} />
                 <Route path="inventory" element={<ProductsPage />} />
                 <Route path="inventory/components" element={<ComponentsPage />} />
-                <Route path="inventory/components/:componentId" element={<ComponentDetailsPage />} /> {/* NEW: Component Details Route */}
+                <Route path="inventory/components/:componentId" element={<ComponentDetailsPage />} />
+                <Route path="inventory/ledger" element={<InventoryLedgerPage />} /> {/* UPDATED: Renamed path */}
                 <Route path="inventory/:productId" element={<ProductDetailsPage />} />
                 <Route path="suppliers" element={<SuppliersPage />} />
                 <Route path="purchase-orders" element={<PurchaseOrdersPage />} />

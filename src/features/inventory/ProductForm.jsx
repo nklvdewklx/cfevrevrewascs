@@ -11,6 +11,7 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
             sku: '',
             cost: 0,
             shelfLifeDays: 90,
+            reorderPoint: 10, // NEW: Add reorder point
             pricingTiers: [{ minQty: 1, price: 0 }],
             bom: [],
         }
@@ -31,6 +32,7 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
             ...data,
             cost: parseFloat(data.cost),
             shelfLifeDays: parseInt(data.shelfLifeDays),
+            reorderPoint: parseInt(data.reorderPoint), // NEW: Parse reorder point
             pricingTiers: data.pricingTiers.map(t => ({
                 minQty: parseInt(t.minQty),
                 price: parseFloat(t.price)
@@ -45,7 +47,6 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Basic Info */}
             <div>
                 <label className="block mb-1 text-sm text-custom-grey">{t('productName')}</label>
                 <input
@@ -64,7 +65,7 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
                 />
                 {errors.sku && <p className="text-red-400 text-xs mt-1">{errors.sku.message}</p>}
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
                     <label className="block mb-1 text-sm text-custom-grey">{t('cost')}</label>
                     <input
@@ -84,9 +85,18 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
                     />
                     {errors.shelfLifeDays && <p className="text-red-400 text-xs mt-1">{errors.shelfLifeDays.message}</p>}
                 </div>
+                {/* NEW: Reorder Point Field */}
+                <div>
+                    <label className="block mb-1 text-sm text-custom-grey">{t('reorderPoint')}</label>
+                    <input
+                        type="number"
+                        {...register('reorderPoint', { required: t('reorderPointRequired'), valueAsNumber: true, min: 0 })}
+                        className="form-input"
+                    />
+                    {errors.reorderPoint && <p className="text-red-400 text-xs mt-1">{errors.reorderPoint.message}</p>}
+                </div>
             </div>
 
-            {/* Pricing Tiers */}
             <div className="space-y-3 pt-4 border-t border-white/10">
                 <label className="block text-md font-semibold text-custom-light-blue">{t('pricingTiers')}</label>
                 {pricingFields.map((field, index) => (
@@ -111,7 +121,6 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
                 <button type="button" onClick={() => appendPricing({ minQty: 1, price: 0 })} className="text-sm text-blue-400 flex items-center space-x-2"><Plus size={16} /><span>{t('addTier')}</span></button>
             </div>
 
-            {/* Bill of Materials */}
             <div className="space-y-3 pt-4 border-t border-white/10">
                 <label className="block text-md font-semibold text-custom-light-blue">{t('billOfMaterials')}</label>
                 {bomFields.map((item, index) => (

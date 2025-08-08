@@ -5,7 +5,7 @@ import { ArrowLeft, Edit, Sliders } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import StockAdjustmentModal from './StockAdjustmentModal';
-import { adjustComponentStock } from './componentsSlice';
+import { manuallyAdjustComponentStock } from './componentsSlice'; // CORRECTED: Import the renamed thunk
 import { showToast } from '../../lib/toast';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/common/Button';
@@ -19,6 +19,7 @@ const ComponentDetailsPage = () => {
     const [isAdjustmentModalOpen, setIsAdjustmentModalOpen] = useState(false);
 
     const { items: components } = useSelector((state) => state.components);
+    const { user } = useSelector((state) => state.auth);
     const component = components.find(c => c.id === parseInt(componentId));
 
     if (!component) {
@@ -26,8 +27,10 @@ const ComponentDetailsPage = () => {
     }
 
     const handleSaveAdjustment = (data) => {
-        dispatch(adjustComponentStock({
+        // CORRECTED: Dispatch the renamed thunk
+        dispatch(manuallyAdjustComponentStock({
             componentId: component.id,
+            userId: user.id,
             ...data
         }));
         showToast(t('stockAdjusted'), 'success');

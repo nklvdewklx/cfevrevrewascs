@@ -2,19 +2,16 @@ import React, { useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown, Search, ChevronLeft, ChevronRight, ListCollapse } from 'lucide-react';
 
 const DataTable = ({ headers, data, renderRow, initialSort, searchable = true, filters }) => {
-    // --- State Management for Table Features ---
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState(initialSort || { key: null, direction: 'ascending' });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // --- Memoized and Processed Data ---
     const sortedAndFilteredData = useMemo(() => {
         if (!data) return [];
 
         let filteredData = [...data];
 
-        // 1. Filter based on custom filters
         if (filters && filters.activeFilters) {
             filteredData = filteredData.filter(item => {
                 let isMatch = true;
@@ -29,7 +26,6 @@ const DataTable = ({ headers, data, renderRow, initialSort, searchable = true, f
             });
         }
 
-        // 2. Filter based on search term
         if (searchTerm) {
             const lowercasedSearchTerm = searchTerm.toLowerCase();
             filteredData = filteredData.filter(item =>
@@ -39,7 +35,6 @@ const DataTable = ({ headers, data, renderRow, initialSort, searchable = true, f
             );
         }
 
-        // 3. Sort the data
         if (sortConfig.key) {
             filteredData.sort((a, b) => {
                 if (a[sortConfig.key] < b[sortConfig.key]) {
@@ -54,7 +49,6 @@ const DataTable = ({ headers, data, renderRow, initialSort, searchable = true, f
         return filteredData;
     }, [data, searchTerm, sortConfig, filters]);
 
-    // --- Pagination Logic ---
     const totalItems = sortedAndFilteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const currentItems = useMemo(() => {
@@ -76,7 +70,6 @@ const DataTable = ({ headers, data, renderRow, initialSort, searchable = true, f
 
     return (
         <div className="space-y-4">
-            {/* Filter and Search Section */}
             <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
                 {searchable && (
                     <div className="relative flex-grow">
@@ -89,7 +82,7 @@ const DataTable = ({ headers, data, renderRow, initialSort, searchable = true, f
                             value={searchTerm}
                             onChange={(e) => {
                                 setSearchTerm(e.target.value);
-                                setCurrentPage(1); // Reset to first page on new search
+                                setCurrentPage(1);
                             }}
                             className="form-input pl-10"
                         />
@@ -102,24 +95,33 @@ const DataTable = ({ headers, data, renderRow, initialSort, searchable = true, f
                 <table className="min-w-full">
                     <thead className="bg-white/5">
                         <tr className="border-b border-white/10">
-                            {headers.map((header) => (
-                                <th
-                                    key={header.key}
-                                    className="p-4 text-left text-sm font-semibold text-custom-grey uppercase cursor-pointer"
-                                    onClick={() => header.sortable && handleSort(header.key)}
-                                >
-                                    <div className="flex items-center space-x-2">
-                                        <span>{header.label}</span>
-                                        {header.sortable && (
-                                            sortConfig.key === header.key ? (
-                                                sortConfig.direction === 'ascending' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                                            ) : (
-                                                <ChevronUp size={16} className="text-transparent" />
-                                            )
-                                        )}
-                                    </div>
-                                </th>
-                            ))}
+                            {/* CORRECTED: This mapping is now safer and won't produce key warnings */}
+                            {headers.map((header, index) => {
+                                const isObjectHeader = typeof header === 'object' && header !== null;
+                                const key = isObjectHeader ? header.key : `header-${index}`;
+                                const label = isObjectHeader ? header.label : header;
+                                const sortable = isObjectHeader && header.sortable;
+                                const sortKey = isObjectHeader ? header.key : null;
+
+                                return (
+                                    <th
+                                        key={key}
+                                        className="p-4 text-left text-sm font-semibold text-custom-grey uppercase cursor-pointer"
+                                        onClick={() => sortable && handleSort(sortKey)}
+                                    >
+                                        <div className="flex items-center space-x-2">
+                                            <span>{label}</span>
+                                            {sortable && (
+                                                sortConfig.key === sortKey ? (
+                                                    sortConfig.direction === 'ascending' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
+                                                ) : (
+                                                    <ChevronUp size={16} className="text-transparent" />
+                                                )
+                                            )}
+                                        </div>
+                                    </th>
+                                );
+                            })}
                         </tr>
                     </thead>
                     <tbody>
@@ -140,12 +142,9 @@ const DataTable = ({ headers, data, renderRow, initialSort, searchable = true, f
                 </table>
             </div>
 
-            {/* Pagination Controls */}
             {totalPages > 1 && (
                 <div className="flex justify-between items-center text-custom-grey">
                     <span className="text-sm">
-                        {/* NEW: Internationalized string for total items */}
-                        {/* Example of future-proofing for i18n */}
                         {`Showing ${itemsPerPage * (currentPage - 1) + 1} to ${Math.min(itemsPerPage * currentPage, totalItems)} of ${totalItems} entries`}
                     </span>
                     <div className="flex space-x-2">

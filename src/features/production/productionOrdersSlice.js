@@ -4,17 +4,20 @@ import { defaultDb } from '../../api/defaultDb';
 import { storageService } from '../../services/storageService';
 import { updateProduct } from '../inventory/productsSlice';
 import { updateComponent } from '../inventory/componentsSlice';
+import { addLedgerEntry } from '../inventory/inventoryLedgerSlice'; // NEW: Import ledger action
 
 export const executeProductionOrder = createAsyncThunk(
     'production/execute',
     async ({ productId, quantityToProduce }, { getState, dispatch, rejectWithValue }) => {
-        const { products, components, productionOrders } = getState();
+        const { products, components, productionOrders, auth } = getState();
+        const userId = auth.user?.id;
         const product = products.items.find(p => p.id === productId);
 
         if (!product || !product.bom || product.bom.length === 0) {
             return rejectWithValue('Product has no Bill of Materials.');
         }
 
+        // Check for sufficient component stock
         for (const bomItem of product.bom) {
             const component = components.items.find(c => c.id === bomItem.componentId);
             const requiredStock = bomItem.quantity * quantityToProduce;
@@ -26,7 +29,10 @@ export const executeProductionOrder = createAsyncThunk(
 
         const today = new Date();
         const newProdId = productionOrders.items.length + 1;
+        const lotNumber = `LOT-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}-${newProdId}`;
+        const reason = `Production Order for ${quantityToProduce}x ${product.name} (Lot: ${lotNumber})`;
 
+        // Consume components and log each consumption
         const componentsUsedLog = [];
         for (const bomItem of product.bom) {
             const component = components.items.find(c => c.id === bomItem.componentId);
@@ -42,12 +48,22 @@ export const executeProductionOrder = createAsyncThunk(
             }
             updatedComponent.stockBatches = updatedComponent.stockBatches.filter(b => b.quantity > 0);
             dispatch(updateComponent(updatedComponent));
+            
+            // NEW: Log component consumption
+            dispatch(addLedgerEntry({
+                itemType: 'component',
+                itemId: bomItem.componentId,
+                quantityChange: -(bomItem.quantity * quantityToProduce),
+                reason,
+                userId
+            }));
         }
 
+        // Create new product batch and log its creation
         const expiryDate = new Date();
         expiryDate.setDate(today.getDate() + (product.shelfLifeDays || 90));
         const newBatch = {
-            lotNumber: `LOT-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}-${newProdId}`,
+            lotNumber,
             quantity: quantityToProduce,
             expiryDate: expiryDate.toISOString().split('T')[0]
         };
@@ -55,6 +71,15 @@ export const executeProductionOrder = createAsyncThunk(
         if (!updatedProduct.stockBatches) updatedProduct.stockBatches = [];
         updatedProduct.stockBatches.push(newBatch);
         dispatch(updateProduct(updatedProduct));
+        
+        // NEW: Log product creation
+        dispatch(addLedgerEntry({
+            itemType: 'product',
+            itemId: product.id,
+            quantityChange: quantityToProduce,
+            reason,
+            userId
+        }));
 
         return {
             productId: product.id,

@@ -1,7 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { storageService } from '../services/storageService';
 
-// Import all of your slice reducers
 import authReducer from '../features/authentication/authSlice';
 import agentsReducer from '../features/users/agentsSlice';
 import employeesReducer from '../features/users/employeesSlice';
@@ -17,9 +16,9 @@ import productionOrdersReducer from '../features/production/productionOrdersSlic
 import leadsReducer from '../features/sales/leadsSlice';
 import approvalsReducer from '../features/approvals/approvalsSlice';
 import posReducer from '../features/pos/posSlice'; 
-import settingsReducer from '../features/settings/settingsSlice'; // Import the new settings slice
+import settingsReducer from '../features/settings/settingsSlice';
+import inventoryLedgerReducer from '../features/inventory/inventoryLedgerSlice'; // UPDATED: Import the new ledger slice
 
-// Load the persisted state from local storage
 const preloadedState = storageService.loadState();
 
 export const store = configureStore({
@@ -40,12 +39,11 @@ export const store = configureStore({
     approvals: approvalsReducer,
     pos: posReducer, 
     settings: settingsReducer,
-
+    inventoryLedger: inventoryLedgerReducer, // UPDATED: Add the new ledger reducer
   },
-  preloadedState, // Initialize the store with the persisted state
+  preloadedState,
 });
 
-// Subscribe to store updates to save the state to localStorage
 store.subscribe(() => {
     storageService.saveState(store.getState());
 });

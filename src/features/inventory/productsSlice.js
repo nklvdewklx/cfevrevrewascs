@@ -2,12 +2,13 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { createGenericSlice } from '../../app/createGenericSlice';
 import { defaultDb } from '../../api/defaultDb';
 import { storageService } from '../../services/storageService';
+import { addLedgerEntry } from './inventoryLedgerSlice'; // NEW: Import ledger action
 
-// Thunk for adjusting stock.
 export const adjustStockForOrder = createAsyncThunk(
     'inventory/adjustStockForOrder',
-    async (order, { getState, rejectWithValue }) => {
-        const { products } = getState(); // Corrected to get 'products' slice
+    async (order, { getState, dispatch, rejectWithValue }) => {
+        const { products, auth } = getState();
+        const userId = auth.user?.id;
         const productsToUpdate = [];
         
         for (const item of order.items) {
@@ -24,7 +25,6 @@ export const adjustStockForOrder = createAsyncThunk(
             }
 
             const updatedProduct = JSON.parse(JSON.stringify(product));
-            
             const sortedBatches = updatedProduct.stockBatches.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
 
             for (const batch of sortedBatches) {
@@ -35,6 +35,15 @@ export const adjustStockForOrder = createAsyncThunk(
             }
             updatedProduct.stockBatches = sortedBatches.filter(batch => batch.quantity > 0);
             productsToUpdate.push(updatedProduct);
+
+            // NEW: Log this action to the inventory ledger
+            dispatch(addLedgerEntry({
+                itemType: 'product',
+                itemId: item.productId,
+                quantityChange: -item.quantity,
+                reason: `Sale - Order #${order.id}`,
+                userId
+            }));
         }
         
         return productsToUpdate;
@@ -47,6 +56,19 @@ const initialState = persistedState?.products?.items || defaultDb.inventory;
 const productsSlice = createGenericSlice({
     name: 'products',
     initialState: initialState,
+    reducers: {
+        archiveProduct: (state, action) => {
+            const { id, isArchived } = action.payload;
+            const product = state.items.find(p => p.id === id);
+            if (product) {
+                product.status = isArchived ? 'archived' : 'active';
+            }
+        },
+        addItem: (state, action) => {
+            const newId = state.items.length > 0 ? Math.max(...state.items.map(i => i.id)) + 1 : 1;
+            state.items.push({ ...action.payload, id: newId, status: 'active', reorderPoint: 0 });
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(adjustStockForOrder.pending, (state) => {
@@ -72,6 +94,7 @@ export const {
   addItem: addProduct,
   updateItem: updateProduct,
   deleteItem: deleteProduct,
+  archiveProduct,
   setItems: setProducts,
 } = productsSlice.actions;
 
