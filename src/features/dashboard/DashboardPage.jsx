@@ -1,6 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Edit, User, Package, ShoppingCart } from 'lucide-react';
+import { Edit, User, Package, ShoppingCart, Clock, TrendingUp } from 'lucide-react';
+import DataTable from '../../components/common/DataTable';
+import ReactApexChart from 'react-apexcharts';
 
 const DashboardPage = () => {
     // Select the data you need from the Redux store
@@ -8,13 +10,65 @@ const DashboardPage = () => {
     const customers = useSelector((state) => state.customers.items);
     const orders = useSelector((state) => state.orders.items);
     const products = useSelector((state) => state.products.items);
+    const approvals = useSelector((state) => state.approvals.items);
+    const pendingOrders = orders.filter(order => order.status === 'pending');
+    const newApprovals = approvals.filter(approval => approval.status === 'pending');
 
-    // Basic stats calculation
+    // --- New: Accurate Revenue Calculation ---
+    const calculateOrderTotal = (orderItems) => {
+        return orderItems.reduce((total, item) => {
+            const product = products.find(p => p.id === item.productId);
+            const price = product?.pricingTiers[0]?.price || 0;
+            return total + (price * item.quantity);
+        }, 0);
+    };
+
     const totalRevenue = orders.reduce((sum, order) => {
-        // NOTE: This is a simplified calculation.
-        // In a real scenario, we'd have a more complex `calculateOrderTotal` function.
-        return sum + (order.items.reduce((itemSum, item) => itemSum + (item.quantity * 50), 0) || 0);
+        return sum + calculateOrderTotal(order.items);
     }, 0);
+
+    // --- New: Data for the Sales Chart ---
+    const getSalesDataForLast7Days = () => {
+        const salesByDay = {};
+        const today = new Date();
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(today);
+            date.setDate(today.getDate() - i);
+            const dateString = date.toISOString().split('T')[0];
+            salesByDay[dateString] = 0;
+        }
+
+        orders.forEach(order => {
+            const orderDate = order.date;
+            if (salesByDay.hasOwnProperty(orderDate)) {
+                salesByDay[orderDate] += calculateOrderTotal(order.items);
+            }
+        });
+
+        const sortedDates = Object.keys(salesByDay).sort();
+        return {
+            categories: sortedDates,
+            data: sortedDates.map(date => salesByDay[date])
+        };
+    };
+
+    const salesData = getSalesDataForLast7Days();
+
+    const chartOptions = {
+        chart: {
+            type: 'bar',
+            toolbar: { show: false },
+            foreColor: '#8a9cb1'
+        },
+        plotOptions: {
+            bar: { borderRadius: 4 }
+        },
+        xaxis: { categories: salesData.categories },
+        grid: { borderColor: 'rgba(255, 255, 255, 0.1)' },
+        tooltip: { theme: 'dark' }
+    };
+
+    const chartSeries = [{ name: 'Sales', data: salesData.data }];
 
 
     return (
@@ -22,47 +76,78 @@ const DashboardPage = () => {
             <h1 className="text-3xl font-bold text-white">Welcome back, {user?.name}!</h1>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard icon={<ShoppingCart size={24} />} title="Total Revenue" value={`$${(totalRevenue / 1000).toFixed(1)}k`} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                <StatCard icon={<TrendingUp size={24} />} title="Total Revenue" value={`$${(totalRevenue).toFixed(2)}`} />
                 <StatCard icon={<User size={24} />} title="Total Customers" value={customers.length} />
                 <StatCard icon={<Package size={24} />} title="Total Products" value={products.length} />
                 <StatCard icon={<ShoppingCart size={24} />} title="Total Orders" value={orders.length} />
+                <StatCard icon={<Clock size={24} />} title="Pending Approvals" value={newApprovals.length} />
             </div>
 
-            {/* Recent Activity Section */}
+            {/* Main Content: Chart and Tables */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Sales Chart */}
+                <div className="glass-panel rounded-lg p-6">
+                    <h2 className="text-xl font-semibold text-custom-light-blue mb-4">Sales for Last 7 Days</h2>
+                    <ReactApexChart options={chartOptions} series={chartSeries} type="bar" height={300} />
+                </div>
+
+                {/* Pending Tasks */}
+                <div className="glass-panel rounded-lg p-6">
+                    <h2 className="text-xl font-semibold text-custom-light-blue mb-4">Pending Tasks</h2>
+                    <div className="space-y-4">
+                        <div className="bg-gray-700 p-4 rounded-lg">
+                            <h3 className="font-semibold">Pending Orders: {pendingOrders.length}</h3>
+                            <ul className="mt-2 text-sm text-gray-300">
+                                {pendingOrders.slice(0, 3).map(order => (
+                                    <li key={order.id} className="truncate">Order #{order.id} for Customer {customers.find(c => c.id === order.customerId)?.name || 'N/A'}</li>
+                                ))}
+                                {pendingOrders.length > 3 && <li className="text-right text-xs text-blue-400">... and {pendingOrders.length - 3} more</li>}
+                                {pendingOrders.length === 0 && <li>No pending orders.</li>}
+                            </ul>
+                        </div>
+                        <div className="bg-gray-700 p-4 rounded-lg">
+                            <h3 className="font-semibold">New Approval Requests: {newApprovals.length}</h3>
+                            <ul className="mt-2 text-sm text-gray-300">
+                                {newApprovals.slice(0, 3).map(approval => (
+                                    <li key={approval.id} className="truncate">Request #{approval.id} from {approval.requestorName}</li>
+                                ))}
+                                {newApprovals.length > 3 && <li className="text-right text-xs text-blue-400">... and {newApprovals.length - 3} more</li>}
+                                {newApprovals.length === 0 && <li>No new approval requests.</li>}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Recent Orders Section */}
             <div className="glass-panel rounded-lg p-6">
                 <h2 className="text-xl font-semibold text-custom-light-blue mb-4">Recent Orders</h2>
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-white/10">
-                                <th className="text-left p-3 text-sm font-semibold text-custom-grey">Order ID</th>
-                                <th className="text-left p-3 text-sm font-semibold text-custom-grey">Customer</th>
-                                <th className="text-left p-3 text-sm font-semibold text-custom-grey">Status</th>
-                                <th className="text-left p-3 text-sm font-semibold text-custom-grey">Actions</th>
+                <DataTable
+                    headers={['Order ID', 'Customer', 'Date', 'Total', 'Status', 'Actions']}
+                    data={orders.slice(0, 5)}
+                    renderRow={(order) => {
+                        const customer = customers.find(c => c.id === order.customerId);
+                        const total = calculateOrderTotal(order.items);
+                        const statusColors = { pending: 'status-pending', completed: 'status-completed', shipped: 'status-shipped', cancelled: 'status-cancelled' };
+                        return (
+                            <tr key={order.id} className="border-b border-white/10 last:border-b-0">
+                                <td className="p-3">#{order.id}</td>
+                                <td className="p-3">{customer?.name || 'N/A'}</td>
+                                <td className="p-3">{order.date}</td>
+                                <td className="p-3 font-semibold">${total.toFixed(2)}</td>
+                                <td className="p-3">
+                                    <span className={`status-pill ${statusColors[order.status] || ''}`}>{order.status}</span>
+                                </td>
+                                <td className="p-3">
+                                    <button className="text-custom-light-blue hover:text-white">
+                                        <Edit size={16} />
+                                    </button>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {orders.slice(0, 5).map(order => {
-                                const customer = customers.find(c => c.id === order.customerId);
-                                return (
-                                    <tr key={order.id} className="border-b border-white/10 last:border-b-0">
-                                        <td className="p-3">#{order.id}</td>
-                                        <td className="p-3">{customer?.name || 'N/A'}</td>
-                                        <td className="p-3">
-                                            <span className={`status-pill status-${order.status}`}>{order.status}</span>
-                                        </td>
-                                        <td className="p-3">
-                                            <button className="text-custom-light-blue hover:text-white">
-                                                <Edit size={16} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                        );
+                    }}
+                />
             </div>
         </div>
     );

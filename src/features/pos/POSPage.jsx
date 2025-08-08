@@ -3,6 +3,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import { addOrder } from '../orders/ordersSlice';
 import { adjustStockForOrder } from '../inventory/productsSlice';
 import { showToast } from '../../lib/toast';
+import {
+    addToCart,
+    updateCartItem,
+    removeFromCart,
+    clearCart,
+    openTransaction,
+    loadTransaction,
+    setCustomerId
+} from './posSlice';
 
 const POSPage = () => {
     const dispatch = useDispatch();
@@ -10,25 +19,37 @@ const POSPage = () => {
     const products = useSelector((state) => state.products.items);
     const customers = useSelector((state) => state.customers.items);
     const { user } = useSelector((state) => state.auth);
-
-    const [cart, setCart] = useState([]);
-    const [selectedCustomerId, setSelectedCustomerId] = useState(customers[0]?.id || '');
+    const { cart, selectedCustomerId, openTransactions } = useSelector((state) => state.pos);
 
     const handleAddProductToCart = (product) => {
-        const existingItem = cart.find(item => item.productId === product.id);
-        if (existingItem) {
-            // Increase quantity if item is already in cart
-            setCart(cart.map(item =>
-                item.productId === product.id ? { ...item, quantity: item.quantity + 1 } : item
-            ));
-        } else {
-            // Add new item to cart
-            setCart([...cart, { productId: product.id, name: product.name, quantity: 1, price: product.pricingTiers[0]?.price || 0 }]);
-        }
+        dispatch(addToCart({ product, quantity: 1 }));
+    };
+
+    const handleUpdateQuantity = (productId, quantity) => {
+        if (quantity < 1) return;
+        dispatch(updateCartItem({ productId, quantity }));
+    };
+
+    const handleRemoveItem = (productId) => {
+        dispatch(removeFromCart(productId));
+    };
+
+    const handleOpenTransaction = () => {
+        dispatch(openTransaction());
+        showToast('Transaction saved and a new cart is ready.', 'info');
+    };
+
+    const handleLoadTransaction = (index) => {
+        dispatch(loadTransaction(index));
+        showToast('Transaction loaded.', 'info');
     };
 
     const calculateTotal = () => {
-        return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        return cart.reduce((total, item) => {
+            const product = products.find(p => p.id === item.productId);
+            const price = product?.pricingTiers[0]?.price || 0;
+            return total + (price * item.quantity);
+        }, 0);
     };
 
     const handleFinalizeSale = async () => {
@@ -52,7 +73,7 @@ const POSPage = () => {
             // If stock adjustment is successful, then create the order
             dispatch(addOrder(newOrderData));
             showToast('Sale completed successfully!', 'success');
-            setCart([]); // Clear the cart
+            dispatch(clearCart()); // Clear the cart
         } catch (error) {
             showToast(`Sale failed: ${error}`, 'error');
         }
@@ -77,7 +98,7 @@ const POSPage = () => {
                 <h2 className="text-xl font-bold mb-4">Current Sale</h2>
                 <div>
                     <label className="block mb-1 text-sm text-custom-grey">Customer</label>
-                    <select value={selectedCustomerId} onChange={(e) => setSelectedCustomerId(e.target.value)} className="form-input bg-gray-700 border-gray-600">
+                    <select value={selectedCustomerId} onChange={(e) => dispatch(setCustomerId(e.target.value))} className="form-input bg-gray-700 border-gray-600">
                         {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                 </div>
@@ -106,7 +127,25 @@ const POSPage = () => {
                     <button onClick={handleFinalizeSale} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg text-xl">
                         Pay
                     </button>
+                    <button onClick={handleOpenTransaction} className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-4 rounded-lg text-xl">
+                        Open Transaction
+                    </button>
                 </div>
+                {openTransactions.length > 0 && (
+                    <div className="mt-4 border-t border-white/10 pt-4">
+                        <h3 className="text-lg font-bold">Open Transactions</h3>
+                        <ul className="space-y-2 mt-2">
+                            {openTransactions.map((tx, index) => (
+                                <li key={index} className="flex justify-between items-center bg-gray-700 p-2 rounded-lg">
+                                    <span>#{index + 1} - Items: {tx.cart.length}</span>
+                                    <button onClick={() => handleLoadTransaction(index)} className="text-blue-400 hover:text-blue-300">
+                                        Load
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
         </div>
     );
