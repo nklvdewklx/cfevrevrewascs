@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
+import { useTranslation } from 'react-i18next';
 import {
     Home,
     ShoppingBag,
@@ -15,10 +15,11 @@ import {
     Handshake,
     ChevronDown,
     Settings,
+    ClipboardList, // NEW: Icon for Components
 } from 'lucide-react';
 
 const Sidebar = () => {
-    const { t } = useTranslation(); // NEW: Get the translation function
+    const { t } = useTranslation();
     const [openSections, setOpenSections] = useState({
         Sales: true,
         Inventory: true,
@@ -31,7 +32,6 @@ const Sidebar = () => {
         setOpenSections(prev => ({ ...prev, [title]: !prev[title] }));
     };
 
-    // UPDATED: Use translation keys for all titles and links
     const navSections = [
         {
             title: 'sales',
@@ -47,6 +47,7 @@ const Sidebar = () => {
             title: 'inventory',
             links: [
                 { name: 'finishedProducts', path: '/inventory', icon: <Boxes size={20} /> },
+                { name: 'components', path: '/inventory/components', icon: <ClipboardList size={20} /> }, // NEW: Components Link
                 { name: 'productionHistory', path: '/production-orders', icon: <HardHat size={20} /> },
             ],
         },
@@ -79,7 +80,6 @@ const Sidebar = () => {
     return (
         <aside className="w-64 glass-panel p-4 h-full overflow-y-auto custom-scrollbar border-r border-white/10 flex-shrink-0">
             <nav className="space-y-4">
-                {/* Dashboard Link - Pinned to the top */}
                 <NavLink
                     to="/dashboard"
                     className={({ isActive }) =>
@@ -87,7 +87,6 @@ const Sidebar = () => {
                     }
                 >
                     <Home size={20} />
-                    {/* NEW: Use translation key */}
                     <span>{t('dashboard')}</span>
                 </NavLink>
 
@@ -98,7 +97,6 @@ const Sidebar = () => {
                                 className="flex justify-between items-center cursor-pointer p-3 rounded-lg hover:bg-white/5 transition-colors duration-200"
                                 onClick={() => toggleSection(section.title)}
                             >
-                                {/* NEW: Use translation key for section title */}
                                 <h3 className="text-sm font-semibold text-custom-grey uppercase">{t(section.title)}</h3>
                                 <ChevronDown size={16} className={`text-custom-grey transition-transform duration-200 ${openSections[section.title] ? '' : '-rotate-90'}`} />
                             </div>
@@ -112,7 +110,6 @@ const Sidebar = () => {
                                 }
                             >
                                 {link.icon}
-                                {/* NEW: Use translation key for link name */}
                                 <span>{t(link.name)}</span>
                             </NavLink>
                         ))}

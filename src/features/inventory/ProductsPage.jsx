@@ -8,10 +8,11 @@ import { addProduct, updateProduct } from './productsSlice';
 import { executeProductionOrder } from '../production/productionOrdersSlice';
 import { showToast } from '../../lib/toast';
 import Button from '../../components/common/Button';
-import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom'; // NEW: Import Link
 
 const ProductsPage = () => {
-    const { t } = useTranslation(); // NEW: Get translation function
+    const { t } = useTranslation();
     const dispatch = useDispatch();
 
     const products = useSelector((state) => state.products.items);
@@ -56,11 +57,9 @@ const ProductsPage = () => {
 
     const handleExecuteProduction = async () => {
         try {
-            // NEW: Translate toast messages
             await dispatch(executeProductionOrder({ productId: editingProduct.id, quantityToProduce: productionQuantity })).unwrap();
             showToast(t('productionSuccess', { quantity: productionQuantity, name: editingProduct.name }), 'success');
         } catch (error) {
-            // NEW: Translate toast messages
             showToast(t('productionFailed', { error }), 'error');
         } finally {
             handleCloseProduceModal();
@@ -77,13 +76,17 @@ const ProductsPage = () => {
 
     const renderRow = (product) => {
         const totalStock = product.stockBatches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0;
-        // NEW: Use translated status strings
         const status = totalStock === 0 ? { text: t('outOfStock'), className: 'status-cancelled' } : { text: t('inStock'), className: 'status-completed' };
         const canProduce = product.bom && product.bom.length > 0;
 
         return (
             <tr key={product.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
-                <td className="p-4">{product.name}</td>
+                <td className="p-4">
+                    {/* NEW: Link to product detail page */}
+                    <Link to={`/inventory/${product.id}`} className="text-blue-400 hover:underline">
+                        {product.name}
+                    </Link>
+                </td>
                 <td className="p-4">{product.sku}</td>
                 <td className="p-4 font-semibold">{totalStock}</td>
                 <td className="p-4"><span className={`status-pill ${status.className}`}>{status.text}</span></td>

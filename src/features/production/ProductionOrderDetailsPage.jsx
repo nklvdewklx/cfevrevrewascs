@@ -57,9 +57,9 @@ const ProductionOrderDetailsPage = () => {
             <div className="bg-gray-800 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold text-custom-light-blue mb-3">Product Produced</h3>
                 <div className="text-sm space-y-2 text-gray-300">
-                    {/* NEW: Link to product detail page */}
                     <p className="flex items-center">
                         <Factory size={14} className="mr-3" />
+                        {/* UPDATED: Link to product detail page */}
                         <Link to={`/inventory/${product?.id}`} className="font-bold text-white hover:underline">
                             {product?.name || 'N/A'}
                         </Link>
