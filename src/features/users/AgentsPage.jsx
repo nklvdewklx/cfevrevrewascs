@@ -7,8 +7,10 @@ import AgentForm from './AgentForm';
 import { addAgent, updateAgent, deleteAgent } from './agentsSlice';
 import { Link } from 'react-router-dom';
 import Button from '../../components/common/Button';
+import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 
 const AgentsPage = () => {
+    const { t } = useTranslation(); // NEW: Get translation function
     const dispatch = useDispatch();
     const agents = useSelector((state) => state.agents.items);
 
@@ -29,24 +31,23 @@ const AgentsPage = () => {
         if (editingAgent) {
             dispatch(updateAgent({ ...data, id: editingAgent.id }));
         } else {
-            // Add default location for new agents
             dispatch(addAgent({ ...data, lat: 52.370216, lng: 4.895115 }));
         }
         handleCloseModal();
     };
 
     const handleDelete = (agentId) => {
-        if (window.confirm('Are you sure you want to delete this agent?')) {
+        if (window.confirm(t('confirmDeleteAgent'))) { // NEW: Translate confirmation message
             dispatch(deleteAgent(agentId));
         }
     };
 
     const headers = [
-        { key: 'name', label: 'Name', sortable: true },
-        { key: 'email', label: 'Email', sortable: true },
-        { key: 'phone', label: 'Phone', sortable: false },
-        { key: 'role', label: 'Role', sortable: true },
-        { key: 'actions', label: 'Actions', sortable: false },
+        { key: 'name', label: t('name'), sortable: true },
+        { key: 'email', label: t('email'), sortable: true },
+        { key: 'phone', label: t('phone'), sortable: false },
+        { key: 'role', label: t('role'), sortable: true },
+        { key: 'actions', label: t('actions'), sortable: false },
     ];
 
     const renderRow = (agent) => (
@@ -58,11 +59,11 @@ const AgentsPage = () => {
             </td>
             <td className="p-4">{agent.email}</td>
             <td className="p-4">{agent.phone}</td>
-            <td className="p-4">{agent.role}</td>
+            <td className="p-4">{t(agent.role.replace(/\s/g, ''))}</td>
             <td className="p-4">
                 <div className="flex space-x-4">
-                    <Button onClick={() => handleOpenModal(agent)} variant="ghost-glow" size="sm" className="text-custom-light-blue"><Edit size={16} /></Button>
-                    <Button onClick={() => handleDelete(agent.id)} variant="ghost-glow" size="sm" className="text-red-400"><Trash2 size={16} /></Button>
+                    <Button onClick={() => handleOpenModal(agent)} variant="ghost-glow" size="sm" className="text-custom-light-blue" title={t('edit')}><Edit size={16} /></Button>
+                    <Button onClick={() => handleDelete(agent.id)} variant="ghost-glow" size="sm" className="text-red-400" title={t('delete')}><Trash2 size={16} /></Button>
                 </div>
             </td>
         </tr>
@@ -71,14 +72,14 @@ const AgentsPage = () => {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-white">Manage Agents</h1>
+                <h1 className="text-3xl font-bold text-white">{t('manageAgents')}</h1>
                 <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2" size="sm">
                     <Plus size={20} />
-                    <span>New Agent</span>
+                    <span>{t('newAgent')}</span>
                 </Button>
             </div>
             <DataTable headers={headers} data={agents} renderRow={renderRow} />
-            <Modal title={editingAgent ? 'Edit Agent' : 'Add New Agent'} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>
+            <Modal title={editingAgent ? t('editAgent') : t('addAgent')} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>
                 <AgentForm agent={editingAgent} onSave={handleSaveAgent} onCancel={handleCloseModal} />
             </Modal>
         </div>

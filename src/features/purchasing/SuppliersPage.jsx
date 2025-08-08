@@ -6,8 +6,10 @@ import Modal from '../../components/common/Modal';
 import SupplierForm from './SupplierForm';
 import { addSupplier, updateSupplier, deleteSupplier } from './suppliersSlice';
 import Button from '../../components/common/Button';
+import { useTranslation } from 'react-i18next';
 
 const SuppliersPage = () => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const suppliers = useSelector((state) => state.suppliers.items);
 
@@ -34,17 +36,17 @@ const SuppliersPage = () => {
     };
 
     const handleDelete = (supplierId) => {
-        if (window.confirm('Are you sure you want to delete this supplier?')) {
+        if (window.confirm(t('confirmDeleteSupplier'))) {
             dispatch(deleteSupplier(supplierId));
         }
     };
 
     const headers = [
-        { key: 'name', label: 'Company Name', sortable: true },
-        { key: 'contactPerson', label: 'Contact Person', sortable: true },
-        { key: 'email', label: 'Email', sortable: true },
-        { key: 'phone', label: 'Phone', sortable: false },
-        { key: 'actions', label: 'Actions', sortable: false },
+        { key: 'name', label: t('companyName'), sortable: true },
+        { key: 'contactPerson', label: t('contactPerson'), sortable: true },
+        { key: 'email', label: t('email'), sortable: true },
+        { key: 'phone', label: t('phone'), sortable: false },
+        { key: 'actions', label: t('actions'), sortable: false },
     ];
 
     const renderRow = (supplier) => (
@@ -65,14 +67,14 @@ const SuppliersPage = () => {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-white">Manage Suppliers</h1>
+                <h1 className="text-3xl font-bold text-white">{t('manageSuppliers')}</h1>
                 <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2" size="sm">
                     <Plus size={20} />
-                    <span>New Supplier</span>
+                    <span>{t('newSupplier')}</span>
                 </Button>
             </div>
             <DataTable headers={headers} data={suppliers} renderRow={renderRow} />
-            <Modal title={editingSupplier ? 'Edit Supplier' : 'Add New Supplier'} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>
+            <Modal title={editingSupplier ? t('editSupplier') : t('addNewSupplier')} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>
                 <SupplierForm supplier={editingSupplier} onSave={handleSaveSupplier} onCancel={handleCloseModal} />
             </Modal>
         </div>

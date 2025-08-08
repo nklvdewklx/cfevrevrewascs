@@ -1,8 +1,10 @@
 import React from 'react';
-import { PDFDownloadLink } from '@react-pdf/renderer'; // NEW: Import the download link component
-import InvoicePdf from '../../components/documents/InvoicePdf'; // NEW: Import the PDF template
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import InvoicePdf from '../../components/documents/InvoicePdf';
+import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 
 const InvoiceDetailsModal = ({ invoice, order, customer, products }) => {
+    const { t } = useTranslation(); // NEW: Get translation function
     if (!invoice || !order) return null;
 
     const subtotal = order.items?.reduce((sum, item) => {
@@ -11,43 +13,42 @@ const InvoiceDetailsModal = ({ invoice, order, customer, products }) => {
         return sum + (price * item.quantity);
     }, 0) || 0;
 
-    const tax = subtotal * 0.19; // Assuming a static 19% tax for now
+    const tax = subtotal * 0.19;
     const total = subtotal + tax;
 
-    // NEW: Check if all data is available before rendering the PDF link
     const isDataReady = invoice && order && customer && products;
 
     return (
         <div className="text-white space-y-6">
             <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-3xl font-bold">INVOICE</h3>
+                    <h3 className="text-3xl font-bold">{t('invoice')}</h3>
                     <p className="text-custom-grey">{invoice.invoiceNumber}</p>
                 </div>
                 <div className="text-right">
                     <h4 className="text-2xl font-bold">ROCTEC Inc.</h4>
-                    <p className="text-custom-grey">Naaldwijk, South Holland</p>
+                    <p className="text-custom-grey">{t('companyLocation')}</p>
                 </div>
             </div>
             <div className="flex justify-between">
                 <div>
-                    <p className="text-custom-grey mb-1">BILL TO</p>
+                    <p className="text-custom-grey mb-1">{t('billTo')}</p>
                     <p className="font-bold">{customer?.name}</p>
                     <p>{customer?.company}</p>
                 </div>
                 <div className="text-right">
-                    <p><span className="text-custom-grey">Issue Date:</span> {invoice.issueDate}</p>
-                    <p><span className="text-custom-grey">Due Date:</span> {invoice.dueDate}</p>
+                    <p><span className="text-custom-grey">{t('issueDate')}:</span> {invoice.issueDate}</p>
+                    <p><span className="text-custom-grey">{t('dueDate')}:</span> {invoice.dueDate}</p>
                 </div>
             </div>
 
             <table className="w-full">
                 <thead className="border-b-2 border-white/20">
                     <tr>
-                        <th className="text-left font-semibold py-2">Description</th>
-                        <th className="text-right font-semibold py-2">Quantity</th>
-                        <th className="text-right font-semibold py-2">Unit Price</th>
-                        <th className="text-right font-semibold py-2">Amount</th>
+                        <th className="text-left font-semibold py-2">{t('description')}</th>
+                        <th className="text-right font-semibold py-2">{t('quantity')}</th>
+                        <th className="text-right font-semibold py-2">{t('unitPrice')}</th>
+                        <th className="text-right font-semibold py-2">{t('amount')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,12 +69,11 @@ const InvoiceDetailsModal = ({ invoice, order, customer, products }) => {
 
             <div className="flex justify-end">
                 <div className="w-full md:w-1/2 space-y-2">
-                    <div className="flex justify-between"><span className="text-custom-grey">Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-                    <div className="flex justify-between"><span className="text-custom-grey">Tax (19%)</span><span>${tax.toFixed(2)}</span></div>
-                    <div className="flex justify-between text-xl font-bold pt-2 border-t-2 border-white/20"><span >Total Due</span><span>${total.toFixed(2)}</span></div>
+                    <div className="flex justify-between"><span className="text-custom-grey">{t('subtotal')}</span><span>${subtotal.toFixed(2)}</span></div>
+                    <div className="flex justify-between"><span className="text-custom-grey">{t('tax')} (19%)</span><span>${tax.toFixed(2)}</span></div>
+                    <div className="flex justify-between text-xl font-bold pt-2 border-t-2 border-white/20"><span>{t('totalDue')}</span><span>${total.toFixed(2)}</span></div>
                 </div>
             </div>
-            {/* NEW: Download Link */}
             {isDataReady && (
                 <div className="flex justify-end pt-4">
                     <PDFDownloadLink
@@ -85,7 +85,7 @@ const InvoiceDetailsModal = ({ invoice, order, customer, products }) => {
                                 className="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg disabled:opacity-50"
                                 disabled={loading}
                             >
-                                {loading ? 'Loading document...' : 'Download PDF'}
+                                {loading ? t('loadingDocument') : t('downloadPdf')}
                             </button>
                         )}
                     </PDFDownloadLink>

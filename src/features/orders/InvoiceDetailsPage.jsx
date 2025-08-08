@@ -6,8 +6,10 @@ import { updateInvoice, deleteInvoice } from './invoicesSlice';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import InvoicePdf from '../../components/documents/InvoicePdf';
 import { showToast } from '../../lib/toast';
+import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 
 const InvoiceDetailsPage = () => {
+    const { t } = useTranslation(); // NEW: Get translation function
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { invoiceNumber } = useParams();
@@ -20,24 +22,24 @@ const InvoiceDetailsPage = () => {
     const invoice = invoices.find(inv => inv.invoiceNumber === invoiceNumber);
 
     if (!invoice) {
-        return <div className="text-center text-red-400">Invoice not found.</div>;
+        return <div className="text-center text-red-400">{t('invoiceNotFound')}</div>;
     }
 
     const order = orders.find(o => o.id === invoice.orderId);
     const customer = customers.find(c => c.id === invoice.customerId);
 
     const handleMarkAsPaid = () => {
-        if (window.confirm(`Mark invoice ${invoice.invoiceNumber} as paid?`)) {
+        if (window.confirm(t('confirmMarkAsPaid', { invoiceNumber: invoice.invoiceNumber }))) { // NEW: Translate confirmation message with variable
             dispatch(updateInvoice({ ...invoice, status: 'paid' }));
-            showToast('Invoice marked as paid.', 'success');
+            showToast(t('invoiceMarkedAsPaid'), 'success'); // NEW: Translate toast message
         }
     };
 
     const handleDelete = () => {
-        if (window.confirm('Are you sure you want to delete this invoice?')) {
+        if (window.confirm(t('confirmDeleteInvoice'))) { // NEW: Translate confirmation message
             dispatch(deleteInvoice(invoice.id));
-            showToast('Invoice deleted successfully.', 'success');
-            navigate('/invoices'); // Redirect back to the list
+            showToast(t('invoiceDeleted'), 'success'); // NEW: Translate toast message
+            navigate('/invoices');
         }
     };
 
@@ -48,15 +50,14 @@ const InvoiceDetailsPage = () => {
             <div>
                 <button onClick={() => navigate(-1)} className="flex items-center space-x-2 text-custom-light-blue mb-4">
                     <ArrowLeft size={18} />
-                    <span>Back to Invoices</span>
+                    <span>{t('backToInvoices')}</span>
                 </button>
                 <div className="flex justify-between items-center">
-                    <h2 className="text-3xl font-bold text-white">Invoice #{invoice.invoiceNumber}</h2>
-                    <span className={`status-pill ${invoice.status === 'paid' ? 'status-completed' : 'status-pending'}`}>{invoice.status}</span>
+                    <h2 className="text-3xl font-bold text-white">{t('invoiceNumberHeading', { invoiceNumber: invoice.invoiceNumber })}</h2>
+                    <span className={`status-pill ${invoice.status === 'paid' ? 'status-completed' : 'status-pending'}`}>{t(invoice.status)}</span>
                 </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex space-x-4">
                 {isDataReady && (
                     <PDFDownloadLink
@@ -69,7 +70,7 @@ const InvoiceDetailsPage = () => {
                                 disabled={loading}
                             >
                                 <Download size={16} />
-                                <span>{loading ? 'Generating...' : 'Download PDF'}</span>
+                                <span>{loading ? t('generating') : t('downloadPdf')}</span>
                             </button>
                         )}
                     </PDFDownloadLink>
@@ -77,27 +78,26 @@ const InvoiceDetailsPage = () => {
                 {invoice.status !== 'paid' && (
                     <button onClick={handleMarkAsPaid} className="bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded-lg flex items-center space-x-2">
                         <CheckCircle size={16} />
-                        <span>Mark as Paid</span>
+                        <span>{t('markAsPaid')}</span>
                     </button>
                 )}
                 <button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 font-bold py-2 px-4 rounded-lg flex items-center space-x-2">
                     <Trash2 size={16} />
-                    <span>Delete</span>
+                    <span>{t('delete')}</span>
                 </button>
             </div>
 
-            {/* Invoice Details UI - Reusing existing component for consistency */}
             <div className="glass-panel p-6 rounded-lg">
                 <div className="text-white space-y-6">
                     <div className="flex justify-between items-start">
                         <div className="text-right">
                             <h4 className="text-2xl font-bold">ROCTEC Inc.</h4>
-                            <p className="text-custom-grey">Naaldwijk, South Holland</p>
+                            <p className="text-custom-grey">{t('companyLocation')}</p>
                         </div>
                     </div>
                     <div className="flex justify-between">
                         <div>
-                            <p className="text-custom-grey mb-1">BILL TO</p>
+                            <p className="text-custom-grey mb-1">{t('billTo')}</p>
                             {customer && (
                                 <p className="font-bold">
                                     <Link to={`/customers/${customer.id}`} className="text-blue-400 hover:underline">
@@ -108,19 +108,19 @@ const InvoiceDetailsPage = () => {
                             <p>{customer?.company}</p>
                         </div>
                         <div className="text-right">
-                            <p><span className="text-custom-grey">Order:</span> <Link to={`/orders/${order?.id}`} className="text-blue-400 hover:underline">#{order?.id}</Link></p>
-                            <p><span className="text-custom-grey">Issue Date:</span> {invoice.issueDate}</p>
-                            <p><span className="text-custom-grey">Due Date:</span> {invoice.dueDate}</p>
+                            <p><span className="text-custom-grey">{t('order')}:</span> <Link to={`/orders/${order?.id}`} className="text-blue-400 hover:underline">#{order?.id}</Link></p>
+                            <p><span className="text-custom-grey">{t('issueDate')}:</span> {invoice.issueDate}</p>
+                            <p><span className="text-custom-grey">{t('dueDate')}:</span> {invoice.dueDate}</p>
                         </div>
                     </div>
 
                     <table className="w-full">
                         <thead className="border-b-2 border-white/20">
                             <tr>
-                                <th className="text-left font-semibold py-2">Description</th>
-                                <th className="text-right font-semibold py-2">Quantity</th>
-                                <th className="text-right font-semibold py-2">Unit Price</th>
-                                <th className="text-right font-semibold py-2">Amount</th>
+                                <th className="text-left font-semibold py-2">{t('description')}</th>
+                                <th className="text-right font-semibold py-2">{t('quantity')}</th>
+                                <th className="text-right font-semibold py-2">{t('unitPrice')}</th>
+                                <th className="text-right font-semibold py-2">{t('amount')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -141,7 +141,7 @@ const InvoiceDetailsPage = () => {
 
                     <div className="flex justify-end">
                         <div className="w-full md:w-1/2 space-y-2">
-                            <div className="flex justify-between"><span className="text-custom-grey">Total Due</span><span className="text-xl font-bold">${invoice.total.toFixed(2)}</span></div>
+                            <div className="flex justify-between"><span className="text-custom-grey">{t('totalDue')}</span><span className="text-xl font-bold">${invoice.total.toFixed(2)}</span></div>
                         </div>
                     </div>
                 </div>

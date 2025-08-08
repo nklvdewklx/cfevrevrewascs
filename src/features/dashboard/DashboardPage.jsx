@@ -3,9 +3,11 @@ import { useSelector } from 'react-redux';
 import { Edit, User, Package, ShoppingCart, Clock, TrendingUp } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import ReactApexChart from 'react-apexcharts';
+import { calculateOrderTotal } from '../../lib/dataHelpers';
+import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 
 const DashboardPage = () => {
-    // Select the data you need from the Redux store
+    const { t } = useTranslation(); // NEW: Get translation function
     const { user } = useSelector((state) => state.auth);
     const customers = useSelector((state) => state.customers.items);
     const orders = useSelector((state) => state.orders.items);
@@ -14,20 +16,10 @@ const DashboardPage = () => {
     const pendingOrders = orders.filter(order => order.status === 'pending');
     const newApprovals = approvals.filter(approval => approval.status === 'pending');
 
-    // --- New: Accurate Revenue Calculation ---
-    const calculateOrderTotal = (orderItems) => {
-        return orderItems.reduce((total, item) => {
-            const product = products.find(p => p.id === item.productId);
-            const price = product?.pricingTiers[0]?.price || 0;
-            return total + (price * item.quantity);
-        }, 0);
-    };
-
     const totalRevenue = orders.reduce((sum, order) => {
-        return sum + calculateOrderTotal(order.items);
+        return sum + calculateOrderTotal(order.items, products);
     }, 0);
 
-    // --- New: Data for the Sales Chart ---
     const getSalesDataForLast7Days = () => {
         const salesByDay = {};
         const today = new Date();
@@ -41,7 +33,7 @@ const DashboardPage = () => {
         orders.forEach(order => {
             const orderDate = order.date;
             if (salesByDay.hasOwnProperty(orderDate)) {
-                salesByDay[orderDate] += calculateOrderTotal(order.items);
+                salesByDay[orderDate] += calculateOrderTotal(order.items, products);
             }
         });
 
@@ -69,63 +61,58 @@ const DashboardPage = () => {
         colors: ['var(--color-primary-dark)']
     };
 
-    const chartSeries = [{ name: 'Sales', data: salesData.data }];
+    const chartSeries = [{ name: t('sales'), data: salesData.data }]; // NEW: Translate series name
 
 
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold text-white">Welcome back, {user?.name}!</h1>
+            <h1 className="text-3xl font-bold text-white">{t('welcomeBack', { name: user?.name })}</h1>
 
-            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                <StatCard icon={<TrendingUp size={24} />} title="Total Revenue" value={`$${(totalRevenue).toFixed(2)}`} />
-                <StatCard icon={<User size={24} />} title="Total Customers" value={customers.length} />
-                <StatCard icon={<Package size={24} />} title="Total Products" value={products.length} />
-                <StatCard icon={<ShoppingCart size={24} />} title="Total Orders" value={orders.length} />
-                <StatCard icon={<Clock size={24} />} title="Pending Approvals" value={newApprovals.length} />
+                <StatCard icon={<TrendingUp size={24} />} title={t('totalRevenue')} value={`$${(totalRevenue).toFixed(2)}`} />
+                <StatCard icon={<User size={24} />} title={t('totalCustomers')} value={customers.length} />
+                <StatCard icon={<Package size={24} />} title={t('totalProducts')} value={products.length} />
+                <StatCard icon={<ShoppingCart size={24} />} title={t('totalOrders')} value={orders.length} />
+                <StatCard icon={<Clock size={24} />} title={t('pendingApprovals')} value={newApprovals.length} />
             </div>
 
-            {/* Main Content: Chart and Tables */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Sales Chart */}
                 <div className="glass-panel rounded-lg p-6">
-                    <h2 className="text-xl font-semibold text-custom-light-blue mb-4">Sales for Last 7 Days</h2>
+                    <h2 className="text-xl font-semibold text-custom-light-blue mb-4">{t('salesForLast7Days')}</h2>
                     <ReactApexChart options={chartOptions} series={chartSeries} type="bar" height={300} />
                 </div>
 
-                {/* Pending Tasks */}
                 <div className="glass-panel rounded-lg p-6">
-                    <h2 className="text-xl font-semibold text-custom-light-blue mb-4">Pending Tasks</h2>
+                    <h2 className="text-xl font-semibold text-custom-light-blue mb-4">{t('pendingTasks')}</h2>
                     <div className="space-y-4">
                         <div className="glass-panel p-4 rounded-lg">
-                            <h3 className="font-semibold">Pending Orders: {pendingOrders.length}</h3>
+                            <h3 className="font-semibold">{t('pendingOrders')}: {pendingOrders.length}</h3>
                             <ul className="mt-2 text-sm text-gray-300">
                                 {pendingOrders.slice(0, 3).map(order => (
-                                    <li key={order.id} className="truncate">Order #{order.id} for Customer {customers.find(c => c.id === order.customerId)?.name || 'N/A'}</li>
+                                    <li key={order.id} className="truncate">{t('orderNumberForCustomer', { id: order.id, name: customers.find(c => c.id === order.customerId)?.name || 'N/A' })}</li>
                                 ))}
-                                {pendingOrders.length > 3 && <li className="text-right text-xs text-blue-400">... and {pendingOrders.length - 3} more</li>}
-                                {pendingOrders.length === 0 && <li>No pending orders.</li>}
+                                {pendingOrders.length > 3 && <li className="text-right text-xs text-blue-400">{t('andMore', { count: pendingOrders.length - 3 })}</li>}
+                                {pendingOrders.length === 0 && <li>{t('noPendingOrders')}</li>}
                             </ul>
                         </div>
                         <div className="glass-panel p-4 rounded-lg">
-                            <h3 className="font-semibold">New Approval Requests: {newApprovals.length}</h3>
+                            <h3 className="font-semibold">{t('newApprovalRequests')}: {newApprovals.length}</h3>
                             <ul className="mt-2 text-sm text-gray-300">
                                 {newApprovals.slice(0, 3).map(approval => (
-                                    <li key={approval.id} className="truncate">Request #{approval.id} from {approval.requestorName}</li>
+                                    <li key={approval.id} className="truncate">{t('requestFrom', { id: approval.id, name: approval.requestorName })}</li>
                                 ))}
-                                {newApprovals.length > 3 && <li className="text-right text-xs text-blue-400">... and {newApprovals.length - 3} more</li>}
-                                {newApprovals.length === 0 && <li>No new approval requests.</li>}
+                                {newApprovals.length > 3 && <li className="text-right text-xs text-blue-400">{t('andMore', { count: newApprovals.length - 3 })}</li>}
+                                {newApprovals.length === 0 && <li>{t('noNewApprovalRequests')}</li>}
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Recent Orders Section */}
             <div className="glass-panel rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-custom-light-blue mb-4">Recent Orders</h2>
+                <h2 className="text-xl font-semibold text-custom-light-blue mb-4">{t('recentOrders')}</h2>
                 <DataTable
-                    headers={['Order ID', 'Customer', 'Date', 'Total', 'Status', 'Actions']}
+                    headers={[t('orderId'), t('customer'), t('date'), t('total'), t('status'), t('actions')]}
                     data={orders.slice(0, 5)}
                     renderRow={(order) => {
                         const customer = customers.find(c => c.id === order.customerId);
@@ -138,7 +125,7 @@ const DashboardPage = () => {
                                 <td className="p-3">{order.date}</td>
                                 <td className="p-3 font-semibold">${total.toFixed(2)}</td>
                                 <td className="p-3">
-                                    <span className={`status-pill ${statusColors[order.status]}`}>{order.status}</span>
+                                    <span className={`status-pill ${statusColors[order.status]}`}>{t(order.status)}</span>
                                 </td>
                                 <td className="p-3">
                                     <button className="text-custom-light-blue hover:text-white">
@@ -154,7 +141,6 @@ const DashboardPage = () => {
     );
 };
 
-// A simple reusable component for stat cards
 const StatCard = ({ icon, title, value }) => {
     return (
         <div className="glass-panel p-6 rounded-lg flex items-center space-x-4">

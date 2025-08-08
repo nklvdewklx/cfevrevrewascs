@@ -12,8 +12,10 @@ import {
     loadTransaction,
     setCustomerId
 } from './posSlice';
+import { useTranslation } from 'react-i18next';
 
 const POSPage = () => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
 
     const products = useSelector((state) => state.products.items);
@@ -36,12 +38,12 @@ const POSPage = () => {
 
     const handleOpenTransaction = () => {
         dispatch(openTransaction());
-        showToast('Transaction saved and a new cart is ready.', 'info');
+        showToast(t('transactionSaved'), 'info');
     };
 
     const handleLoadTransaction = (index) => {
         dispatch(loadTransaction(index));
-        showToast('Transaction loaded.', 'info');
+        showToast(t('transactionLoaded'), 'info');
     };
 
     const calculateTotal = () => {
@@ -54,7 +56,7 @@ const POSPage = () => {
 
     const handleFinalizeSale = async () => {
         if (cart.length === 0) {
-            showToast('Cart is empty.', 'error');
+            showToast(t('cartEmpty'), 'error');
             return;
         }
 
@@ -62,26 +64,22 @@ const POSPage = () => {
             customerId: parseInt(selectedCustomerId),
             agentId: user.id,
             date: new Date().toISOString().split('T')[0],
-            status: 'completed', // POS sales are completed immediately
+            status: 'completed',
             items: cart.map(({ productId, quantity }) => ({ productId, quantity })),
         };
 
         try {
-            // First, check if stock can be adjusted
             await dispatch(adjustStockForOrder(newOrderData)).unwrap();
-
-            // If stock adjustment is successful, then create the order
             dispatch(addOrder(newOrderData));
-            showToast('Sale completed successfully!', 'success');
-            dispatch(clearCart()); // Clear the cart
+            showToast(t('saleCompleted'), 'success');
+            dispatch(clearCart());
         } catch (error) {
-            showToast(`Sale failed: ${error}`, 'error');
+            showToast(t('saleFailed', { error }), 'error');
         }
     };
 
     return (
         <div className="grid grid-cols-3 gap-4 h-full">
-            {/* Product Grid */}
             <div className="col-span-2 bg-gray-800/50 p-4 rounded-lg overflow-y-auto custom-scrollbar">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {products.map(product => (
@@ -93,11 +91,10 @@ const POSPage = () => {
                 </div>
             </div>
 
-            {/* Cart and Checkout */}
             <div className="col-span-1 bg-gray-800/50 p-4 rounded-lg flex flex-col">
-                <h2 className="text-xl font-bold mb-4">Current Sale</h2>
+                <h2 className="text-xl font-bold mb-4">{t('currentSale')}</h2>
                 <div>
-                    <label className="block mb-1 text-sm text-custom-grey">Customer</label>
+                    <label className="block mb-1 text-sm text-custom-grey">{t('customer')}</label>
                     <select value={selectedCustomerId} onChange={(e) => dispatch(setCustomerId(e.target.value))} className="form-input bg-gray-700 border-gray-600">
                         {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
@@ -105,7 +102,7 @@ const POSPage = () => {
 
                 <div className="flex-grow my-4 overflow-y-auto custom-scrollbar border-t border-b border-white/10">
                     {cart.length === 0 ? (
-                        <p className="text-center text-gray-400 mt-8">Cart is empty</p>
+                        <p className="text-center text-gray-400 mt-8">{t('cartEmptyMessage')}</p>
                     ) : (
                         cart.map((item, index) => (
                             <div key={index} className="flex justify-between items-center py-2 border-b border-white/10 last:border-b-0">
@@ -121,25 +118,25 @@ const POSPage = () => {
 
                 <div className="space-y-4">
                     <div className="flex justify-between text-2xl font-bold">
-                        <span>Total</span>
+                        <span>{t('total')}</span>
                         <span>${calculateTotal().toFixed(2)}</span>
                     </div>
                     <button onClick={handleFinalizeSale} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg text-xl">
-                        Pay
+                        {t('pay')}
                     </button>
                     <button onClick={handleOpenTransaction} className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-4 rounded-lg text-xl">
-                        Open Transaction
+                        {t('openTransaction')}
                     </button>
                 </div>
                 {openTransactions.length > 0 && (
                     <div className="mt-4 border-t border-white/10 pt-4">
-                        <h3 className="text-lg font-bold">Open Transactions</h3>
+                        <h3 className="text-lg font-bold">{t('openTransactions')}</h3>
                         <ul className="space-y-2 mt-2">
                             {openTransactions.map((tx, index) => (
                                 <li key={index} className="flex justify-between items-center bg-gray-700 p-2 rounded-lg">
-                                    <span>#{index + 1} - Items: {tx.cart.length}</span>
+                                    <span>{t('transactionItemCount', { count: tx.cart.length })}</span>
                                     <button onClick={() => handleLoadTransaction(index)} className="text-blue-400 hover:text-blue-300">
-                                        Load
+                                        {t('load')}
                                     </button>
                                 </li>
                             ))}

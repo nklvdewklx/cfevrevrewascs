@@ -1,8 +1,10 @@
 import React from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { Plus, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const PurchaseOrderForm = ({ po, onSave, onCancel, suppliers, components }) => {
+    const { t } = useTranslation();
     const { register, control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: po || {
             supplierId: suppliers[0]?.id || '',
@@ -20,30 +22,30 @@ const PurchaseOrderForm = ({ po, onSave, onCancel, suppliers, components }) => {
         <form onSubmit={handleSubmit(onSave)} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block mb-1 text-sm text-custom-grey">Supplier</label>
+                    <label className="block mb-1 text-sm text-custom-grey">{t('supplier')}</label>
                     <select {...register('supplierId')} className="form-select">
                         {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                 </div>
                 <div>
-                    <label className="block mb-1 text-sm text-custom-grey">Status</label>
+                    <label className="block mb-1 text-sm text-custom-grey">{t('status')}</label>
                     <select {...register('status')} className="form-select">
-                        <option value="draft">Draft</option>
-                        <option value="sent">Sent</option>
+                        <option value="draft">{t('draft')}</option>
+                        <option value="sent">{t('sent')}</option>
                     </select>
                 </div>
             </div>
 
             <div className="space-y-3 pt-4 border-t border-white/10">
-                <label className="block text-md font-semibold text-custom-light-blue">Components to Order</label>
+                <label className="block text-md font-semibold text-custom-light-blue">{t('componentsToOrder')}</label>
                 {fields.map((field, index) => (
                     <div key={field.id} className="flex items-center space-x-2">
-                        <select {...register(`items.${index}.componentId`, { required: 'Component is required' })} className="form-select flex-grow">
+                        <select {...register(`items.${index}.componentId`, { required: t('componentRequired') })} className="form-select flex-grow">
                             {components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
                         <input
                             type="number"
-                            {...register(`items.${index}.quantity`, { valueAsNumber: true, min: { value: 1, message: 'Quantity must be at least 1' } })}
+                            {...register(`items.${index}.quantity`, { valueAsNumber: true, min: { value: 1, message: t('quantityAtLeastOne') } })}
                             className="form-input w-24"
                             min="1"
                         />
@@ -51,12 +53,12 @@ const PurchaseOrderForm = ({ po, onSave, onCancel, suppliers, components }) => {
                         {errors.items?.[index]?.quantity && <p className="text-red-400 text-xs mt-1">{errors.items[index].quantity.message}</p>}
                     </div>
                 ))}
-                <button type="button" onClick={() => append({ componentId: components[0]?.id, quantity: 1 })} className="text-sm text-blue-400 flex items-center space-x-2"><Plus size={16} /><span>Add Component</span></button>
+                <button type="button" onClick={() => append({ componentId: components[0]?.id, quantity: 1 })} className="text-sm text-blue-400 flex items-center space-x-2"><Plus size={16} /><span>{t('addComponent')}</span></button>
             </div>
 
             <div className="pt-4 flex justify-end space-x-4">
-                <button type="button" onClick={onCancel} className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg">Cancel</button>
-                <button type="submit" className="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg">Save Purchase Order</button>
+                <button type="button" onClick={onCancel} className="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-lg">{t('cancel')}</button>
+                <button type="submit" className="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg">{t('savePo')}</button>
             </div>
         </form>
     );

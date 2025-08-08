@@ -11,8 +11,10 @@ import { showToast } from '../../lib/toast';
 import { Link } from 'react-router-dom';
 import { calculateOrderTotal } from '../../lib/dataHelpers';
 import Button from '../../components/common/Button';
+import { useTranslation } from 'react-i18next';
 
 const OrdersPage = () => {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
 
     const orders = useSelector((state) => state.orders.items);
@@ -21,6 +23,7 @@ const OrdersPage = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingOrder, setEditingOrder] = useState(null);
+    const [statusFilter, setStatusFilter] = useState('');
 
     const handleOpenModal = (order = null) => {
         setEditingOrder(order);
@@ -48,42 +51,42 @@ const OrdersPage = () => {
     };
 
     const handleDelete = (orderId) => {
-        if (window.confirm('Are you sure you want to delete this order?')) {
+        if (window.confirm(t('confirmDeleteOrder'))) {
             dispatch(deleteOrder(orderId));
         }
     };
 
     const handleCompleteOrder = async (order) => {
         if (order.status !== 'pending') {
-            showToast('This order has already been processed.', 'info');
+            showToast(t('orderAlreadyProcessed'), 'info');
             return;
         }
 
         try {
             await dispatch(adjustStockForOrder(order)).unwrap();
             dispatch(updateOrder({ ...order, status: 'completed' }));
-            showToast('Order completed and stock adjusted!', 'success');
+            showToast(t('orderCompleted'), 'success');
         } catch (error) {
-            showToast(`Failed to complete order: ${error}`, 'error');
+            showToast(t('orderFailed', { error }), 'error');
         }
     };
 
     const handleGenerateInvoice = async (order) => {
         try {
             await dispatch(generateInvoiceForOrder(order)).unwrap();
-            showToast('Invoice generated successfully!', 'success');
+            showToast(t('invoiceGenerated'), 'success');
         } catch (error) {
-            showToast(`Failed to generate invoice: ${error}`, 'error');
+            showToast(t('invoiceFailed', { error }), 'error');
         }
     };
 
     const headers = [
-        { key: 'id', label: 'Order ID', sortable: true },
-        { key: 'customerId', label: 'Customer', sortable: true },
-        { key: 'date', label: 'Date', sortable: true },
-        { key: 'total', label: 'Total', sortable: false },
-        { key: 'status', label: 'Status', sortable: true },
-        { key: 'actions', label: 'Actions', sortable: false },
+        { key: 'id', label: t('orderId'), sortable: true },
+        { key: 'customerId', label: t('customer'), sortable: true },
+        { key: 'date', label: t('date'), sortable: true },
+        { key: 'total', label: t('total'), sortable: false },
+        { key: 'status', label: t('status'), sortable: true },
+        { key: 'actions', label: t('actions'), sortable: false },
     ];
 
     const renderRow = (order) => {
@@ -102,31 +105,50 @@ const OrdersPage = () => {
                 <td className="p-4">{order.date}</td>
                 <td className="p-4 font-semibold">${total.toFixed(2)}</td>
                 <td className="p-4">
-                    <span className={`status-pill ${statusColors[order.status] || ''}`}>{order.status}</span>
+                    <span className={`status-pill ${statusColors[order.status] || ''}`}>{t(order.status)}</span>
                 </td>
                 <td className="p-4">
                     <div className="flex space-x-4">
-                        {order.status === 'pending' && <Button onClick={() => handleCompleteOrder(order)} variant="ghost-glow" className="text-green-400" title="Complete Order"><CheckCircle size={16} /></Button>}
-                        {order.status === 'completed' && <Button onClick={() => handleGenerateInvoice(order)} variant="ghost-glow" className="text-yellow-400" title="Generate Invoice"><FileText size={16} /></Button>}
-                        <Button onClick={() => handleOpenModal(order)} variant="ghost-glow" className="text-custom-light-blue" title="Edit"><Edit size={16} /></Button>
-                        <Button onClick={() => handleDelete(order.id)} variant="ghost-glow" className="text-red-400" title="Delete"><Trash2 size={16} /></Button>
+                        {order.status === 'pending' && <Button onClick={() => handleCompleteOrder(order)} variant="ghost-glow" className="text-green-400" title={t('completeOrder')}><CheckCircle size={16} /></Button>}
+                        {order.status === 'completed' && <Button onClick={() => handleGenerateInvoice(order)} variant="ghost-glow" className="text-yellow-400" title={t('generateInvoice')}><FileText size={16} /></Button>}
+                        <Button onClick={() => handleOpenModal(order)} variant="ghost-glow" className="text-custom-light-blue" title={t('edit')}><Edit size={16} /></Button>
+                        <Button onClick={() => handleDelete(order.id)} variant="ghost-glow" className="text-red-400" title={t('delete')}><Trash2 size={16} /></Button>
                     </div>
                 </td>
             </tr>
         );
     };
 
+    const orderStatusFilters = {
+        activeFilters: { status: statusFilter },
+        controls: (
+            <div className="relative w-full md:w-48">
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="form-select w-full"
+                >
+                    <option value="">{t('allStatuses')}</option>
+                    <option value="pending">{t('pending')}</option>
+                    <option value="completed">{t('completed')}</option>
+                    <option value="shipped">{t('shipped')}</option>
+                    <option value="cancelled">{t('cancelled')}</option>
+                </select>
+            </div>
+        )
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-white">Manage Orders</h1>
+                <h1 className="text-3xl font-bold text-white">{t('manageOrders')}</h1>
                 <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2">
                     <Plus size={20} />
-                    <span>New Order</span>
+                    <span>{t('newOrder')}</span>
                 </Button>
             </div>
-            <DataTable headers={headers} data={orders} renderRow={renderRow} />
-            <Modal title={editingOrder ? 'Edit Order' : 'Create New Order'} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>
+            <DataTable headers={headers} data={orders} renderRow={renderRow} filters={orderStatusFilters} />
+            <Modal title={editingOrder ? t('editOrder') : t('createNewOrder')} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>
                 <OrderForm order={editingOrder} onSave={handleSaveOrder} onCancel={handleCloseModal} customers={customers} products={products} />
             </Modal>
         </div>

@@ -2,20 +2,19 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const AgentCustomersPage = () => {
+    const { t } = useTranslation();
     const { user } = useSelector((state) => state.auth);
     const customers = useSelector((state) => state.customers.items);
 
-    // Filter for customers assigned to the current agent
     const myCustomers = customers.filter(c => c.agentId === user.id);
 
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold">My Customers</h2>
-                {/* We can add a "New Customer" page for agents later */}
-                {/* <Link to="/agent/new-customer" className="bg-green-600 hover:bg-green-700 text-white font-bold p-2 rounded-lg"><UserPlus size={20} /></Link> */}
+                <h2 className="text-2xl font-semibold">{t('myCustomers')}</h2>
             </div>
             <div className="space-y-3">
                 {myCustomers.length > 0 ? (
@@ -31,7 +30,7 @@ const AgentCustomersPage = () => {
                         </Link>
                     ))
                 ) : (
-                    <p className="text-gray-400 text-center pt-8">You have no customers assigned.</p>
+                    <p className="text-gray-400 text-center pt-8">{t('noCustomersAssigned')}</p>
                 )}
             </div>
         </div>

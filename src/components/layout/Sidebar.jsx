@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 import {
     Home,
     ShoppingBag,
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 
 const Sidebar = () => {
+    const { t } = useTranslation(); // NEW: Get the translation function
     const [openSections, setOpenSections] = useState({
         Sales: true,
         Inventory: true,
@@ -29,43 +31,44 @@ const Sidebar = () => {
         setOpenSections(prev => ({ ...prev, [title]: !prev[title] }));
     };
 
+    // UPDATED: Use translation keys for all titles and links
     const navSections = [
         {
-            title: 'Sales',
+            title: 'sales',
             links: [
-                { name: 'Leads', path: '/leads', icon: <Handshake size={20} /> },
-                { name: 'Quotes', path: '/quotes', icon: <FileText size={20} /> },
-                { name: 'Customers', path: '/customers', icon: <Users size={20} /> },
-                { name: 'Orders', path: '/orders', icon: <ShoppingBag size={20} /> },
-                { name: 'Invoices', path: '/invoices', icon: <CircleDollarSign size={20} /> },
+                { name: 'leads', path: '/leads', icon: <Handshake size={20} /> },
+                { name: 'quotes', path: '/quotes', icon: <FileText size={20} /> },
+                { name: 'customers', path: '/customers', icon: <Users size={20} /> },
+                { name: 'orders', path: '/orders', icon: <ShoppingBag size={20} /> },
+                { name: 'invoices', path: '/invoices', icon: <CircleDollarSign size={20} /> },
             ],
         },
         {
-            title: 'Inventory',
+            title: 'inventory',
             links: [
-                { name: 'Finished Products', path: '/inventory', icon: <Boxes size={20} /> },
-                { name: 'Production History', path: '/production-orders', icon: <HardHat size={20} /> },
+                { name: 'finishedProducts', path: '/inventory', icon: <Boxes size={20} /> },
+                { name: 'productionHistory', path: '/production-orders', icon: <HardHat size={20} /> },
             ],
         },
         {
-            title: 'Purchasing',
+            title: 'purchasing',
             links: [
-                { name: 'Suppliers', path: '/suppliers', icon: <Truck size={20} /> },
-                { name: 'Purchase Orders', path: '/purchase-orders', icon: <FileText size={20} /> },
+                { name: 'suppliers', path: '/suppliers', icon: <Truck size={20} /> },
+                { name: 'purchaseOrders', path: '/purchase-orders', icon: <FileText size={20} /> },
             ],
         },
         {
-            title: 'Reporting',
+            title: 'reporting',
             links: [
-                { name: 'Reports', path: '/reports', icon: <BarChart size={20} /> },
+                { name: 'reports', path: '/reports', icon: <BarChart size={20} /> },
             ],
         },
         {
-            title: 'Admin',
+            title: 'admin',
             links: [
-                { name: 'Agents', path: '/agents', icon: <Shield size={20} /> },
-                { name: 'Employees', path: '/employees', icon: <Users size={20} /> },
-                { name: 'Settings', path: '/settings', icon: <Settings size={20} /> }, // New link for settings
+                { name: 'agents', path: '/agents', icon: <Shield size={20} /> },
+                { name: 'employees', path: '/employees', icon: <Users size={20} /> },
+                { name: 'settings', path: '/settings', icon: <Settings size={20} /> },
             ],
             adminOnly: true
         },
@@ -84,7 +87,8 @@ const Sidebar = () => {
                     }
                 >
                     <Home size={20} />
-                    <span>Dashboard</span>
+                    {/* NEW: Use translation key */}
+                    <span>{t('dashboard')}</span>
                 </NavLink>
 
                 {navSections.map((section, index) => (
@@ -94,7 +98,8 @@ const Sidebar = () => {
                                 className="flex justify-between items-center cursor-pointer p-3 rounded-lg hover:bg-white/5 transition-colors duration-200"
                                 onClick={() => toggleSection(section.title)}
                             >
-                                <h3 className="text-sm font-semibold text-custom-grey uppercase">{section.title}</h3>
+                                {/* NEW: Use translation key for section title */}
+                                <h3 className="text-sm font-semibold text-custom-grey uppercase">{t(section.title)}</h3>
                                 <ChevronDown size={16} className={`text-custom-grey transition-transform duration-200 ${openSections[section.title] ? '' : '-rotate-90'}`} />
                             </div>
                         )}
@@ -107,7 +112,8 @@ const Sidebar = () => {
                                 }
                             >
                                 {link.icon}
-                                <span>{link.name}</span>
+                                {/* NEW: Use translation key for link name */}
+                                <span>{t(link.name)}</span>
                             </NavLink>
                         ))}
                     </div>

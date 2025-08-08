@@ -6,12 +6,14 @@ import Modal from '../../components/common/Modal';
 import CustomerForm from './CustomerForm';
 import { addCustomer, updateCustomer, deleteCustomer } from './customersSlice';
 import { Link } from 'react-router-dom';
-import Button from '../../components/common/Button'; // NEW: Import the reusable Button component
+import Button from '../../components/common/Button';
+import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 
 const CustomersPage = () => {
+    const { t } = useTranslation(); // NEW: Get translation function
     const dispatch = useDispatch();
     const customers = useSelector((state) => state.customers.items);
-    const agents = useSelector((state) => state.agents.items); // For the agent dropdown in the form
+    const agents = useSelector((state) => state.agents.items);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState(null);
@@ -36,19 +38,18 @@ const CustomersPage = () => {
     };
 
     const handleDelete = (customerId) => {
-        if (window.confirm('Are you sure you want to delete this customer?')) {
+        if (window.confirm(t('confirmDeleteCustomer'))) {
             dispatch(deleteCustomer(customerId));
         }
     };
 
-    // NEW: Updated headers for the new DataTable
     const headers = [
-        { key: 'name', label: 'Name', sortable: true },
-        { key: 'company', label: 'Company', sortable: true },
-        { key: 'email', label: 'Email', sortable: true },
-        { key: 'phone', label: 'Phone', sortable: false },
-        { key: 'agentId', label: 'Agent', sortable: true },
-        { key: 'actions', label: 'Actions', sortable: false },
+        { key: 'name', label: t('name'), sortable: true },
+        { key: 'company', label: t('company'), sortable: true },
+        { key: 'email', label: t('email'), sortable: true },
+        { key: 'phone', label: t('phone'), sortable: false },
+        { key: 'agentId', label: t('agent'), sortable: true },
+        { key: 'actions', label: t('actions'), sortable: false },
     ];
 
     const renderRow = (customer) => {
@@ -81,27 +82,27 @@ const CustomersPage = () => {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-white">Manage Customers</h1>
+                <h1 className="text-3xl font-bold text-white">{t('manageCustomers')}</h1>
                 <Button
                     onClick={() => handleOpenModal()}
                     variant="primary"
                     className="flex items-center space-x-2"
                 >
                     <Plus size={20} />
-                    <span>New Customer</span>
+                    <span>{t('newCustomer')}</span>
                 </Button>
             </div>
 
             <DataTable headers={headers} data={customers} renderRow={renderRow} />
 
             <Modal
-                title={editingCustomer ? 'Edit Customer' : 'Add New Customer'}
+                title={editingCustomer ? t('editCustomer') : t('addNewCustomer')}
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 footer={
                     <>
                         <Button onClick={handleCloseModal} variant="secondary">
-                            Cancel
+                            {t('cancel')}
                         </Button>
                     </>
                 }

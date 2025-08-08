@@ -1,7 +1,9 @@
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 
 const BillOfMaterials = ({ product, components, onBomChange, onAddBomItem, onRemoveBomItem }) => {
+    const { t } = useTranslation(); // NEW: Get translation function
 
     // Helper function to calculate the total cost of a product based on its BOM
     const calculateProductCost = () => {
@@ -20,15 +22,15 @@ const BillOfMaterials = ({ product, components, onBomChange, onAddBomItem, onRem
 
     return (
         <div className="space-y-3">
-            <h3 className="text-md font-semibold text-custom-light-blue">Bill of Materials (BOM)</h3>
+            <h3 className="text-md font-semibold text-custom-light-blue">{t('billOfMaterials')}</h3>
             <div className="bg-gray-800/50 p-4 rounded-lg">
                 <table className="w-full text-sm">
                     <thead>
                         <tr className="border-b-2 border-white/20 text-left">
-                            <th className="py-2">Component</th>
-                            <th className="py-2">Quantity</th>
-                            <th className="py-2 text-right">Cost</th>
-                            <th className="py-2 text-right">Total</th>
+                            <th className="py-2">{t('component')}</th>
+                            <th className="py-2">{t('quantity')}</th>
+                            <th className="py-2 text-right">{t('cost')}</th>
+                            <th className="py-2 text-right">{t('total')}</th>
                             <th className="py-2"></th>
                         </tr>
                     </thead>
@@ -67,17 +69,17 @@ const BillOfMaterials = ({ product, components, onBomChange, onAddBomItem, onRem
                             })
                         ) : (
                             <tr>
-                                <td colSpan="5" className="text-center py-4 text-custom-grey">No components in this BOM.</td>
+                                <td colSpan="5" className="text-center py-4 text-custom-grey">{t('noComponentsInBom')}</td>
                             </tr>
                         )}
                     </tbody>
                 </table>
-                <button type="button" onClick={onAddBomItem} className="mt-4 text-sm text-blue-400 flex items-center space-x-2"><Plus size={16} /><span>Add Component</span></button>
+                <button type="button" onClick={onAddBomItem} className="mt-4 text-sm text-blue-400 flex items-center space-x-2"><Plus size={16} /><span>{t('addComponent')}</span></button>
             </div>
             {product?.bom?.length > 0 && (
                 <div className="flex justify-end pt-2">
                     <div className="text-right">
-                        <span className="text-custom-grey">Total BOM Cost:</span>
+                        <span className="text-custom-grey">{t('totalBomCost')}:</span>
                         <span className="text-lg font-bold text-white ml-2">${calculateProductCost().toFixed(2)}</span>
                     </div>
                 </div>

@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Navigation } from 'lucide-react';
 import L from 'leaflet';
+import { useTranslation } from 'react-i18next';
 
 // Fix for default marker icon issue with webpack
 delete L.Icon.Default.prototype._getIconUrl;
@@ -14,6 +15,7 @@ L.Icon.Default.mergeOptions({
 
 
 const AgentRoutePage = () => {
+    const { t } = useTranslation();
     const { user } = useSelector((state) => state.auth);
     const customers = useSelector((state) => state.customers.items);
 
@@ -24,7 +26,7 @@ const AgentRoutePage = () => {
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold">Today's Schedule</h2>
+                <h2 className="text-2xl font-semibold">{t('todaysSchedule')}</h2>
             </div>
 
             <div className="h-64 w-full rounded-lg overflow-hidden">
@@ -41,18 +43,18 @@ const AgentRoutePage = () => {
                         )
                     ))}
                     <Marker position={agentPosition}>
-                        <Popup>Your Location</Popup>
+                        <Popup>{t('yourLocation')}</Popup>
                     </Marker>
                 </MapContainer>
             </div>
 
             <button className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">
                 <Navigation size={20} />
-                <span>Calculate Optimal Route</span>
+                <span>{t('calculateOptimalRoute')}</span>
             </button>
 
             <div className="space-y-3">
-                <h3 className="text-lg font-semibold">Destinations</h3>
+                <h3 className="text-lg font-semibold">{t('destinations')}</h3>
                 {myCustomers.map(customer => (
                     <div key={customer.id} className="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
                         <div>

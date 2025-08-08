@@ -5,8 +5,10 @@ import { loginSuccess, loginFailure } from './authSlice';
 import { defaultDb } from '../../api/defaultDb';
 import { showToast } from '../../lib/toast';
 import Button from '../../components/common/Button';
+import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 
 const LoginPage = () => {
+    const { t } = useTranslation(); // NEW: Get the translation function
     const [username, setUsername] = useState('admin');
     const [password, setPassword] = useState('$2a$12$fD.g9b.ExU39Y5R..2535uR4D0n6oBCDRV3b2s.2s.3b4s.5s.6b7');
     const dispatch = useDispatch();
@@ -18,10 +20,12 @@ const LoginPage = () => {
         const foundUser = defaultDb.users.find(u => u.username === username && u.password === password);
 
         if (foundUser) {
-            showToast(`Welcome, ${foundUser.name}!`, 'success');
+            // NEW: Translate the toast message
+            showToast(t('welcomeUser', { name: foundUser.name }), 'success');
             dispatch(loginSuccess(foundUser));
         } else {
-            showToast('Invalid username or password.', 'error');
+            // NEW: Translate the toast message
+            showToast(t('invalidCredentials'), 'error');
             dispatch(loginFailure('Invalid credentials'));
         }
     };
@@ -35,11 +39,12 @@ const LoginPage = () => {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4">
             <div className="glass-panel rounded-lg w-full max-w-sm">
                 <div className="p-6 text-center">
-                    <h2 className="text-3xl font-bold text-white mb-4">Welcome to ROCTEC</h2>
-                    <p className="text-custom-grey mb-6">Please log in to continue.</p>
+                    {/* NEW: Translate these strings */}
+                    <h2 className="text-3xl font-bold text-white mb-4">ROCTEC ERP</h2>
+                    <p className="text-custom-grey mb-6">{t('loginMessage')}</p>
                     <form onSubmit={handleSubmit} className="space-y-4 text-left">
                         <div>
-                            <label className="block mb-1 text-sm text-custom-grey">Username</label>
+                            <label className="block mb-1 text-sm text-custom-grey">{t('username')}</label>
                             <input
                                 type="text"
                                 value={username}
@@ -49,7 +54,7 @@ const LoginPage = () => {
                             />
                         </div>
                         <div>
-                            <label className="block mb-1 text-sm text-custom-grey">Password</label>
+                            <label className="block mb-1 text-sm text-custom-grey">{t('password')}</label>
                             <input
                                 type="password"
                                 value={password}
@@ -59,7 +64,7 @@ const LoginPage = () => {
                             />
                         </div>
                         <Button type="submit" size="lg" className="w-full mt-4">
-                            Login
+                            {t('login')}
                         </Button>
                     </form>
                 </div>

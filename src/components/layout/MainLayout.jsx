@@ -5,8 +5,10 @@ import { logout } from '../../features/authentication/authSlice';
 import Sidebar from './Sidebar';
 import Button from '../common/Button';
 import SearchBar from '../common/SearchBar';
+import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 
 const MainLayout = () => {
+    const { t } = useTranslation(); // NEW: Get the translation function
     const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
 
@@ -36,13 +38,15 @@ const MainLayout = () => {
                         >
                             <span>Launch POS</span>
                         </Button>
-                        <span>Hello, {user?.name}</span>
+                        {/* NEW: Translate the user greeting */}
+                        <span>{t('helloUser', { name: user?.name })}</span>
                         <Button
                             onClick={() => handleLogout()}
                             variant="danger"
                             className="text-white"
                         >
-                            <span>Logout</span>
+                            {/* NEW: Translate the button text */}
+                            <span>{t('logout')}</span>
                         </Button>
                     </div>
                 </header>

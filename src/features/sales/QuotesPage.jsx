@@ -8,8 +8,10 @@ import { addQuote, updateQuote } from '../orders/quotesSlice';
 import { addOrder } from '../orders/ordersSlice';
 import { showToast } from '../../lib/toast';
 import Button from '../../components/common/Button';
+import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 
 const QuotesPage = () => {
+    const { t } = useTranslation(); // NEW: Get translation function
     const dispatch = useDispatch();
     const { items: quotes } = useSelector((state) => state.quotes);
     const { items: customers } = useSelector((state) => state.customers);
@@ -18,6 +20,7 @@ const QuotesPage = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingQuote, setEditingQuote] = useState(null);
+    const [statusFilter, setStatusFilter] = useState('');
 
     const handleOpenModal = (quote = null) => {
         setEditingQuote(quote);
@@ -44,16 +47,15 @@ const QuotesPage = () => {
         handleCloseModal();
     };
 
-    // --- NEW: Business Logic for Quote to Order Conversion ---
     const handleConvertToOrder = (quote) => {
         if (quote.status !== 'accepted') {
-            showToast('Only accepted quotes can be converted.', 'error');
+            showToast(t('onlyAcceptedQuotes'), 'error'); // NEW: Translate toast message
             return;
         }
-        if (window.confirm(`Create a new order from Quote #${quote.quoteNumber}? The quote will be marked as 'Converted'.`)) {
+        if (window.confirm(t('confirmConvertQuote', { quoteNumber: quote.quoteNumber }))) { // NEW: Translate confirmation message with variable
             const newOrderData = {
                 customerId: quote.customerId,
-                agentId: 1, // Placeholder
+                agentId: 1,
                 date: new Date().toISOString().split('T')[0],
                 status: 'pending',
                 items: quote.items,
@@ -61,11 +63,17 @@ const QuotesPage = () => {
             };
             dispatch(addOrder(newOrderData));
             dispatch(updateQuote({ ...quote, status: 'converted' }));
-            showToast(`Quote converted to new Order!`, 'success');
+            showToast(t('quoteConverted'), 'success'); // NEW: Translate toast message
         }
     };
 
-    const headers = ['Quote #', 'Recipient', 'Date', 'Status', 'Actions'];
+    const headers = [
+        t('quoteNumber'),
+        t('recipient'),
+        t('date'),
+        t('status'),
+        t('actions')
+    ];
 
     const renderRow = (quote) => {
         const recipient = quote.customerId ? customers.find(c => c.id === quote.customerId) : leads.find(l => l.id === quote.leadId);
@@ -76,33 +84,53 @@ const QuotesPage = () => {
                 <td className="p-4">{quote.quoteNumber}</td>
                 <td className="p-4">{recipient?.name || 'N/A'}</td>
                 <td className="p-4">{quote.date}</td>
-                <td className="p-4"><span className={`status-pill ${statusColors[quote.status]}`}>{quote.status}</span></td>
+                <td className="p-4"><span className={`status-pill ${statusColors[quote.status]}`}>{t(quote.status)}</span></td>
                 <td className="p-4">
                     <div className="flex space-x-4">
                         {quote.status === 'accepted' && (
-                            <button onClick={() => handleConvertToOrder(quote)} className="text-green-400 hover:text-green-300" title="Create Order from Quote">
+                            <button onClick={() => handleConvertToOrder(quote)} className="text-green-400 hover:text-green-300" title={t('createOrderFromQuote')}>
                                 <FilePlus2 size={16} />
                             </button>
                         )}
-                        <button onClick={() => handleOpenModal(quote)} className="text-custom-light-blue hover:text-white"><Edit size={16} /></button>
-                        <button onClick={() => { }} className="text-red-400 hover:text-red-300"><Trash2 size={16} /></button>
+                        <button onClick={() => handleOpenModal(quote)} className="text-custom-light-blue hover:text-white" title={t('edit')}><Edit size={16} /></button>
+                        <button onClick={() => { }} className="text-red-400 hover:text-red-300" title={t('delete')}><Trash2 size={16} /></button>
                     </div>
                 </td>
             </tr>
         );
     };
 
+    const quoteStatusFilters = {
+        activeFilters: { status: statusFilter },
+        controls: (
+            <div className="relative w-full md:w-48">
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="form-select w-full"
+                >
+                    <option value="">{t('allStatuses')}</option>
+                    <option value="draft">{t('draft')}</option>
+                    <option value="sent">{t('sent')}</option>
+                    <option value="accepted">{t('accepted')}</option>
+                    <option value="rejected">{t('rejected')}</option>
+                    <option value="converted">{t('converted')}</option>
+                </select>
+            </div>
+        )
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-white">Manage Quotes</h1>
+                <h1 className="text-3xl font-bold text-white">{t('manageQuotes')}</h1>
                 <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2">
                     <Plus size={20} />
-                    <span>New Quote</span>
+                    <span>{t('newQuote')}</span>
                 </Button>
             </div>
-            <DataTable headers={headers} data={quotes} renderRow={renderRow} />
-            <Modal title={editingQuote ? 'Edit Quote' : 'New Quote'} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>
+            <DataTable headers={headers} data={quotes} renderRow={renderRow} filters={quoteStatusFilters} />
+            <Modal title={editingQuote ? t('editQuote') : t('newQuote')} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>
                 <QuoteForm quote={editingQuote} onSave={handleSaveQuote} onCancel={handleCloseModal} customers={customers} leads={leads} products={products} />
             </Modal>
         </div>

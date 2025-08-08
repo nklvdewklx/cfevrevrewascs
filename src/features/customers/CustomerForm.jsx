@@ -1,7 +1,9 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
 
 const CustomerForm = ({ customer, onSave, onCancel, agents }) => {
+    const { t } = useTranslation(); // NEW: Get translation function
     const { register, handleSubmit, formState: { errors } } = useForm({
         defaultValues: customer ? {
             ...customer,
@@ -22,16 +24,16 @@ const CustomerForm = ({ customer, onSave, onCancel, agents }) => {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-                <label className="block mb-1 text-sm text-custom-grey">Name</label>
+                <label className="block mb-1 text-sm text-custom-grey">{t('name')}</label>
                 <input
                     type="text"
-                    {...register('name', { required: 'Name is required' })}
+                    {...register('name', { required: t('nameRequired') })}
                     className="form-input"
                 />
                 {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
             </div>
             <div>
-                <label className="block mb-1 text-sm text-custom-grey">Company</label>
+                <label className="block mb-1 text-sm text-custom-grey">{t('company')}</label>
                 <input
                     type="text"
                     {...register('company')}
@@ -39,13 +41,13 @@ const CustomerForm = ({ customer, onSave, onCancel, agents }) => {
                 />
             </div>
             <div>
-                <label className="block mb-1 text-sm text-custom-grey">Email</label>
+                <label className="block mb-1 text-sm text-custom-grey">{t('email')}</label>
                 <input
                     type="email"
                     {...register('email', {
                         pattern: {
                             value: /^\S+@\S+$/i,
-                            message: 'Invalid email address'
+                            message: t('invalidEmail')
                         }
                     })}
                     className="form-input"
@@ -53,7 +55,7 @@ const CustomerForm = ({ customer, onSave, onCancel, agents }) => {
                 {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
             </div>
             <div>
-                <label className="block mb-1 text-sm text-custom-grey">Phone</label>
+                <label className="block mb-1 text-sm text-custom-grey">{t('phone')}</label>
                 <input
                     type="tel"
                     {...register('phone')}
@@ -61,9 +63,9 @@ const CustomerForm = ({ customer, onSave, onCancel, agents }) => {
                 />
             </div>
             <div>
-                <label className="block mb-1 text-sm text-custom-grey">Assigned Agent</label>
+                <label className="block mb-1 text-sm text-custom-grey">{t('assignedAgent')}</label>
                 <select
-                    {...register('agentId', { required: 'An agent must be selected' })}
+                    {...register('agentId', { required: t('agentRequired') })}
                     className="form-select"
                 >
                     {agents.map(agent => (
@@ -74,10 +76,10 @@ const CustomerForm = ({ customer, onSave, onCancel, agents }) => {
             </div>
             <div className="pt-4 flex justify-end">
                 <button type="button" onClick={onCancel} className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
-                    Cancel
+                    {t('cancel')}
                 </button>
                 <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
-                    Save Customer
+                    {t('saveCustomer')}
                 </button>
             </div>
         </form>

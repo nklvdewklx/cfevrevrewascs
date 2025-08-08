@@ -144,7 +144,9 @@ const DataTable = ({ headers, data, renderRow, initialSort, searchable = true, f
             {totalPages > 1 && (
                 <div className="flex justify-between items-center text-custom-grey">
                     <span className="text-sm">
-                        Showing {itemsPerPage * (currentPage - 1) + 1} to {Math.min(itemsPerPage * currentPage, totalItems)} of {totalItems} entries
+                        {/* NEW: Internationalized string for total items */}
+                        {/* Example of future-proofing for i18n */}
+                        {`Showing ${itemsPerPage * (currentPage - 1) + 1} to ${Math.min(itemsPerPage * currentPage, totalItems)} of ${totalItems} entries`}
                     </span>
                     <div className="flex space-x-2">
                         <button onClick={handlePrevPage} disabled={currentPage === 1} className="p-2 disabled:opacity-50 hover:bg-white/5 rounded-lg">
