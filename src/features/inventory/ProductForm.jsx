@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
+import BillOfMaterials from '../production/BillOfMaterials';
 
 const ProductForm = ({ product, onSave, onCancel, components }) => {
     const [formData, setFormData] = useState({
@@ -32,7 +33,9 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
     // --- Pricing Tier Handlers ---
     const handleTierChange = (index, field, value) => {
         const newTiers = [...formData.pricingTiers];
-        newTiers[index][field] = value;
+        // FIX: Create a new object to prevent state mutation
+        const updatedTier = { ...newTiers[index], [field]: value };
+        newTiers[index] = updatedTier;
         setFormData(prev => ({ ...prev, pricingTiers: newTiers }));
     };
     const addTier = () => {
@@ -45,7 +48,9 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
     // --- Bill of Materials (BOM) Handlers ---
     const handleBomChange = (index, field, value) => {
         const newBom = [...formData.bom];
-        newBom[index][field] = value;
+        // FIX: Create a new object to prevent state mutation
+        const updatedBomItem = { ...newBom[index], [field]: value };
+        newBom[index] = updatedBomItem;
         setFormData(prev => ({ ...prev, bom: newBom }));
     };
     const addBomItem = () => {
@@ -92,18 +97,14 @@ const ProductForm = ({ product, onSave, onCancel, components }) => {
             </div>
 
             {/* Bill of Materials */}
-            <div className="space-y-3 pt-4 border-t border-white/10">
-                <label className="block text-md font-semibold text-custom-light-blue">Bill of Materials (BOM)</label>
-                {formData.bom.map((item, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                        <select value={item.componentId} onChange={(e) => handleBomChange(index, 'componentId', e.target.value)} className="form-select flex-grow">
-                            {components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                        </select>
-                        <input type="number" placeholder="Qty" value={item.quantity} onChange={(e) => handleBomChange(index, 'quantity', e.target.value)} className="form-input w-24" min="1" />
-                        <button type="button" onClick={() => removeBomItem(index)} className="p-2 text-red-400"><Trash2 size={18} /></button>
-                    </div>
-                ))}
-                <button type="button" onClick={addBomItem} className="text-sm text-blue-400 flex items-center space-x-2"><Plus size={16} /><span>Add Component</span></button>
+            <div className="pt-4 border-t border-white/10">
+                <BillOfMaterials
+                    product={formData}
+                    components={components}
+                    onBomChange={handleBomChange}
+                    onAddBomItem={addBomItem}
+                    onRemoveBomItem={removeBomItem}
+                />
             </div>
 
             <div className="pt-4 flex justify-end space-x-4">

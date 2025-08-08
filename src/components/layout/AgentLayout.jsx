@@ -3,6 +3,7 @@ import { Outlet, NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Home, MapPinned, Users, Package, LogOut } from 'lucide-react';
 import { logout } from '../../features/authentication/authSlice';
+import Button from '../common/Button';
 
 const AgentLayout = () => {
     const dispatch = useDispatch();
@@ -28,9 +29,10 @@ const AgentLayout = () => {
                 <h1 className="text-xl font-bold text-white">ROCTEC Agent</h1>
                 <div className="flex items-center space-x-4">
                     <span className="text-sm text-gray-300">{user?.name}</span>
-                    <button onClick={handleLogout} title="Logout">
+                    {/* NEW: Use the reusable Button component for logout */}
+                    <Button onClick={handleLogout} variant="ghost" title="Logout">
                         <LogOut size={20} className="text-red-400" />
-                    </button>
+                    </Button>
                 </div>
             </header>
 

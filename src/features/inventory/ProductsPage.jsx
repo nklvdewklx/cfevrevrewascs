@@ -4,8 +4,8 @@ import { Edit, Trash2, Plus, Factory } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import ProductForm from './ProductForm';
-import { addProduct, updateProduct, deleteProduct } from './productsSlice';
-import { executeProductionOrder } from '../production/productionOrdersSlice'; // Import the new thunk
+import { addProduct, updateProduct } from './productsSlice'; // Removed unused `deleteProduct` import
+import { executeProductionOrder } from '../production/productionOrdersSlice';
 import { showToast } from '../../lib/toast';
 
 const ProductsPage = () => {
@@ -60,6 +60,9 @@ const ProductsPage = () => {
             handleCloseProduceModal();
         }
     };
+
+    // NOTE: The delete logic is commented out in this component, so we remove the unused import.
+    // const handleDelete = (productId) => { ... }
 
     const headers = ['Product Name', 'SKU', 'Total Stock', 'Status', 'Actions'];
 

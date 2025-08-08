@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { Plus, Trash2 } from 'lucide-react';
 
 const QuoteForm = ({ quote, onSave, onCancel, customers, leads, products }) => {
-    const { register, control, handleSubmit, watch } = useForm({
+    const { register, control, handleSubmit } = useForm({
         defaultValues: quote || {
             customerId: '',
             leadId: '',

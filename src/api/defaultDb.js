@@ -37,13 +37,13 @@ export const defaultDb = {
         { id: 503, name: 'Spice & Herb Traders', contactPerson: 'Klaus Schmidt', email: 'k.schmidt@spice-traders.de', phone: '+49 30 123456' },
     ],
     components: [
-        { id: 701, name: 'Cucumbers (kg)', cost: 1.50, stockBatches: [] },
-        { id: 702, name: 'Vinegar (L)', cost: 0.80, stockBatches: [] },
-        { id: 703, name: 'Dill (g)', cost: 0.05, stockBatches: [] },
-        { id: 704, name: 'Glass Jar (500g)', cost: 0.25, stockBatches: [] },
-        { id: 705, name: 'Jar Lid', cost: 0.05, stockBatches: [] },
-        { id: 706, name: 'Kalamata Olives (kg)', cost: 4.50, stockBatches: [] },
-        { id: 707, name: 'Olive Oil (L)', cost: 3.50, stockBatches: [] },
+        { id: 701, name: 'Cucumbers (kg)', cost: 1.50, reorderPoint: 100, stockBatches: [{ quantity: 50, supplierLotNumber: 'FVF-202507-1', receivedDate: '2025-07-20' }] },
+        { id: 702, name: 'Vinegar (L)', cost: 0.80, reorderPoint: 50, stockBatches: [{ quantity: 75, supplierLotNumber: 'FVF-202507-2', receivedDate: '2025-07-20' }] },
+        { id: 703, name: 'Dill (g)', cost: 0.05, reorderPoint: 500, stockBatches: [{ quantity: 1500, supplierLotNumber: 'SHT-202507-1', receivedDate: '2025-07-20' }] },
+        { id: 704, name: 'Glass Jar (500g)', cost: 0.25, reorderPoint: 1000, stockBatches: [{ quantity: 800, supplierLotNumber: 'PS-202507-1', receivedDate: '2025-07-22' }] },
+        { id: 705, name: 'Jar Lid', cost: 0.05, reorderPoint: 1000, stockBatches: [{ quantity: 1200, supplierLotNumber: 'PS-202507-1', receivedDate: '2025-07-22' }] },
+        { id: 706, name: 'Kalamata Olives (kg)', cost: 4.50, reorderPoint: 50, stockBatches: [{ quantity: 100, supplierLotNumber: 'FVF-202507-3', receivedDate: '2025-07-25' }] },
+        { id: 707, name: 'Olive Oil (L)', cost: 3.50, reorderPoint: 20, stockBatches: [{ quantity: 30, supplierLotNumber: 'FVF-202507-4', receivedDate: '2025-07-25' }] },
     ],
     inventory: [
         {

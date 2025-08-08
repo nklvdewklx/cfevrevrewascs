@@ -4,7 +4,7 @@ import { Edit, Trash2, Plus, FilePlus2 } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import QuoteForm from './QuoteForm';
-import { addQuote, updateQuote, deleteQuote } from '../orders/quotesSlice';
+import { addQuote, updateQuote } from '../orders/quotesSlice';
 import { addOrder } from '../orders/ordersSlice';
 import { showToast } from '../../lib/toast';
 

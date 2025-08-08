@@ -24,10 +24,15 @@ import LeadsPage from '../features/sales/LeadsPage';
 import QuotesPage from '../features/sales/QuotesPage';
 import AgentHomePage from '../features/agent/AgentHomePage';
 import AgentRoutePage from '../features/agent/AgentRoutePage';
-import AgentOrderForm from '../features/agent/AgentOrderForm'; // Import the new agent form
-import AgentCustomersPage from '../features/agent/AgentCustomersPage'; // Import the new agent customer pages
+import AgentOrderForm from '../features/agent/AgentOrderForm';
+import AgentCustomersPage from '../features/agent/AgentCustomersPage';
 import AgentCustomerDetailPage from '../features/agent/AgentCustomerDetailPage';
-import POSPage from '../features/pos/POSPage'; // Import POS Page
+import POSPage from '../features/pos/POSPage';
+import CustomerDetailsPage from '../features/customers/CustomerDetailsPage';
+import AgentDetailsPage from '../features/users/AgentDetailsPage';
+import OrderDetailPage from '../features/orders/OrderDetailPage';
+import ProductionOrderDetailsPage from '../features/production/ProductionOrderDetailsPage';
+import InvoiceDetailsPage from '../features/orders/InvoiceDetailsPage'; // NEW: Import the new detail page
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -53,14 +58,19 @@ const AppRouter = () => {
                 <Route path="leads" element={<LeadsPage />} />
                 <Route path="quotes" element={<QuotesPage />} />
                 <Route path="customers" element={<CustomersPage />} />
+                <Route path="customers/:customerId" element={<CustomerDetailsPage />} />
                 <Route path="orders" element={<OrdersPage />} />
+                <Route path="orders/:orderId" element={<OrderDetailPage />} />
                 <Route path="invoices" element={<InvoicesPage />} />
+                <Route path="invoices/:invoiceNumber" element={<InvoiceDetailsPage />} /> {/* NEW: Invoice Details Route */}
                 <Route path="inventory" element={<ProductsPage />} />
                 <Route path="suppliers" element={<SuppliersPage />} />
                 <Route path="purchase-orders" element={<PurchaseOrdersPage />} />
                 <Route path="production-orders" element={<ProductionOrdersPage />} />
+                <Route path="production-orders/:productionOrderId" element={<ProductionOrderDetailsPage />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="agents" element={<ProtectedRoute roles={['admin']}><AgentsPage /></ProtectedRoute>} />
+                <Route path="agents/:agentId" element={<ProtectedRoute roles={['admin']}><AgentDetailsPage /></ProtectedRoute>} />
                 <Route path="employees" element={<ProtectedRoute roles={['admin']}><EmployeesPage /></ProtectedRoute>} />
             </Route>
 
@@ -68,9 +78,9 @@ const AppRouter = () => {
                 <Route index element={<Navigate to="/agent/home" />} />
                 <Route path="home" element={<AgentHomePage />} />
                 <Route path="route" element={<AgentRoutePage />} />
-                <Route path="customers" element={<AgentCustomersPage />} /> {/* Use new agent-specific page */}
-                <Route path="customer/:customerId" element={<AgentCustomerDetailPage />} /> {/* New detail page route */}
-                <Route path="products" element={<ProductsPage />} /> {/* Can still reuse this page */}
+                <Route path="customers" element={<AgentCustomersPage />} />
+                <Route path="customer/:customerId" element={<AgentCustomerDetailPage />} />
+                <Route path="products" element={<ProductsPage />} />
                 <Route path="new-order" element={<AgentOrderForm />} />
             </Route>
 

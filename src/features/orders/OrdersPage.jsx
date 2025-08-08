@@ -8,6 +8,9 @@ import { addOrder, updateOrder, deleteOrder } from './ordersSlice';
 import { adjustStockForOrder } from '../inventory/productsSlice';
 import { generateInvoiceForOrder } from './invoicesSlice';
 import { showToast } from '../../lib/toast';
+import { Link } from 'react-router-dom';
+import { calculateOrderTotal } from '../../lib/dataHelpers';
+import Button from '../../components/common/Button'; // NEW: Import the reusable Button component
 
 const OrdersPage = () => {
     const dispatch = useDispatch();
@@ -74,25 +77,27 @@ const OrdersPage = () => {
         }
     };
 
-    const calculateOrderTotal = (orderItems) => {
-        if (!orderItems) return 0;
-        return orderItems.reduce((total, item) => {
-            const product = products.find(p => p.id === item.productId);
-            const price = product?.pricingTiers[0]?.price || 0;
-            return total + (price * item.quantity);
-        }, 0);
-    };
-
-    const headers = ['Order ID', 'Customer', 'Date', 'Total', 'Status', 'Actions'];
+    const headers = [
+        { key: 'id', label: 'Order ID', sortable: true },
+        { key: 'customerId', label: 'Customer', sortable: true },
+        { key: 'date', label: 'Date', sortable: true },
+        { key: 'total', label: 'Total', sortable: false },
+        { key: 'status', label: 'Status', sortable: true },
+        { key: 'actions', label: 'Actions', sortable: false },
+    ];
 
     const renderRow = (order) => {
         const customer = customers.find(c => c.id === order.customerId);
-        const total = calculateOrderTotal(order.items);
+        const total = calculateOrderTotal(order.items, products);
         const statusColors = { pending: 'status-pending', completed: 'status-completed', shipped: 'status-shipped', cancelled: 'status-cancelled' };
 
         return (
             <tr key={order.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
-                <td className="p-4">#{order.id}</td>
+                <td className="p-4">
+                    <Link to={`/orders/${order.id}`} className="text-blue-400 hover:underline">
+                        #{order.id}
+                    </Link>
+                </td>
                 <td className="p-4">{customer?.name || 'N/A'}</td>
                 <td className="p-4">{order.date}</td>
                 <td className="p-4 font-semibold">${total.toFixed(2)}</td>
@@ -101,10 +106,10 @@ const OrdersPage = () => {
                 </td>
                 <td className="p-4">
                     <div className="flex space-x-4">
-                        {order.status === 'pending' && <button onClick={() => handleCompleteOrder(order)} className="text-green-400 hover:text-green-300" title="Complete Order"><CheckCircle size={16} /></button>}
-                        {order.status === 'completed' && <button onClick={() => handleGenerateInvoice(order)} className="text-yellow-400 hover:text-yellow-300" title="Generate Invoice"><FileText size={16} /></button>}
-                        <button onClick={() => handleOpenModal(order)} className="text-custom-light-blue hover:text-white"><Edit size={16} /></button>
-                        <button onClick={() => handleDelete(order.id)} className="text-red-400 hover:text-red-300"><Trash2 size={16} /></button>
+                        {order.status === 'pending' && <Button onClick={() => handleCompleteOrder(order)} variant="ghost" className="text-green-400 hover:text-green-300" title="Complete Order"><CheckCircle size={16} /></Button>}
+                        {order.status === 'completed' && <Button onClick={() => handleGenerateInvoice(order)} variant="ghost" className="text-yellow-400 hover:text-yellow-300" title="Generate Invoice"><FileText size={16} /></Button>}
+                        <Button onClick={() => handleOpenModal(order)} variant="ghost" className="text-custom-light-blue hover:text-white"><Edit size={16} /></Button>
+                        <Button onClick={() => handleDelete(order.id)} variant="ghost" className="text-red-400 hover:text-red-300"><Trash2 size={16} /></Button>
                     </div>
                 </td>
             </tr>
@@ -115,10 +120,10 @@ const OrdersPage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-white">Manage Orders</h1>
-                <button onClick={() => handleOpenModal()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2">
+                <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2">
                     <Plus size={20} />
                     <span>New Order</span>
-                </button>
+                </Button>
             </div>
             <DataTable headers={headers} data={orders} renderRow={renderRow} />
             <Modal title={editingOrder ? 'Edit Order' : 'Create New Order'} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>

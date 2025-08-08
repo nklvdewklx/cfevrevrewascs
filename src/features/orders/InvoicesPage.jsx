@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Eye, CheckCircle, Trash2 } from 'lucide-react';
+import { Eye, CheckCircle, Trash2, Download } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import InvoiceDetailsModal from './InvoiceDetailsModal';
 import { updateInvoice, deleteInvoice } from './invoicesSlice';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import InvoicePdf from '../../components/documents/InvoicePdf';
+import { Link } from 'react-router-dom';
 
 const InvoicesPage = () => {
     const dispatch = useDispatch();
@@ -38,15 +41,29 @@ const InvoicesPage = () => {
         }
     }
 
-    const headers = ['Invoice #', 'Customer', 'Order ID', 'Due Date', 'Total', 'Status', 'Actions'];
+    const headers = [
+        { key: 'invoiceNumber', label: 'Invoice #', sortable: true },
+        { key: 'customerId', label: 'Customer', sortable: true },
+        { key: 'orderId', label: 'Order ID', sortable: false },
+        { key: 'dueDate', label: 'Due Date', sortable: true },
+        { key: 'total', label: 'Total', sortable: true },
+        { key: 'status', label: 'Status', sortable: true },
+        { key: 'actions', label: 'Actions', sortable: false },
+    ];
 
     const renderRow = (invoice) => {
         const customer = customers.find(c => c.id === invoice.customerId);
         const statusColors = { paid: 'status-completed', sent: 'status-pending', overdue: 'status-cancelled' };
+        const order = orders.find(o => o.id === invoice.orderId);
+        const isDataReady = order && customer && products;
 
         return (
             <tr key={invoice.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
-                <td className="p-4">{invoice.invoiceNumber}</td>
+                <td className="p-4">
+                    <Link to={`/invoices/${invoice.invoiceNumber}`} className="text-blue-400 hover:underline">
+                        {invoice.invoiceNumber}
+                    </Link>
+                </td>
                 <td className="p-4">{customer?.name || 'N/A'}</td>
                 <td className="p-4">#{invoice.orderId}</td>
                 <td className="p-4">{invoice.dueDate}</td>
@@ -54,6 +71,22 @@ const InvoicesPage = () => {
                 <td className="p-4"><span className={`status-pill ${statusColors[invoice.status]}`}>{invoice.status}</span></td>
                 <td className="p-4">
                     <div className="flex space-x-4">
+                        {isDataReady && (
+                            <PDFDownloadLink
+                                document={<InvoicePdf invoice={invoice} order={order} customer={customer} products={products} />}
+                                fileName={`invoice-${invoice.invoiceNumber}.pdf`}
+                            >
+                                {({ loading }) => (
+                                    <button
+                                        className="text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                                        title="Download PDF"
+                                        disabled={loading}
+                                    >
+                                        <Download size={16} />
+                                    </button>
+                                )}
+                            </PDFDownloadLink>
+                        )}
                         <button onClick={() => handleOpenModal(invoice)} className="text-blue-400 hover:text-blue-300" title="View Invoice"><Eye size={16} /></button>
                         {invoice.status !== 'paid' && (
                             <button onClick={() => handleMarkAsPaid(invoice)} className="text-green-400 hover:text-green-300" title="Mark as Paid"><CheckCircle size={16} /></button>

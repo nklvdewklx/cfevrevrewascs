@@ -3,6 +3,7 @@ import { Outlet, Link, NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/authentication/authSlice';
 import Dropdown from '../common/Dropdown';
+import Button from '../common/Button'; // NEW: Import the reusable Button component
 
 const MainLayout = () => {
     const { user } = useSelector((state) => state.auth);
@@ -53,13 +54,17 @@ const MainLayout = () => {
                     </nav>
                 </div>
                 <div className="flex items-center space-x-4">
-                    <Link to="/pos" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
-                        Launch POS
-                    </Link>
+                    {/* NEW: Use the reusable Button component */}
+                    <Button variant="primary">
+                        <Link to="/pos" className="text-white font-bold py-2 px-4 rounded-lg">
+                            Launch POS
+                        </Link>
+                    </Button>
                     <span>Hello, {user?.name}</span>
-                    <button onClick={handleLogout} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">
+                    {/* NEW: Use the reusable Button component */}
+                    <Button onClick={handleLogout} variant="danger">
                         Logout
-                    </button>
+                    </Button>
                 </div>
             </header>
             <main className="flex-grow p-6 overflow-y-auto">

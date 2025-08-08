@@ -4,10 +4,11 @@ import { Edit, Trash2, Plus, PackageCheck } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import PurchaseOrderForm from './PurchaseOrderForm';
-import ReceiveStockModal from './ReceiveStockModal'; // Import the new modal
+import ReceiveStockModal from './ReceiveStockModal';
 import { addPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder } from './purchaseOrdersSlice';
-import { receiveStockForPO } from '../inventory/componentsSlice'; // Import the new thunk
+import { receiveStockForPO } from '../inventory/componentsSlice';
 import { showToast } from '../../lib/toast';
+import ReorderAlerts from './ReorderAlerts'; // NEW: Import the new component
 
 const PurchaseOrdersPage = () => {
     const dispatch = useDispatch();
@@ -37,7 +38,28 @@ const PurchaseOrdersPage = () => {
         setReceiveModalOpen(false);
     };
 
-    const handleSavePO = (data) => { /* ... same as before */ };
+    // NEW: Complete the handleSavePO logic
+    const handleSavePO = (data) => {
+        const poData = {
+            ...data,
+            supplierId: parseInt(data.supplierId),
+            items: data.items.map(item => ({
+                ...item,
+                componentId: parseInt(item.componentId),
+            })),
+            issueDate: new Date().toISOString().split('T')[0],
+        };
+
+        if (selectedPO) {
+            dispatch(updatePurchaseOrder({ ...poData, id: selectedPO.id }));
+            showToast(`Purchase Order #${selectedPO.poNumber} updated successfully.`, 'success');
+        } else {
+            dispatch(addPurchaseOrder(poData));
+            showToast(`New Purchase Order created!`, 'success');
+        }
+        handleCloseFormModal();
+    };
+
 
     const handleReceiveStock = (data) => {
         dispatch(receiveStockForPO({ purchaseOrder: selectedPO, receivedItems: data.items }));
@@ -45,7 +67,14 @@ const PurchaseOrdersPage = () => {
         handleCloseReceiveModal();
     };
 
-    const handleDelete = (poId) => { /* ... same as before */ };
+    // NEW: Complete the handleDelete logic
+    const handleDelete = (poId) => {
+        if (window.confirm('Are you sure you want to delete this purchase order?')) {
+            dispatch(deletePurchaseOrder(poId));
+            showToast('Purchase Order deleted successfully.', 'success');
+        }
+    };
+
 
     const headers = ['P.O. #', 'Supplier', 'Issue Date', 'Status', 'Actions'];
 
@@ -83,6 +112,9 @@ const PurchaseOrdersPage = () => {
                     <span>New P.O.</span>
                 </button>
             </div>
+
+            <ReorderAlerts />
+
             <DataTable headers={headers} data={purchaseOrders} renderRow={renderRow} />
             <Modal title={selectedPO ? 'Edit Purchase Order' : 'Create New P.O.'} isOpen={isFormModalOpen} onClose={handleCloseFormModal} footer={<></>}>
                 <PurchaseOrderForm po={selectedPO} onSave={handleSavePO} onCancel={handleCloseFormModal} suppliers={suppliers} components={components} />

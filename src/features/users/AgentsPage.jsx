@@ -5,6 +5,7 @@ import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import AgentForm from './AgentForm';
 import { addAgent, updateAgent, deleteAgent } from './agentsSlice';
+import { Link } from 'react-router-dom';
 
 const AgentsPage = () => {
     const dispatch = useDispatch();
@@ -39,11 +40,22 @@ const AgentsPage = () => {
         }
     };
 
-    const headers = ['Name', 'Email', 'Phone', 'Role', 'Actions'];
+    // NEW: Updated headers for the new DataTable
+    const headers = [
+        { key: 'name', label: 'Name', sortable: true },
+        { key: 'email', label: 'Email', sortable: true },
+        { key: 'phone', label: 'Phone', sortable: false },
+        { key: 'role', label: 'Role', sortable: true },
+        { key: 'actions', label: 'Actions', sortable: false },
+    ];
 
     const renderRow = (agent) => (
         <tr key={agent.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
-            <td className="p-4">{agent.name}</td>
+            <td className="p-4">
+                <Link to={`/agents/${agent.id}`} className="text-blue-400 hover:underline">
+                    {agent.name}
+                </Link>
+            </td>
             <td className="p-4">{agent.email}</td>
             <td className="p-4">{agent.phone}</td>
             <td className="p-4">{agent.role}</td>

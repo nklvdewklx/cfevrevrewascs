@@ -5,6 +5,8 @@ import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import CustomerForm from './CustomerForm';
 import { addCustomer, updateCustomer, deleteCustomer } from './customersSlice';
+import { Link } from 'react-router-dom';
+import Button from '../../components/common/Button'; // NEW: Import the reusable Button component
 
 const CustomersPage = () => {
     const dispatch = useDispatch();
@@ -39,25 +41,37 @@ const CustomersPage = () => {
         }
     };
 
-    const headers = ['Name', 'Company', 'Email', 'Phone', 'Agent', 'Actions'];
+    // NEW: Updated headers for the new DataTable
+    const headers = [
+        { key: 'name', label: 'Name', sortable: true },
+        { key: 'company', label: 'Company', sortable: true },
+        { key: 'email', label: 'Email', sortable: true },
+        { key: 'phone', label: 'Phone', sortable: false },
+        { key: 'agentId', label: 'Agent', sortable: true },
+        { key: 'actions', label: 'Actions', sortable: false },
+    ];
 
     const renderRow = (customer) => {
         const agent = agents.find(a => a.id === customer.agentId);
         return (
             <tr key={customer.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
-                <td className="p-4">{customer.name}</td>
+                <td className="p-4">
+                    <Link to={`/customers/${customer.id}`} className="text-blue-400 hover:underline">
+                        {customer.name}
+                    </Link>
+                </td>
                 <td className="p-4">{customer.company}</td>
                 <td className="p-4">{customer.email}</td>
                 <td className="p-4">{customer.phone}</td>
                 <td className="p-4">{agent?.name || 'N/A'}</td>
                 <td className="p-4">
                     <div className="flex space-x-4">
-                        <button onClick={() => handleOpenModal(customer)} className="text-custom-light-blue hover:text-white">
+                        <Button onClick={() => handleOpenModal(customer)} variant="ghost" className="text-custom-light-blue hover:text-white">
                             <Edit size={16} />
-                        </button>
-                        <button onClick={() => handleDelete(customer.id)} className="text-red-400 hover:text-red-300">
+                        </Button>
+                        <Button onClick={() => handleDelete(customer.id)} variant="ghost" className="text-red-400 hover:text-red-300">
                             <Trash2 size={16} />
-                        </button>
+                        </Button>
                     </div>
                 </td>
             </tr>
@@ -68,13 +82,14 @@ const CustomersPage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-white">Manage Customers</h1>
-                <button
+                <Button
                     onClick={() => handleOpenModal()}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2"
+                    variant="primary"
+                    className="flex items-center space-x-2"
                 >
                     <Plus size={20} />
                     <span>New Customer</span>
-                </button>
+                </Button>
             </div>
 
             <DataTable headers={headers} data={customers} renderRow={renderRow} />
@@ -85,10 +100,9 @@ const CustomersPage = () => {
                 onClose={handleCloseModal}
                 footer={
                     <>
-                        <button onClick={handleCloseModal} className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                        <Button onClick={handleCloseModal} variant="secondary">
                             Cancel
-                        </button>
-                        {/* The submit button is part of the form */}
+                        </Button>
                     </>
                 }
             >

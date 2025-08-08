@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link } from 'react-router-dom';
-import { Clock, Wifi, Battery } from 'lucide-react';
+import { Wifi, Battery } from 'lucide-react';
 
 const POSLayout = () => {
     // This is a simplified layout specifically for the POS screen.

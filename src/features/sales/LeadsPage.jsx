@@ -7,6 +7,7 @@ import LeadForm from './LeadForm';
 import { addLead, updateLead, deleteLead } from './leadsSlice';
 import { addCustomer } from '../customers/customersSlice'; // To add the new customer
 import { showToast } from '../../lib/toast';
+import Button from '../../components/common/Button'; // NEW: Import the reusable Button component
 
 const LeadsPage = () => {
     const dispatch = useDispatch();
@@ -77,12 +78,12 @@ const LeadsPage = () => {
                 <td className="p-4">
                     <div className="flex space-x-4">
                         {lead.status === 'qualified' && (
-                            <button onClick={() => handleConvertLead(lead)} className="text-green-400 hover:text-green-300" title="Convert to Customer">
+                            <Button onClick={() => handleConvertLead(lead)} variant="ghost" className="text-green-400 hover:text-green-300" title="Convert to Customer">
                                 <UserCheck size={16} />
-                            </button>
+                            </Button>
                         )}
-                        <button onClick={() => handleOpenModal(lead)} className="text-custom-light-blue hover:text-white"><Edit size={16} /></button>
-                        <button onClick={() => handleDelete(lead.id)} className="text-red-400 hover:text-red-300"><Trash2 size={16} /></button>
+                        <Button onClick={() => handleOpenModal(lead)} variant="ghost" className="text-custom-light-blue hover:text-white"><Edit size={16} /></Button>
+                        <Button onClick={() => handleDelete(lead.id)} variant="ghost" className="text-red-400 hover:text-red-300"><Trash2 size={16} /></Button>
                     </div>
                 </td>
             </tr>
@@ -93,10 +94,10 @@ const LeadsPage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-white">Manage Leads</h1>
-                <button onClick={() => handleOpenModal()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2">
+                <Button onClick={() => handleOpenModal()} variant="primary" className="flex items-center space-x-2">
                     <Plus size={20} />
                     <span>New Lead</span>
-                </button>
+                </Button>
             </div>
             <DataTable headers={headers} data={leads} renderRow={renderRow} />
             <Modal title={editingLead ? 'Edit Lead' : 'Add New Lead'} isOpen={isModalOpen} onClose={handleCloseModal} footer={<></>}>

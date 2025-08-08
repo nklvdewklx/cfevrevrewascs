@@ -1,4 +1,6 @@
 import React from 'react';
+import { PDFDownloadLink } from '@react-pdf/renderer'; // NEW: Import the download link component
+import InvoicePdf from '../../components/documents/InvoicePdf'; // NEW: Import the PDF template
 
 const InvoiceDetailsModal = ({ invoice, order, customer, products }) => {
     if (!invoice || !order) return null;
@@ -11,6 +13,9 @@ const InvoiceDetailsModal = ({ invoice, order, customer, products }) => {
 
     const tax = subtotal * 0.19; // Assuming a static 19% tax for now
     const total = subtotal + tax;
+
+    // NEW: Check if all data is available before rendering the PDF link
+    const isDataReady = invoice && order && customer && products;
 
     return (
         <div className="text-white space-y-6">
@@ -68,6 +73,24 @@ const InvoiceDetailsModal = ({ invoice, order, customer, products }) => {
                     <div className="flex justify-between text-xl font-bold pt-2 border-t-2 border-white/20"><span >Total Due</span><span>${total.toFixed(2)}</span></div>
                 </div>
             </div>
+            {/* NEW: Download Link */}
+            {isDataReady && (
+                <div className="flex justify-end pt-4">
+                    <PDFDownloadLink
+                        document={<InvoicePdf invoice={invoice} order={order} customer={customer} products={products} />}
+                        fileName={`invoice-${invoice.invoiceNumber}.pdf`}
+                    >
+                        {({ blob, url, loading, error }) => (
+                            <button
+                                className="bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg disabled:opacity-50"
+                                disabled={loading}
+                            >
+                                {loading ? 'Loading document...' : 'Download PDF'}
+                            </button>
+                        )}
+                    </PDFDownloadLink>
+                </div>
+            )}
         </div>
     );
 };

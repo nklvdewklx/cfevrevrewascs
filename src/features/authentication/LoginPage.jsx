@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { loginSuccess, loginFailure } from './authSlice';
 import { defaultDb } from '../../api/defaultDb';
 import { showToast } from '../../lib/toast';
+import Button from '../../components/common/Button'; // NEW: Import the reusable Button component
 
 const LoginPage = () => {
     const [username, setUsername] = useState('admin');
@@ -61,9 +62,10 @@ const LoginPage = () => {
                                 required
                             />
                         </div>
-                        <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg mt-4">
+                        {/* NEW: Use the reusable Button component */}
+                        <Button type="submit" className="w-full mt-4">
                             Login
-                        </button>
+                        </Button>
                     </form>
                 </div>
             </div>
