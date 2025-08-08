@@ -139,6 +139,7 @@
     "skuRequired": "SKU is required",
     "costRequired": "Cost is required",
     "saveProduct": "Save Product",
+    "saveAdjustment": "Save Adjustment",
     "productionOrderHistory": "Production Order History",
     "poId": "P.O. ID",
     "lotNumber": "Lot Number",
@@ -341,5 +342,16 @@
     "Warehouse": "Warehouse",
     "Finance": "Finance",
     "Management": "Management",
-    "HR": "HR"
+    "HR": "HR",
+    "adjustStock": "Adjust Stock",
+    "manualStockAdjustment": "Manual Stock Adjustment",
+    "selectBatch": "Select a batch...",
+    "adjustmentType": "Adjustment Type",
+    "add": "Add",
+    "remove": "Remove",
+    "reason": "Reason",
+    "reasonRequired": "Reason is required",
+    "quantityMustBePositive": "Quantity must be positive",
+    "insufficientStock": "Insufficient stock for this adjustment",
+    "stockAdjusted": "Stock adjusted successfully"
 }

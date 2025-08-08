@@ -15,14 +15,13 @@ export const receiveStockForPO = createAsyncThunk(
                 supplierLotNumber: item.supplierLotNumber,
                 receivedDate: new Date().toISOString().split('T')[0]
             };
-            // Dispatch a special reducer to add a batch to a component
             dispatch(addComponentBatch({ componentId: item.componentId, newBatch }));
         });
 
         // Step 2: Mark the Purchase Order as fulfilled
         dispatch(updatePurchaseOrder({ ...purchaseOrder, status: 'fulfilled' }));
 
-        return; // No value needs to be returned to the reducer
+        return; 
     }
 );
 
@@ -32,7 +31,6 @@ const initialState = persistedState?.components?.items || defaultDb.components;
 const componentsSlice = createGenericSlice({
     name: 'components',
     initialState: initialState,
-    // Add a new custom reducer to handle adding a stock batch
     reducers: {
         addComponentBatch: (state, action) => {
             const { componentId, newBatch } = action.payload;
@@ -43,12 +41,29 @@ const componentsSlice = createGenericSlice({
                 }
                 component.stockBatches.push(newBatch);
             }
+        },
+        // NEW: Reducer for manual stock adjustment
+        adjustComponentStock: (state, action) => {
+            const { componentId, batchLotNumber, adjustmentType, quantity, reason } = action.payload;
+            const component = state.items.find(c => c.id === componentId);
+            if (component) {
+                const batch = component.stockBatches.find(b => b.supplierLotNumber === batchLotNumber);
+                if (batch) {
+                    if (adjustmentType === 'add') {
+                        batch.quantity += quantity;
+                    } else {
+                        batch.quantity -= quantity;
+                    }
+                    // Optional: Log the adjustment reason somewhere if needed in the future
+                }
+            }
         }
     }
 });
 
 export const {
-  addComponentBatch, // Export the new reducer
+  addComponentBatch,
+  adjustComponentStock, // Export the new reducer
   addItem: addComponent,
   updateItem: updateComponent,
   deleteItem: deleteComponent,
