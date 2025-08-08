@@ -6,8 +6,8 @@ import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
 import ProductForm from './ProductForm';
-import { updateProduct, updateStockBatch } from './productsSlice'; // UPDATED: Import updateStockBatch
-import { addLedgerEntry } from './inventoryLedgerSlice'; // NEW: Import for logging
+import { updateProduct, updateStockBatch } from './productsSlice';
+import { addLedgerEntry } from './inventoryLedgerSlice';
 import { executeProductionOrder } from '../production/productionOrdersSlice';
 import { showToast } from '../../lib/toast';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +20,7 @@ const ProductDetailsPage = () => {
 
     const { items: products } = useSelector((state) => state.products);
     const { items: components } = useSelector((state) => state.components);
-    const { user } = useSelector((state) => state.auth); // NEW: Get user for logging
+    const { user } = useSelector((state) => state.auth);
 
     const product = products.find(p => p.id === parseInt(productId));
 
@@ -57,17 +57,15 @@ const ProductDetailsPage = () => {
         }
     };
 
-    // NEW: Handler for inspecting and updating a batch status
     const handleBatchInspection = (lotNumber, newStatus) => {
         if (window.confirm(t('confirmBatchStatusChange', { lotNumber, status: newStatus }))) {
             const updates = { status: newStatus };
             dispatch(updateStockBatch({ productId: product.id, lotNumber, updates }));
 
-            // Log this action to the inventory ledger
             dispatch(addLedgerEntry({
                 itemType: 'product',
                 itemId: product.id,
-                quantityChange: 0, // No quantity change, just a status update
+                quantityChange: 0,
                 reason: `Inspection: Batch ${lotNumber} status changed to ${newStatus}`,
                 userId: user.id
             }));
@@ -77,27 +75,49 @@ const ProductDetailsPage = () => {
     };
 
     const totalStock = product.stockBatches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0;
+    const sellableStock = product.stockBatches?.filter(b => !b.status || b.status === 'Sellable').reduce((sum, batch) => sum + batch.quantity, 0) || 0;
 
     const stockBatchesHeaders = [
         { key: 'lotNumber', label: t('lotNumber'), sortable: true },
         { key: 'quantity', label: t('quantity'), sortable: true },
         { key: 'expiryDate', label: t('expiryDate'), sortable: true },
-        { key: 'status', label: t('status'), sortable: true }, // NEW: Status column
-        { key: 'actions', label: t('actions'), sortable: false }, // NEW: Actions column
+        { key: 'status', label: t('status'), sortable: true },
+        { key: 'actions', label: t('actions'), sortable: false },
     ];
 
-    const pricingTiersHeaders = [ /* ... no changes ... */];
-    const bomHeaders = [ /* ... no changes ... */];
-    const renderBomRow = (bomItem) => { /* ... no changes ... */ };
-    const renderPricingRow = (tier) => { /* ... no changes ... */ };
+    const pricingTiersHeaders = [
+        { key: 'minQty', label: t('minQty'), sortable: false },
+        { key: 'price', label: t('price'), sortable: false },
+    ];
 
-    // UPDATED: Render function for stock batches to include status and actions
+    const bomHeaders = [
+        { key: 'component', label: t('component'), sortable: false },
+        { key: 'quantity', label: t('quantity'), sortable: false },
+    ];
+
+    const renderBomRow = (bomItem) => {
+        const component = components.find(c => c.id === bomItem.componentId);
+        return (
+            <tr key={bomItem.componentId} className="border-b border-white/10 last:border-b-0">
+                <td className="p-4">{component?.name || 'N/A'}</td>
+                <td className="p-4">{bomItem.quantity}</td>
+            </tr>
+        );
+    };
+
+    const renderPricingRow = (tier) => (
+        <tr key={tier.minQty} className="border-b border-white/10 last:border-b-0">
+            <td className="p-4">{tier.minQty}</td>
+            <td className="p-4">${tier.price.toFixed(2)}</td>
+        </tr>
+    );
+
     const renderStockBatchRow = (batch) => {
         const isInspectionRequired = batch.status === 'Returned - Inspection Required';
         let statusPillClass = 'bg-gray-700';
         if (isInspectionRequired) statusPillClass = 'status-pending animate-pulse';
         if (batch.status === 'Quarantined') statusPillClass = 'status-cancelled';
-        if (batch.status === 'Sellable') statusPillClass = 'status-completed';
+        if (batch.status === 'Sellable' || !batch.status) statusPillClass = 'status-completed';
 
         return (
             <tr key={batch.lotNumber} className="border-b border-white/10 last:border-b-0">
@@ -123,6 +143,7 @@ const ProductDetailsPage = () => {
         );
     };
 
+
     return (
         <>
             <div className="space-y-6">
@@ -140,7 +161,11 @@ const ProductDetailsPage = () => {
                     <p className="text-gray-400">SKU: {product.sku}</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="glass-panel p-4 rounded-lg">
+                        <h3 className="text-lg font-semibold text-custom-light-blue mb-2">{t('sellableStock')}</h3>
+                        <p className="text-3xl font-bold">{sellableStock}</p>
+                    </div>
                     <div className="glass-panel p-4 rounded-lg">
                         <h3 className="text-lg font-semibold text-custom-light-blue mb-2">{t('totalStock')}</h3>
                         <p className="text-3xl font-bold">{totalStock}</p>
@@ -180,7 +205,6 @@ const ProductDetailsPage = () => {
                 </div>
             </div>
 
-            {/* Modals */}
             <Modal title={t('editProduct')} isOpen={isFormModalOpen} onClose={handleCloseFormModal} footer={<></>}>
                 <ProductForm product={product} onSave={handleSaveProduct} onCancel={handleCloseFormModal} components={components} />
             </Modal>

@@ -4,7 +4,8 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/common/Button';
 
-const ReturnForm = ({ onSave, onCancel, orders, customers, products }) => {
+// UPDATED: Destructure 'returns' from props
+const ReturnForm = ({ onSave, onCancel, orders, customers, products, returns }) => {
     const { t } = useTranslation();
     const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -24,7 +25,6 @@ const ReturnForm = ({ onSave, onCancel, orders, customers, products }) => {
         setSelectedOrder(order);
 
         if (order) {
-            // UPDATED: Use setValue for a more stable update of the items array
             const newItems = order.items.map(item => {
                 const product = products.find(p => p.id === item.productId);
                 return {
@@ -36,11 +36,17 @@ const ReturnForm = ({ onSave, onCancel, orders, customers, products }) => {
             });
             setValue('items', newItems);
         } else {
-            setValue('items', []); // Clear items if no order is selected
+            setValue('items', []);
         }
     }, [watchedOrderId, orders, products, setValue]);
 
     const customerForOrder = selectedOrder ? customers.find(c => c.id === selectedOrder.customerId) : null;
+
+    // UPDATED: Create a list of order IDs that already have a return
+    const returnedOrderIds = new Set(returns.map(r => r.orderId));
+    const availableOrders = orders.filter(o =>
+        (o.status === 'completed' || o.status === 'shipped') && !returnedOrderIds.has(o.id)
+    );
 
     return (
         <form onSubmit={handleSubmit(onSave)} className="space-y-6">
@@ -51,11 +57,13 @@ const ReturnForm = ({ onSave, onCancel, orders, customers, products }) => {
                     className="form-select"
                 >
                     <option value="">{t('selectOrder')}</option>
-                    {orders.filter(o => o.status === 'completed' || o.status === 'shipped').map(o => (
+                    {/* UPDATED: Use the filtered list of available orders */}
+                    {availableOrders.map(o => (
                         <option key={o.id} value={o.id}>#{o.id}</option>
                     ))}
                 </select>
                 {errors.orderId && <p className="text-red-400 text-xs mt-1">{errors.orderId.message}</p>}
+                {availableOrders.length === 0 && <p className="text-yellow-400 text-xs mt-1">{t('noEligibleOrdersForReturn')}</p>}
             </div>
 
             {selectedOrder && (

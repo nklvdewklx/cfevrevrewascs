@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Edit, Archive, Plus, Factory, ArchiveRestore } from 'lucide-react'; // NEW: Import Archive icons
+import { Edit, Archive, Plus, Factory, ArchiveRestore } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import ProductForm from './ProductForm';
-import { addProduct, updateProduct, archiveProduct } from './productsSlice'; // NEW: Import archiveProduct
+import { addProduct, updateProduct, archiveProduct } from './productsSlice';
 import { executeProductionOrder } from '../production/productionOrdersSlice';
 import { showToast } from '../../lib/toast';
 import Button from '../../components/common/Button';
@@ -22,7 +22,7 @@ const ProductsPage = () => {
     const [isProduceModalOpen, setIsProduceModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [productionQuantity, setProductionQuantity] = useState(1);
-    const [statusFilter, setStatusFilter] = useState('active'); // NEW: Default filter to active
+    const [statusFilter, setStatusFilter] = useState('active');
 
     const handleOpenFormModal = (product = null) => {
         setEditingProduct(product);
@@ -52,7 +52,6 @@ const ProductsPage = () => {
         handleCloseFormModal();
     };
 
-    // NEW: Handler for archiving/restoring a product
     const handleToggleArchive = (product) => {
         const isArchiving = product.status !== 'archived';
         if (window.confirm(isArchiving ? t('confirmArchiveProduct') : t('confirmRestoreProduct'))) {
@@ -75,19 +74,19 @@ const ProductsPage = () => {
     const headers = [
         { key: 'name', label: t('productName'), sortable: true },
         { key: 'sku', label: t('sku'), sortable: true },
-        { key: 'totalStock', label: t('totalStock'), sortable: true },
+        { key: 'totalStock', label: t('sellableStock'), sortable: true },
         { key: 'status', label: t('status'), sortable: true },
         { key: 'actions', label: t('actions'), sortable: false },
     ];
 
     const renderRow = (product) => {
-        const totalStock = product.stockBatches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0;
+        const sellableStock = product.stockBatches?.filter(b => !b.status || b.status === 'Sellable').reduce((sum, batch) => sum + batch.quantity, 0) || 0;
         const isArchived = product.status === 'archived';
         let status;
         if (isArchived) {
             status = { text: t('archived'), className: 'bg-gray-600' };
         } else {
-            status = totalStock === 0 ? { text: t('outOfStock'), className: 'status-cancelled' } : { text: t('inStock'), className: 'status-completed' };
+            status = sellableStock === 0 ? { text: t('outOfStock'), className: 'status-cancelled' } : { text: t('inStock'), className: 'status-completed' };
         }
 
         const canProduce = product.bom && product.bom.length > 0;
@@ -100,7 +99,7 @@ const ProductsPage = () => {
                     </Link>
                 </td>
                 <td className="p-4">{product.sku}</td>
-                <td className="p-4 font-semibold">{totalStock}</td>
+                <td className="p-4 font-semibold">{sellableStock}</td>
                 <td className="p-4"><span className={`status-pill ${status.className}`}>{status.text}</span></td>
                 <td className="p-4">
                     <div className="flex space-x-4">
@@ -119,8 +118,7 @@ const ProductsPage = () => {
 
     const productsWithStock = products.map(p => ({
         ...p,
-        totalStock: p.stockBatches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0,
-        stockStatus: (p.stockBatches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0) > 0 ? 'in-stock' : 'out-of-stock'
+        totalStock: p.stockBatches?.filter(b => !b.status || b.status === 'Sellable').reduce((sum, batch) => sum + batch.quantity, 0) || 0,
     }));
 
     const productStatusFilters = {

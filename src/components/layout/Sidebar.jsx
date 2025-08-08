@@ -3,25 +3,9 @@ import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
-    Home,
-    ShoppingBag,
-    Users,
-    FileText,
-    Boxes,
-    Truck,
-    BarChart,
-    Shield,
-    HardHat,
-    CircleDollarSign,
-    Handshake,
-    ChevronDown,
-    Settings,
-    ClipboardList,
-    History,
-    SearchCode,
-    CornerUpLeft, // NEW: Icon for Returns
-    FileMinus // NEW: Icon for Credit Notes
-
+    Home, ShoppingBag, Users, FileText, Boxes, Truck, BarChart, Shield,
+    HardHat, CircleDollarSign, Handshake, ChevronDown, Settings, ClipboardList,
+    History, SearchCode, CornerUpLeft, FileMinus, Microscope // NEW: Icon for QC
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -65,6 +49,7 @@ const Sidebar = () => {
             links: [
                 { name: 'finishedProducts', path: '/inventory', icon: <Boxes size={20} /> },
                 { name: 'components', path: '/inventory/components', icon: <ClipboardList size={20} /> },
+                { name: 'qualityControl', path: '/inventory/quality-control', icon: <Microscope size={20} /> }, // NEW: Link for QC
                 { name: 'inventoryLedger', path: '/inventory/ledger', icon: <History size={20} /> },
                 { name: 'productionHistory', path: '/production-orders', icon: <HardHat size={20} /> },
             ],

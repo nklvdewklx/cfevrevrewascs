@@ -41,6 +41,7 @@ import ProductDetailsPage from '../features/inventory/ProductDetailsPage';
 import ComponentDetailsPage from '../features/inventory/ComponentDetailsPage';
 import ReturnsPage from '../features/returns/ReturnsPage'; // NEW: Import ReturnsPage
 import CreditNotesPage from '../features/credit-notes/CreditNotesPage'; // NEW: Import CreditNotesPage
+import QualityControlPage from '../features/inventory/QualityControlPage'; // NEW: Import QualityControlPage
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -78,6 +79,8 @@ const AppRouter = () => {
                 <Route path="inventory/components" element={<ComponentsPage />} />
                 <Route path="inventory/components/:componentId" element={<ComponentDetailsPage />} />
                 <Route path="inventory/ledger" element={<InventoryLedgerPage />} />
+                <Route path="inventory/quality-control" element={<QualityControlPage />} /> {/* NEW: Route for QC */}
+
                 <Route path="inventory/:productId" element={<ProductDetailsPage />} />
                 <Route path="suppliers" element={<SuppliersPage />} />
                 <Route path="purchase-orders" element={<PurchaseOrdersPage />} />

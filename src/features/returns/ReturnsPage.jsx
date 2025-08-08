@@ -38,7 +38,6 @@ const ReturnsPage = () => {
         const returnCount = returns.length + 1;
         const newReturn = {
             ...returnData,
-            // CORRECTED: Ensure orderId is stored as a number to match the data type of order IDs
             orderId: parseInt(returnData.orderId, 10),
             rmaNumber: `RMA-${new Date().getFullYear()}-${String(returnCount).padStart(4, '0')}`,
             status: 'pending',
@@ -59,7 +58,6 @@ const ReturnsPage = () => {
                 return;
             }
 
-            // 1. Add returned items back to stock
             rma.items.forEach(item => {
                 const product = products.find(p => p.id === item.productId);
                 const newBatch = {
@@ -71,7 +69,6 @@ const ReturnsPage = () => {
                 dispatch(addProductBatch({ productId: item.productId, newBatch }));
             });
 
-            // 2. Generate Credit Note
             const returnedValue = calculateOrderTotal(rma.items, products);
             const creditNoteCount = creditNotes.length + 1;
             const newCreditNote = {
@@ -84,12 +81,10 @@ const ReturnsPage = () => {
             };
             dispatch(addCreditNote(newCreditNote));
 
-            // 3. Update the RMA status
             dispatch(updateReturn({ ...rma, status: 'processed', processedBy: user.name }));
             showToast(t('returnProcessedAndCreditNoteCreated'), 'success');
         }
     };
-
 
     const headers = [
         { key: 'rmaNumber', label: t('rmaNumber'), sortable: true },
@@ -131,7 +126,7 @@ const ReturnsPage = () => {
             ...rma,
             customer: customer?.name || 'N/A'
         }
-    })
+    });
 
     return (
         <div className="space-y-6">
@@ -152,6 +147,8 @@ const ReturnsPage = () => {
                     orders={orders}
                     customers={customers}
                     products={products}
+                    // NEW: Pass existing returns to the form to prevent duplicates
+                    returns={returns}
                 />
             </Modal>
         </div>

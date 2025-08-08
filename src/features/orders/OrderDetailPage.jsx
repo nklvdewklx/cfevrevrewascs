@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Mail, Phone } from 'lucide-react';
+import { ArrowLeft, Edit, Mail, Phone, History } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import { calculateOrderTotal } from '../../lib/dataHelpers';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,7 @@ const OrderDetailPage = () => {
     const orders = useSelector((state) => state.orders.items);
     const customers = useSelector((state) => state.customers.items);
     const products = useSelector((state) => state.products.items);
+    const { items: ledgerEntries } = useSelector((state) => state.inventoryLedger);
 
     const order = orders.find(o => o.id === parseInt(orderId));
 
@@ -23,7 +24,9 @@ const OrderDetailPage = () => {
 
     const customer = customers.find(c => c.id === order.customerId);
 
-    // Placeholder for editing order details
+    const orderHistory = ledgerEntries.filter(entry => entry.reason.includes(`Order #${order.id}`));
+
+
     const handleEditOrder = () => {
         alert(t('editNotImplemented'));
     };
@@ -39,6 +42,26 @@ const OrderDetailPage = () => {
             <tr key={item.productId} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
                 <td className="p-4">{product?.name || 'N/A'}</td>
                 <td className="p-4">{item.quantity}</td>
+            </tr>
+        );
+    };
+
+    const historyHeaders = [
+        { key: 'date', label: t('date'), sortable: true },
+        { key: 'product', label: t('product'), sortable: false },
+        { key: 'change', label: t('change'), sortable: false },
+        { key: 'batch', label: t('batch'), sortable: false },
+    ];
+
+    const renderHistoryRow = (entry) => {
+        const product = products.find(p => p.id === entry.itemId);
+        const batchNumber = entry.reason.match(/\(Batch: (.*?)\)/)?.[1] || 'N/A';
+        return (
+            <tr key={entry.id} className="border-b border-white/10 last:border-b-0">
+                <td className="p-4">{new Date(entry.date).toLocaleString()}</td>
+                <td className="p-4">{product?.name || 'N/A'}</td>
+                <td className="p-4 font-semibold text-red-400">{entry.quantityChange}</td>
+                <td className="p-4 font-mono">{batchNumber}</td>
             </tr>
         );
     };
@@ -80,6 +103,16 @@ const OrderDetailPage = () => {
                 </div>
                 <DataTable headers={productHeaders} data={order.items} renderRow={renderProductRow} />
             </div>
+
+            {orderHistory.length > 0 && (
+                <div className="bg-gray-800/50 p-4 rounded-lg">
+                    <div className="flex items-center mb-4 space-x-3">
+                        <History size={20} className="text-custom-light-blue" />
+                        <h3 className="text-xl font-semibold text-custom-light-blue">{t('orderHistory')}</h3>
+                    </div>
+                    <DataTable headers={historyHeaders} data={orderHistory} renderRow={renderHistoryRow} />
+                </div>
+            )}
 
             <div className="flex justify-end pt-4">
                 <h3 className="text-2xl font-bold">{t('total')}: ${calculateOrderTotal(order.items, products).toFixed(2)}</h3>
