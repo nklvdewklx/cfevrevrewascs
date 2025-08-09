@@ -1,8 +1,28 @@
-import React from 'react';
+import React, { useEffect } from 'react'; // NEW: Import useEffect
 import { X } from 'lucide-react';
 import Button from './Button';
 
 const Modal = ({ title, isOpen, onClose, children, footer }) => {
+    // NEW: Add a useEffect hook to handle the Escape key press
+    useEffect(() => {
+        // Define the function to be called on key down
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                onClose(); // Call the onClose function passed via props
+            }
+        };
+
+        // Add the event listener to the document if the modal is open
+        if (isOpen) {
+            document.addEventListener('keydown', handleKeyDown);
+        }
+
+        // Cleanup function: Remove the event listener when the modal closes or the component unmounts
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onClose]); // Dependencies: The effect re-runs if isOpen or onClose changes
+
     if (!isOpen) return null;
 
     return (

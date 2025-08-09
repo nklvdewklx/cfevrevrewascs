@@ -205,7 +205,7 @@ body {
     }
 }
 
-/* NEW: Animation for the search bar */
+/* Animation for the search bar */
 @keyframes search-glow-animation {
     0% {
         box-shadow: 0 0 5px rgba(167, 139, 250, 0), 0 0 10px rgba(167, 139, 250, 0), inset 0 0 0 1px rgba(167, 139, 250, 0.5);
@@ -220,4 +220,23 @@ body {
 
 .search-glow {
     animation: search-glow-animation 2.5s infinite;
+}
+
+/* Styles for enhanced sidebar navigation */
+.nav-link-active {
+    color: white;
+    font-weight: 500;
+    background-image: linear-gradient(90deg, var(--color-primary-dark) 0%, rgba(139, 92, 246, 0.2) 100%);
+    box-shadow: inset 2px 0 0 0 var(--color-accent);
+}
+
+/* NEW: Styles for Toast backgrounds */
+.toast-success {
+    background-color: rgba(16, 185, 129, 0.25);
+}
+.toast-error {
+    background-color: rgba(239, 68, 68, 0.25);
+}
+.toast-info {
+    background-color: rgba(59, 130, 246, 0.25);
 }
