@@ -4,6 +4,7 @@ import { defaultDb } from '../../api/defaultDb';
 import { storageService } from '../../services/storageService';
 import { updatePurchaseOrder } from '../purchasing/purchaseOrdersSlice';
 import { addLedgerEntry } from './inventoryLedgerSlice';
+import { updateSupplierReturn } from '../purchasing/supplierReturnsSlice';
 
 export const receiveStockForPO = createAsyncThunk(
     'components/receiveStock',
@@ -31,6 +32,43 @@ export const receiveStockForPO = createAsyncThunk(
         dispatch(updatePurchaseOrder({ ...purchaseOrder, status: 'fulfilled' }));
     }
 );
+
+// NEW THUNK for processing supplier returns
+export const processSupplierReturn = createAsyncThunk(
+    'components/processSupplierReturn',
+    async ({ supplierReturn, userId }, { dispatch, getState, rejectWithValue }) => {
+        const { components } = getState();
+
+        for (const item of supplierReturn.items) {
+            const component = components.items.find(c => c.id === item.componentId);
+            if (!component) return rejectWithValue(`Component with ID ${item.componentId} not found.`);
+
+            const batch = component.stockBatches.find(b => b.supplierLotNumber === item.supplierLotNumber);
+            if (!batch || batch.quantity < item.quantity) {
+                 return rejectWithValue(`Insufficient stock in batch ${item.supplierLotNumber} for ${component.name}.`);
+            }
+        }
+        
+        for (const item of supplierReturn.items) {
+            dispatch(applyStockAdjustment({
+                componentId: item.componentId,
+                batchLotNumber: item.supplierLotNumber,
+                adjustmentType: 'remove',
+                quantity: item.quantity
+            }));
+
+            dispatch(addLedgerEntry({
+                itemType: 'component',
+                itemId: item.componentId,
+                quantityChange: -item.quantity,
+                reason: `Supplier Return SRMA #${supplierReturn.srmaNumber}`,
+                userId
+            }));
+        }
+
+        dispatch(updateSupplierReturn({ ...supplierReturn, status: 'processed' }));
+    }
+)
 
 export const manuallyAdjustComponentStock = createAsyncThunk(
     'components/manualAdjustStock',

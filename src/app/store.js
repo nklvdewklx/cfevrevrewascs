@@ -18,8 +18,10 @@ import approvalsReducer from '../features/approvals/approvalsSlice';
 import posReducer from '../features/pos/posSlice'; 
 import settingsReducer from '../features/settings/settingsSlice';
 import inventoryLedgerReducer from '../features/inventory/inventoryLedgerSlice';
-import returnsReducer from '../features/returns/returnsSlice'; // NEW: Import the new returns slice
-import creditNotesReducer from '../features/credit-notes/creditNotesSlice'; // NEW: Import slice
+import returnsReducer from '../features/returns/returnsSlice';
+import creditNotesReducer from '../features/credit-notes/creditNotesSlice';
+import supplierReturnsReducer from '../features/purchasing/supplierReturnsSlice';
+import searchReducer from '../features/search/searchSlice'; // NEW
 
 const preloadedState = storageService.loadState();
 
@@ -44,6 +46,8 @@ export const store = configureStore({
     inventoryLedger: inventoryLedgerReducer,
     returns: returnsReducer,
     creditNotes: creditNotesReducer,
+    supplierReturns: supplierReturnsReducer,
+    search: searchReducer, // NEW
 
   },
   preloadedState,

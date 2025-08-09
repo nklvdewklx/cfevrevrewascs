@@ -9,13 +9,11 @@ export const generateInvoiceForOrder = createAsyncThunk(
     (order, { getState, rejectWithValue }) => {
         const { invoices, products } = getState();
         
-        // Check if an invoice already exists for this order
         const existingInvoice = invoices.items.find(inv => inv.orderId === order.id);
         if (existingInvoice) {
             return rejectWithValue(`Invoice #${existingInvoice.invoiceNumber} already exists for this order.`);
         }
 
-        // Calculate order total
         const total = order.items.reduce((sum, item) => {
             const product = products.items.find(p => p.id === item.productId);
             const price = product?.pricingTiers[0]?.price || 0;
@@ -30,7 +28,8 @@ export const generateInvoiceForOrder = createAsyncThunk(
             dueDate: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0],
             total: total,
             status: 'sent',
-            invoiceNumber: `INV-2025-${String(invoiceCount).padStart(3, '0')}`
+            invoiceNumber: `INV-2025-${String(invoiceCount).padStart(3, '0')}`,
+            appliedCredits: [] // NEW: Initialize appliedCredits array
         };
 
         return newInvoice;
@@ -43,6 +42,30 @@ const initialState = persistedState?.invoices?.items || defaultDb.invoices;
 const invoicesSlice = createGenericSlice({
     name: 'invoices',
     initialState: initialState,
+    reducers: {
+        // MODIFIED: Enhanced reducer to handle credit application
+        applyCreditToInvoice: (state, action) => {
+            const { invoiceId, creditAmount, creditNoteNumber } = action.payload;
+            const invoice = state.items.find(inv => inv.id === invoiceId);
+            if(invoice) {
+                const amountToApply = Math.min(invoice.total, creditAmount);
+                invoice.total -= amountToApply;
+
+                if (!invoice.appliedCredits) {
+                    invoice.appliedCredits = [];
+                }
+                invoice.appliedCredits.push({
+                    creditNoteNumber,
+                    amount: amountToApply,
+                    date: new Date().toISOString().split('T')[0]
+                });
+
+                if (invoice.total <= 0) {
+                    invoice.status = 'paid';
+                }
+            }
+        }
+    },
     extraReducers: (builder) => {
         builder.addCase(generateInvoiceForOrder.fulfilled, (state, action) => {
             const newId = state.items.length > 0 ? Math.max(...state.items.map(i => i.id)) + 1 : 1;
@@ -56,6 +79,7 @@ export const {
   updateItem: updateInvoice,
   deleteItem: deleteInvoice,
   setItems: setInvoices,
+  applyCreditToInvoice
 } = invoicesSlice.actions;
 
 export default invoicesSlice.reducer;

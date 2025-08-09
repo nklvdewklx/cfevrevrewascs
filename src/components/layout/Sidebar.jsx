@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
     Home, ShoppingBag, Users, FileText, Boxes, Truck, BarChart, Shield,
     HardHat, CircleDollarSign, Handshake, ChevronDown, Settings, ClipboardList,
-    History, SearchCode, CornerUpLeft, FileMinus, Microscope // NEW: Icon for QC
+    History, SearchCode, CornerUpLeft, FileMinus, Microscope, Undo2 // CORRECTED: Replaced TruckOff with Undo2
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -39,7 +39,7 @@ const Sidebar = () => {
                 { name: 'customers', path: '/customers', icon: <Users size={20} /> },
                 { name: 'orders', path: '/orders', icon: <ShoppingBag size={20} /> },
                 { name: 'returns', path: '/returns', icon: <CornerUpLeft size={20} /> },
-                { name: 'creditNotes', path: '/credit-notes', icon: <FileMinus size={20} /> }, // NEW: Link for Credit Notes
+                { name: 'creditNotes', path: '/credit-notes', icon: <FileMinus size={20} /> },
                 { name: 'invoices', path: '/invoices', icon: <CircleDollarSign size={20} /> },
             ],
         },
@@ -49,7 +49,7 @@ const Sidebar = () => {
             links: [
                 { name: 'finishedProducts', path: '/inventory', icon: <Boxes size={20} /> },
                 { name: 'components', path: '/inventory/components', icon: <ClipboardList size={20} /> },
-                { name: 'qualityControl', path: '/inventory/quality-control', icon: <Microscope size={20} /> }, // NEW: Link for QC
+                { name: 'qualityControl', path: '/inventory/quality-control', icon: <Microscope size={20} /> },
                 { name: 'inventoryLedger', path: '/inventory/ledger', icon: <History size={20} /> },
                 { name: 'productionHistory', path: '/production-orders', icon: <HardHat size={20} /> },
             ],
@@ -59,6 +59,7 @@ const Sidebar = () => {
             links: [
                 { name: 'suppliers', path: '/suppliers', icon: <Truck size={20} /> },
                 { name: 'purchaseOrders', path: '/purchase-orders', icon: <FileText size={20} /> },
+                { name: 'supplierReturns', path: '/supplier-returns', icon: <Undo2 size={20} /> }, // CORRECTED
             ],
         },
         {

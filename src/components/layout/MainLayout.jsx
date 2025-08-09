@@ -5,30 +5,28 @@ import { logout } from '../../features/authentication/authSlice';
 import Sidebar from './Sidebar';
 import Button from '../common/Button';
 import SearchBar from '../common/SearchBar';
+import SearchResultsModal from '../common/SearchResultsModal'; // NEW
 import { useTranslation } from 'react-i18next';
 
 const MainLayout = () => {
     const { t } = useTranslation();
     const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
-    const navigate = useNavigate(); // NEW: Initialize the navigate hook
+    const navigate = useNavigate();
 
     const handleLogout = () => {
         dispatch(logout());
     };
 
     const handleLaunchPos = () => {
-        navigate('/pos'); // NEW: Navigate to the POS page
+        navigate('/pos');
     };
 
     return (
         <div className="flex h-screen text-white">
-            {/* Sidebar */}
             <Sidebar />
 
-            {/* Main Content Area */}
             <div className="flex flex-col flex-grow">
-                {/* Header */}
                 <header className="flex-shrink-0 flex justify-between items-center p-4 glass-panel border-b border-white/10 z-20">
                     <div className="flex items-center space-x-8">
                         <Link to="/dashboard" className="text-2xl font-bold">ROCTEC</Link>
@@ -36,7 +34,7 @@ const MainLayout = () => {
                     </div>
                     <div className="flex items-center space-x-4">
                         <Button
-                            onClick={handleLaunchPos} // CHANGED: Use the new handleLaunchPos function
+                            onClick={handleLaunchPos}
                             className="text-white"
                         >
                             <span>Launch POS</span>
@@ -52,11 +50,13 @@ const MainLayout = () => {
                     </div>
                 </header>
 
-                {/* Content */}
                 <main className="flex-grow p-6 overflow-y-auto">
                     <Outlet />
                 </main>
             </div>
+
+            {/* NEW: Add the search results modal */}
+            <SearchResultsModal />
         </div>
     );
 };

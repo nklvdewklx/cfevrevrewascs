@@ -68,7 +68,10 @@ const styles = StyleSheet.create({
     totalRow: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        marginTop: 10,
+        marginTop: 5,
+    },
+    creditRow: {
+        color: '#228B22', // Darker green for better PDF readability
     },
     totalLabel: {
         fontWeight: 'bold',
@@ -91,7 +94,7 @@ const InvoicePdf = ({ invoice, order, customer, products }) => {
 
     const taxRate = 0.19; // Using a hardcoded tax rate for simplicity
     const tax = subtotal * taxRate;
-    const total = subtotal + tax;
+    const total = invoice.total; // Use the invoice total which accounts for credits
 
     return (
         <Document>
@@ -149,7 +152,13 @@ const InvoicePdf = ({ invoice, order, customer, products }) => {
                         <Text style={styles.totalLabel}>Tax (19%):</Text>
                         <Text style={styles.totalValue}>${tax.toFixed(2)}</Text>
                     </View>
-                    <View style={styles.totalRow}>
+                    {invoice.appliedCredits?.map((credit, index) => (
+                        <View key={index} style={[styles.totalRow, styles.creditRow]}>
+                            <Text style={styles.totalLabel}>Credit Applied ({credit.creditNoteNumber}):</Text>
+                            <Text style={styles.totalValue}>-${credit.amount.toFixed(2)}</Text>
+                        </View>
+                    ))}
+                    <View style={[styles.totalRow, { marginTop: 10, borderTop: '1px solid #bfbfbf', paddingTop: 10 }]}>
                         <Text style={[styles.totalLabel, { fontSize: 16 }]}>Total Due:</Text>
                         <Text style={[styles.totalValue, { fontSize: 16 }]}>${total.toFixed(2)}</Text>
                     </View>

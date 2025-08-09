@@ -43,6 +43,8 @@ import ReturnsPage from '../features/returns/ReturnsPage';
 import CreditNotesPage from '../features/credit-notes/CreditNotesPage';
 import CreditNoteDetailsPage from '../features/credit-notes/CreditNoteDetailsPage';
 import QualityControlPage from '../features/inventory/QualityControlPage';
+import SupplierReturnsPage from '../features/purchasing/SupplierReturnsPage';
+import SupplierReturnDetailsPage from '../features/purchasing/SupplierReturnDetailsPage'; // NEW
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -84,6 +86,8 @@ const AppRouter = () => {
                 <Route path="inventory/:productId" element={<ProductDetailsPage />} />
                 <Route path="suppliers" element={<SuppliersPage />} />
                 <Route path="purchase-orders" element={<PurchaseOrdersPage />} />
+                <Route path="supplier-returns" element={<SupplierReturnsPage />} />
+                <Route path="supplier-returns/:srmaNumber" element={<SupplierReturnDetailsPage />} /> {/* NEW */}
                 <Route path="production-orders" element={<ProductionOrdersPage />} />
                 <Route path="production-orders/:productionOrderId" element={<ProductionOrderDetailsPage />} />
                 <Route path="reports" element={<ReportsPage />} />
