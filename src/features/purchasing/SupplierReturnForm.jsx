@@ -18,11 +18,14 @@ const SupplierReturnForm = ({ onSave, onCancel, suppliers, components }) => {
 
     const { fields, append, remove } = useFieldArray({ control, name: "items" });
     const watchedSupplierId = watch('supplierId');
+    const watchedItems = watch('items');
 
     useEffect(() => {
         if (watchedSupplierId) {
+            // This logic is a placeholder. In a real system, you'd likely have a direct link
+            // between a supplier and the batches they supplied.
             const supplierComponents = components.filter(c =>
-                c.stockBatches.some(b => b.supplierLotNumber?.startsWith(`PO-${suppliers.find(s => s.id === parseInt(watchedSupplierId))?.name.substring(0, 3).toUpperCase()}`)) // A bit of a guess, but could be improved with better data
+                c.stockBatches.some(b => b.supplierLotNumber)
             );
             const batches = supplierComponents.flatMap(c =>
                 c.stockBatches.map(b => ({
@@ -30,25 +33,32 @@ const SupplierReturnForm = ({ onSave, onCancel, suppliers, components }) => {
                     componentId: c.id,
                     componentName: c.name,
                     maxQuantity: b.quantity,
+                    // Create a unique ID for each option in the dropdown
+                    uniqueBatchId: `${c.id}-${b.supplierLotNumber}`
                 }))
             );
             setAvailableBatches(batches);
         } else {
             setAvailableBatches([]);
         }
-        setValue('items', []);
+        setValue('items', []); // Reset items when supplier changes
     }, [watchedSupplierId, components, suppliers, setValue]);
 
+    // MODIFIED: This logic is now smarter about adding a new, unselected batch.
     const handleAddComponent = () => {
-        if (availableBatches.length > 0) {
-            const firstBatch = availableBatches[0];
+        const selectedLotNumbers = new Set(watchedItems.map(item => item.supplierLotNumber));
+        const nextAvailableBatch = availableBatches.find(batch => !selectedLotNumbers.has(batch.supplierLotNumber));
+
+        if (nextAvailableBatch) {
             append({
-                componentId: firstBatch.componentId,
-                supplierLotNumber: firstBatch.supplierLotNumber,
+                componentId: nextAvailableBatch.componentId,
+                supplierLotNumber: nextAvailableBatch.supplierLotNumber,
                 quantity: 1,
-                maxQuantity: firstBatch.maxQuantity,
-                componentName: firstBatch.componentName
+                maxQuantity: nextAvailableBatch.maxQuantity,
+                componentName: nextAvailableBatch.componentName
             });
+        } else {
+            alert(t('noMoreBatchesAvailable'));
         }
     };
 
@@ -71,47 +81,52 @@ const SupplierReturnForm = ({ onSave, onCancel, suppliers, components }) => {
 
             {watchedSupplierId && (
                 <div className="space-y-3 pt-4 border-t border-white/10">
-                    <label className="block text-md font-semibold text-custom-light-blue">{t('itemsToReturn')}</label>
+                    <div className="flex justify-between items-center">
+                        <label className="block text-md font-semibold text-custom-light-blue">{t('itemsToReturn')}</label>
+                        <Button type="button" onClick={handleAddComponent} variant="secondary" size="sm" className="flex items-center space-x-2">
+                            <Plus size={16} />
+                            <span>{t('addComponent')}</span>
+                        </Button>
+                    </div>
                     {fields.map((field, index) => (
-                        <div key={field.id} className="flex items-center space-x-2 p-2 bg-gray-900/50 rounded-lg">
+                        <div key={field.id} className="grid grid-cols-3 gap-x-4 items-center p-2 bg-gray-900/50 rounded-lg">
                             <select
                                 {...register(`items.${index}.supplierLotNumber`, { required: true })}
-                                className="form-select flex-grow"
+                                className="form-select col-span-2"
                                 onChange={(e) => {
                                     const selectedBatch = availableBatches.find(b => b.supplierLotNumber === e.target.value);
                                     if (selectedBatch) {
                                         setValue(`items.${index}.componentId`, selectedBatch.componentId);
                                         setValue(`items.${index}.maxQuantity`, selectedBatch.maxQuantity);
                                         setValue(`items.${index}.componentName`, selectedBatch.componentName);
+                                        setValue(`items.${index}.quantity`, 1); // Reset quantity on change
                                     }
                                 }}
                             >
                                 <option value="">{t('selectBatch')}</option>
                                 {availableBatches.map(b => (
-                                    <option key={b.supplierLotNumber} value={b.supplierLotNumber}>
+                                    <option key={b.uniqueBatchId} value={b.supplierLotNumber} disabled={watchedItems.some((item, i) => i !== index && item.supplierLotNumber === b.supplierLotNumber)}>
                                         {b.componentName} ({b.supplierLotNumber}) - {t('available')}: {b.quantity}
                                     </option>
                                 ))}
                             </select>
-                            <input
-                                type="number"
-                                {...register(`items.${index}.quantity`, {
-                                    required: t('quantityRequired'),
-                                    valueAsNumber: true,
-                                    min: { value: 1, message: t('quantityAtLeastOne') },
-                                    max: { value: watch(`items.${index}.maxQuantity`), message: t('cannotReturnMoreThanAvailable') }
-                                })}
-                                className="form-input w-24"
-                            />
-                            <Button type="button" onClick={() => remove(index)} variant="ghost" size="sm" className="text-red-400">
-                                <Trash2 size={16} />
-                            </Button>
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="number"
+                                    {...register(`items.${index}.quantity`, {
+                                        required: t('quantityRequired'),
+                                        valueAsNumber: true,
+                                        min: { value: 1, message: t('quantityAtLeastOne') },
+                                        max: { value: watch(`items.${index}.maxQuantity`), message: t('cannotReturnMoreThanAvailable') }
+                                    })}
+                                    className="form-input"
+                                />
+                                <Button type="button" onClick={() => remove(index)} variant="ghost" size="sm" className="text-red-400">
+                                    <Trash2 size={16} />
+                                </Button>
+                            </div>
                         </div>
                     ))}
-                    <Button type="button" onClick={handleAddComponent} variant="secondary" size="sm" className="flex items-center space-x-2">
-                        <Plus size={16} />
-                        <span>{t('addComponent')}</span>
-                    </Button>
                     {errors.items && <p className="text-red-400 text-xs mt-1">{t('checkReturnedItems')}</p>}
                 </div>
             )}

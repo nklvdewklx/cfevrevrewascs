@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Mail, Phone, History, CornerUpLeft, FileMinus, Link as LinkIcon } from 'lucide-react';
+import { ArrowLeft, Edit, Mail, Phone, History, CornerUpLeft, FileMinus, Link as LinkIcon, PackageCheck, Clock } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import { calculateOrderTotal } from '../../lib/dataHelpers';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +25,8 @@ const OrderDetailPage = () => {
     }
 
     const customer = customers.find(c => c.id === order.customerId);
+    const backorder = orders.find(o => o.id === order.backorderId);
+    const originalOrder = orders.find(o => o.id === order.originalOrderId);
 
     const getOrderActivityLog = () => {
         const activity = [];
@@ -72,14 +74,14 @@ const OrderDetailPage = () => {
     };
 
     const productHeaders = [
-        { key: 'name', label: t('product'), sortable: true },
-        { key: 'quantity', label: t('quantity'), sortable: true },
+        { key: 'name', label: t('product'), sortable: false },
+        { key: 'quantity', label: t('quantity'), sortable: false },
     ];
 
     const renderProductRow = (item) => {
         const product = products.find(p => p.id === item.productId);
         return (
-            <tr key={item.productId} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
+            <tr key={item.productId} className="border-b border-white/10 last:border-b-0">
                 <td className="p-4">{product?.name || 'N/A'}</td>
                 <td className="p-4">{item.quantity}</td>
             </tr>
@@ -94,6 +96,11 @@ const OrderDetailPage = () => {
         'partially fulfilled': 'status-pending',
         backorder: 'status-pending'
     };
+
+    // Determine which items to display based on the order type
+    const itemsToShow = order.status === 'completed' ? (order.fulfilledItems || order.items) : order.items;
+    const totalToCalculate = originalOrder ? originalOrder.items : order.items;
+
 
     return (
         <div className="space-y-6">
@@ -127,27 +134,30 @@ const OrderDetailPage = () => {
                     </div>
                 </div>
 
-                {/* NEW: Linked Orders Section */}
-                {(order.originalOrderId || order.backorderId) && (
+                {(originalOrder || backorder) && (
                     <div className="bg-gray-800 p-4 rounded-lg">
                         <h3 className="text-lg font-semibold text-custom-light-blue mb-3 flex items-center space-x-2">
                             <LinkIcon size={16} />
                             <span>{t('linkedOrders')}</span>
                         </h3>
                         <div className="text-sm space-y-2 text-gray-300">
-                            {order.originalOrderId && <p>{t('originalOrder')}: <Link to={`/orders/${order.originalOrderId}`} className="text-blue-400 font-bold hover:underline">#{order.originalOrderId}</Link></p>}
-                            {order.backorderId && <p>{t('backorder')}: <Link to={`/orders/${order.backorderId}`} className="text-blue-400 font-bold hover:underline">#{order.backorderId}</Link></p>}
+                            {originalOrder && <p>{t('thisIsABackorderFor')}: <Link to={`/orders/${originalOrder.id}`} className="text-blue-400 font-bold hover:underline">#{originalOrder.id}</Link></p>}
+                            {backorder && <p>{t('backorderCreated')}: <Link to={`/orders/${backorder.id}`} className="text-blue-400 font-bold hover:underline">#{backorder.id}</Link></p>}
                         </div>
                     </div>
                 )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* MODIFIED: This section now shows fulfilled items or backordered items clearly */}
                 <div className="bg-gray-800/50 p-4 rounded-lg">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-xl font-semibold text-custom-light-blue">{t('orderItems')}</h3>
+                    <div className="flex items-center mb-4 space-x-3">
+                        {order.status === 'backorder' ? <Clock size={20} className="text-custom-light-blue" /> : <PackageCheck size={20} className="text-custom-light-blue" />}
+                        <h3 className="text-xl font-semibold text-custom-light-blue">
+                            {order.status === 'backorder' ? t('itemsOnBackorder') : t('itemsFulfilled')}
+                        </h3>
                     </div>
-                    <DataTable headers={productHeaders} data={order.items} renderRow={renderProductRow} />
+                    <DataTable headers={productHeaders} data={itemsToShow} renderRow={renderProductRow} />
                 </div>
 
                 <div className="bg-gray-800/50 p-4 rounded-lg">
@@ -156,7 +166,7 @@ const OrderDetailPage = () => {
                         <h3 className="text-xl font-semibold text-custom-light-blue">{t('orderActivity')}</h3>
                     </div>
                     <div className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
-                        {orderActivity.map((activity, index) => (
+                        {orderActivity.length > 0 ? orderActivity.map((activity, index) => (
                             <div key={index} className="flex items-start space-x-3">
                                 <div className="flex-shrink-0 pt-1">
                                     {activity.type === 'fulfillment' && <History size={16} className="text-red-400" />}
@@ -169,13 +179,13 @@ const OrderDetailPage = () => {
                                     <p className="text-xs text-custom-grey">{new Date(activity.date).toLocaleString()}</p>
                                 </div>
                             </div>
-                        ))}
+                        )) : <p className="text-sm text-center text-custom-grey py-4">{t('noActivityLogged')}</p>}
                     </div>
                 </div>
             </div>
 
             <div className="flex justify-end pt-4">
-                <h3 className="text-2xl font-bold">{t('total')}: ${calculateOrderTotal(order.items, products).toFixed(2)}</h3>
+                <h3 className="text-2xl font-bold">{t('total')}: ${calculateOrderTotal(totalToCalculate, products).toFixed(2)}</h3>
             </div>
         </div>
     );
