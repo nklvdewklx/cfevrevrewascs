@@ -365,5 +365,11 @@
     "quantityMustBePositive": "Quantity must be positive",
     "insufficientStock": "Insufficient stock for this adjustment",
     "stockAdjusted": "Stock adjusted successfully",
-    "originalOrderNotFound": "The original order for this return could not be found."
+    "originalOrderNotFound": "The original order for this return could not be found.",
+    "sellableStock": "Sellable Stock",
+    "orderActivity": "Order Activity",
+    "fulfilledItem": "Fulfilled: {{productName}}",
+    "creditNoteIssued": "Credit Note Issued",
+    "qualityControl": "Quality Control",
+    "awaitingInspectionVsQuarantined": "Awaiting / Quarantined"
 }

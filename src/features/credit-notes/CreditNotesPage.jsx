@@ -22,7 +22,11 @@ const CreditNotesPage = () => {
         const statusColors = { open: 'status-pending', applied: 'status-completed', void: 'status-cancelled' };
         return (
             <tr key={cn.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
-                <td className="p-4 font-mono">{cn.creditNoteNumber}</td>
+                <td className="p-4 font-mono">
+                    <Link to={`/credit-notes/${cn.creditNoteNumber}`} className="text-blue-400 hover:underline">
+                        {cn.creditNoteNumber}
+                    </Link>
+                </td>
                 <td className="p-4">
                     <Link to={`/customers/${customer?.id}`} className="text-blue-400 hover:underline">
                         {customer?.name || 'N/A'}

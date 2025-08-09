@@ -39,9 +39,10 @@ import InvoiceDetailsPage from '../features/orders/InvoiceDetailsPage';
 import SettingsPage from '../features/settings/SettingsPage';
 import ProductDetailsPage from '../features/inventory/ProductDetailsPage';
 import ComponentDetailsPage from '../features/inventory/ComponentDetailsPage';
-import ReturnsPage from '../features/returns/ReturnsPage'; // NEW: Import ReturnsPage
-import CreditNotesPage from '../features/credit-notes/CreditNotesPage'; // NEW: Import CreditNotesPage
-import QualityControlPage from '../features/inventory/QualityControlPage'; // NEW: Import QualityControlPage
+import ReturnsPage from '../features/returns/ReturnsPage';
+import CreditNotesPage from '../features/credit-notes/CreditNotesPage';
+import CreditNoteDetailsPage from '../features/credit-notes/CreditNoteDetailsPage';
+import QualityControlPage from '../features/inventory/QualityControlPage';
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -70,17 +71,16 @@ const AppRouter = () => {
                 <Route path="customers/:customerId" element={<CustomerDetailsPage />} />
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="orders/:orderId" element={<OrderDetailPage />} />
-                <Route path="returns" element={<ReturnsPage />} /> {/* NEW: Route for returns */}
-                <Route path="credit-notes" element={<CreditNotesPage />} /> {/* NEW: Route for credit notes */}
-
+                <Route path="returns" element={<ReturnsPage />} />
+                <Route path="credit-notes" element={<CreditNotesPage />} />
+                <Route path="credit-notes/:creditNoteNumber" element={<CreditNoteDetailsPage />} />
                 <Route path="invoices" element={<InvoicesPage />} />
                 <Route path="invoices/:invoiceNumber" element={<InvoiceDetailsPage />} />
                 <Route path="inventory" element={<ProductsPage />} />
                 <Route path="inventory/components" element={<ComponentsPage />} />
                 <Route path="inventory/components/:componentId" element={<ComponentDetailsPage />} />
                 <Route path="inventory/ledger" element={<InventoryLedgerPage />} />
-                <Route path="inventory/quality-control" element={<QualityControlPage />} /> {/* NEW: Route for QC */}
-
+                <Route path="inventory/quality-control" element={<QualityControlPage />} />
                 <Route path="inventory/:productId" element={<ProductDetailsPage />} />
                 <Route path="suppliers" element={<SuppliersPage />} />
                 <Route path="purchase-orders" element={<PurchaseOrdersPage />} />

@@ -3,17 +3,18 @@ import { useSelector } from 'react-redux';
 import ReactApexChart from 'react-apexcharts';
 import { DollarSign, Package, Users, ShoppingCart } from 'lucide-react';
 import { calculateOrderTotal } from '../../lib/dataHelpers';
-import { useTranslation } from 'react-i18next'; // NEW: Import useTranslation
+import { useTranslation } from 'react-i18next';
 
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
 };
 
 const ReportsPage = () => {
-    const { t } = useTranslation(); // NEW: Get translation function
+    const { t } = useTranslation();
     const orders = useSelector((state) => state.orders.items);
     const products = useSelector((state) => state.products.items);
     const customers = useSelector((state) => state.customers.items);
+    const { items: creditNotes } = useSelector((state) => state.creditNotes);
 
     const totalRevenue = orders.reduce((total, order) => {
         const orderTotal = order.items?.reduce((itemSum, item) => {
@@ -23,6 +24,8 @@ const ReportsPage = () => {
         }, 0) || 0;
         return total + orderTotal;
     }, 0);
+    const totalCredits = creditNotes.reduce((sum, cn) => sum + cn.amount, 0);
+    const netRevenue = totalRevenue - totalCredits;
 
     const productRevenue = products.map(product => {
         const revenue = orders.reduce((sum, order) => {
@@ -49,7 +52,7 @@ const ReportsPage = () => {
     };
 
     const topProductsChartSeries = [{
-        name: t('revenue'), // NEW: Translate series name
+        name: t('revenue'),
         data: productRevenue.map(p => p.revenue.toFixed(2))
     }];
 
@@ -58,7 +61,7 @@ const ReportsPage = () => {
             <h1 className="text-3xl font-bold text-white">{t('businessReports')}</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard icon={<DollarSign />} title={t('totalRevenue')} value={formatCurrency(totalRevenue)} />
+                <StatCard icon={<DollarSign />} title={t('netRevenue')} value={formatCurrency(netRevenue)} />
                 <StatCard icon={<ShoppingCart />} title={t('totalOrders')} value={orders.length} />
                 <StatCard icon={<Users />} title={t('totalCustomers')} value={customers.length} />
                 <StatCard icon={<Package />} title={t('productTypes')} value={products.length} />

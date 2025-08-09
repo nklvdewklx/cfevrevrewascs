@@ -74,21 +74,18 @@ const ProductsPage = () => {
     const headers = [
         { key: 'name', label: t('productName'), sortable: true },
         { key: 'sku', label: t('sku'), sortable: true },
-        { key: 'totalStock', label: t('sellableStock'), sortable: true },
-        { key: 'status', label: t('status'), sortable: true },
+        { key: 'sellableStock', label: t('sellable'), sortable: true },
+        { key: 'qcStock', label: t('qc/Inspection'), sortable: true },
+        { key: 'totalStock', label: t('total'), sortable: true },
         { key: 'actions', label: t('actions'), sortable: false },
     ];
 
     const renderRow = (product) => {
         const sellableStock = product.stockBatches?.filter(b => !b.status || b.status === 'Sellable').reduce((sum, batch) => sum + batch.quantity, 0) || 0;
-        const isArchived = product.status === 'archived';
-        let status;
-        if (isArchived) {
-            status = { text: t('archived'), className: 'bg-gray-600' };
-        } else {
-            status = sellableStock === 0 ? { text: t('outOfStock'), className: 'status-cancelled' } : { text: t('inStock'), className: 'status-completed' };
-        }
+        const qcStock = product.stockBatches?.filter(b => b.status && b.status !== 'Sellable').reduce((sum, batch) => sum + batch.quantity, 0) || 0;
+        const totalStock = sellableStock + qcStock;
 
+        const isArchived = product.status === 'archived';
         const canProduce = product.bom && product.bom.length > 0;
 
         return (
@@ -99,8 +96,9 @@ const ProductsPage = () => {
                     </Link>
                 </td>
                 <td className="p-4">{product.sku}</td>
-                <td className="p-4 font-semibold">{sellableStock}</td>
-                <td className="p-4"><span className={`status-pill ${status.className}`}>{status.text}</span></td>
+                <td className="p-4 font-semibold text-green-400">{sellableStock}</td>
+                <td className="p-4 font-semibold text-yellow-400">{qcStock}</td>
+                <td className="p-4 font-bold">{totalStock}</td>
                 <td className="p-4">
                     <div className="flex space-x-4">
                         {!isArchived && canProduce && <Button onClick={() => handleOpenProduceModal(product)} variant="ghost-glow" size="sm" className="text-green-400" title={t('produceItem')}><Factory size={16} /></Button>}
@@ -116,10 +114,16 @@ const ProductsPage = () => {
         );
     };
 
-    const productsWithStock = products.map(p => ({
-        ...p,
-        totalStock: p.stockBatches?.filter(b => !b.status || b.status === 'Sellable').reduce((sum, batch) => sum + batch.quantity, 0) || 0,
-    }));
+    const productsWithStock = products.map(p => {
+        const sellableStock = p.stockBatches?.filter(b => !b.status || b.status === 'Sellable').reduce((sum, batch) => sum + batch.quantity, 0) || 0;
+        const qcStock = p.stockBatches?.filter(b => b.status && b.status !== 'Sellable').reduce((sum, batch) => sum + batch.quantity, 0) || 0;
+        return {
+            ...p,
+            sellableStock,
+            qcStock,
+            totalStock: sellableStock + qcStock,
+        }
+    });
 
     const productStatusFilters = {
         activeFilters: { status: statusFilter },

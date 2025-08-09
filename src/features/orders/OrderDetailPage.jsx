@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Mail, Phone, History } from 'lucide-react';
+import { ArrowLeft, Edit, Mail, Phone, History, CornerUpLeft, FileMinus } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import { calculateOrderTotal } from '../../lib/dataHelpers';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +15,8 @@ const OrderDetailPage = () => {
     const customers = useSelector((state) => state.customers.items);
     const products = useSelector((state) => state.products.items);
     const { items: ledgerEntries } = useSelector((state) => state.inventoryLedger);
+    const { items: returns } = useSelector((state) => state.returns); // NEW: Get returns data
+    const { items: creditNotes } = useSelector((state) => state.creditNotes); // NEW: Get credit note data
 
     const order = orders.find(o => o.id === parseInt(orderId));
 
@@ -24,8 +26,51 @@ const OrderDetailPage = () => {
 
     const customer = customers.find(c => c.id === order.customerId);
 
-    const orderHistory = ledgerEntries.filter(entry => entry.reason.includes(`Order #${order.id}`));
+    // UPDATED: Create a comprehensive activity log for the order
+    const getOrderActivityLog = () => {
+        const activity = [];
 
+        // Add inventory movements from the ledger
+        ledgerEntries
+            .filter(entry => entry.reason.includes(`Order #${order.id}`))
+            .forEach(entry => {
+                const product = products.find(p => p.id === entry.itemId);
+                activity.push({
+                    date: entry.date,
+                    type: 'fulfillment',
+                    description: t('fulfilledItem', { productName: product?.name || 'N/A' }),
+                    details: `${entry.quantityChange} from Batch ${entry.reason.match(/\(Batch: (.*?)\)/)?.[1] || 'N/A'}`
+                });
+            });
+
+        // Add any returns associated with this order
+        const associatedReturn = returns.find(r => r.orderId === order.id);
+        if (associatedReturn) {
+            activity.push({
+                date: associatedReturn.date,
+                type: 'return',
+                description: t('returnRequestCreated'),
+                details: `RMA #${associatedReturn.rmaNumber}`
+            });
+        }
+
+        // Add any credit notes associated with the return
+        if (associatedReturn) {
+            const associatedCreditNote = creditNotes.find(cn => cn.reason.includes(associatedReturn.rmaNumber));
+            if (associatedCreditNote) {
+                activity.push({
+                    date: associatedCreditNote.date,
+                    type: 'creditNote',
+                    description: t('creditNoteIssued'),
+                    details: `${associatedCreditNote.creditNoteNumber} (-$${associatedCreditNote.amount.toFixed(2)})`
+                });
+            }
+        }
+
+        return activity.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by most recent first
+    };
+
+    const orderActivity = getOrderActivityLog();
 
     const handleEditOrder = () => {
         alert(t('editNotImplemented'));
@@ -42,26 +87,6 @@ const OrderDetailPage = () => {
             <tr key={item.productId} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
                 <td className="p-4">{product?.name || 'N/A'}</td>
                 <td className="p-4">{item.quantity}</td>
-            </tr>
-        );
-    };
-
-    const historyHeaders = [
-        { key: 'date', label: t('date'), sortable: true },
-        { key: 'product', label: t('product'), sortable: false },
-        { key: 'change', label: t('change'), sortable: false },
-        { key: 'batch', label: t('batch'), sortable: false },
-    ];
-
-    const renderHistoryRow = (entry) => {
-        const product = products.find(p => p.id === entry.itemId);
-        const batchNumber = entry.reason.match(/\(Batch: (.*?)\)/)?.[1] || 'N/A';
-        return (
-            <tr key={entry.id} className="border-b border-white/10 last:border-b-0">
-                <td className="p-4">{new Date(entry.date).toLocaleString()}</td>
-                <td className="p-4">{product?.name || 'N/A'}</td>
-                <td className="p-4 font-semibold text-red-400">{entry.quantityChange}</td>
-                <td className="p-4 font-mono">{batchNumber}</td>
             </tr>
         );
     };
@@ -97,22 +122,38 @@ const OrderDetailPage = () => {
                 </div>
             </div>
 
-            <div className="bg-gray-800/50 p-4 rounded-lg">
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-semibold text-custom-light-blue">{t('orderItems')}</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-gray-800/50 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xl font-semibold text-custom-light-blue">{t('orderItems')}</h3>
+                    </div>
+                    <DataTable headers={productHeaders} data={order.items} renderRow={renderProductRow} />
                 </div>
-                <DataTable headers={productHeaders} data={order.items} renderRow={renderProductRow} />
-            </div>
 
-            {orderHistory.length > 0 && (
+                {/* UPDATED: Full Order Activity Log */}
                 <div className="bg-gray-800/50 p-4 rounded-lg">
                     <div className="flex items-center mb-4 space-x-3">
                         <History size={20} className="text-custom-light-blue" />
-                        <h3 className="text-xl font-semibold text-custom-light-blue">{t('orderHistory')}</h3>
+                        <h3 className="text-xl font-semibold text-custom-light-blue">{t('orderActivity')}</h3>
                     </div>
-                    <DataTable headers={historyHeaders} data={orderHistory} renderRow={renderHistoryRow} />
+                    <div className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
+                        {orderActivity.map((activity, index) => (
+                            <div key={index} className="flex items-start space-x-3">
+                                <div className="flex-shrink-0 pt-1">
+                                    {activity.type === 'fulfillment' && <History size={16} className="text-red-400" />}
+                                    {activity.type === 'return' && <CornerUpLeft size={16} className="text-yellow-400" />}
+                                    {activity.type === 'creditNote' && <FileMinus size={16} className="text-green-400" />}
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-sm">{activity.description}</p>
+                                    <p className="text-xs text-custom-grey">{activity.details}</p>
+                                    <p className="text-xs text-custom-grey">{new Date(activity.date).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            )}
+            </div>
 
             <div className="flex justify-end pt-4">
                 <h3 className="text-2xl font-bold">{t('total')}: ${calculateOrderTotal(order.items, products).toFixed(2)}</h3>

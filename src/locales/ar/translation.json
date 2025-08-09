@@ -353,5 +353,11 @@
     "quantityMustBePositive": "يجب أن تكون الكمية موجبة",
     "insufficientStock": "مخزون غير كافٍ لهذا التعديل",
     "stockAdjusted": "تم تعديل المخزون بنجاح",
-    "originalOrderNotFound": "لم يتم العثور على الطلب الأصلي لهذا المرتجع."
+    "originalOrderNotFound": "لم يتم العثور على الطلب الأصلي لهذا المرتجع.",
+    "sellableStock": "المخزون القابل للبيع",
+    "orderActivity": "سجل الطلب",
+    "fulfilledItem": "تم الشحن: {{productName}}",
+    "creditNoteIssued": "تم إصدار إشعار دائن",
+    "qualityControl": "مراقبة الجودة",
+    "awaitingInspectionVsQuarantined": "في انتظار الفحص / في الحجر"
 }
