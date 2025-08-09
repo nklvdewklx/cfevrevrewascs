@@ -426,5 +426,11 @@
     "backorderCreated": "Backorder Created",
     "itemsOnBackorder": "Items on Backorder",
     "itemsFulfilled": "Items Fulfilled / Shipped",
-    "noActivityLogged": "No activity has been logged for this order yet."
+    "noActivityLogged": "No activity has been logged for this order yet.",
+    "salesAndShipping": "Sales & Shipping Info",
+    "shippingCarrier": "Shipping Carrier",
+    "trackingNumber": "Tracking Number",
+    "lineTotal": "Line Total",
+    "originalOrderItems": "Original Order Items",
+    "financialSummary": "Financial Summary"
 }

@@ -1,5 +1,3 @@
-// src/api/defaultDb.js
-
 const employees = [
     { id: 1, name: 'Alice Admin', email: 'alice.a@roctec.com', phone: '555-0101', role: 'Administrator', department: 'Management', hireDate: '2022-01-15' },
     { id: 2, name: 'Bob Finance', email: 'bob.f@roctec.com', phone: '555-0102', role: 'Finance User', department: 'Finance', hireDate: '2022-03-01' },
@@ -68,8 +66,8 @@ export const defaultDb = {
         },
     ],
     orders: [
-        { id: 301, customerId: 101, agentId: 1, date: '2025-07-25', status: 'completed', items: [ { productId: 201, quantity: 50 } ], signature: null, shippingCarrier: null, trackingNumber: null },
-        { id: 302, customerId: 102, agentId: 2, date: '2025-07-24', status: 'shipped', items: [ { productId: 202, quantity: 100 } ], signature: null, shippingCarrier: 'DHL', trackingNumber: 'JD0123456789' },
+        { id: 301, customerId: 101, agentId: 1, date: '2025-07-25', status: 'completed', items: [ { productId: 201, quantity: 50 } ], fulfilledItems: [ { productId: 201, quantity: 50 } ], signature: null, shippingCarrier: 'FedEx', trackingNumber: 'FX123456789' },
+        { id: 302, customerId: 102, agentId: 2, date: '2025-07-24', status: 'shipped', items: [ { productId: 202, quantity: 100 } ], fulfilledItems: [ { productId: 202, quantity: 100 } ], signature: null, shippingCarrier: 'DHL', trackingNumber: 'JD0123456789' },
     ],
     invoices: [],
     creditNotes: [],

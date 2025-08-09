@@ -414,5 +414,11 @@
     "backorderCreated": "تم إنشاء طلب لاحق",
     "itemsOnBackorder": "الأصناف في الطلب اللاحق",
     "itemsFulfilled": "الأصناف التي تم تجهيزها / شحنها",
-    "noActivityLogged": "لم يتم تسجيل أي نشاط لهذا الطلب بعد."
+    "noActivityLogged": "لم يتم تسجيل أي نشاط لهذا الطلب بعد.",
+    "salesAndShipping": "معلومات المبيعات والشحن",
+    "shippingCarrier": "شركة الشحن",
+    "trackingNumber": "رقم التتبع",
+    "lineTotal": "إجمالي السطر",
+    "originalOrderItems": "أصناف الطلب الأصلي",
+    "financialSummary": "ملخص مالي"
 }
