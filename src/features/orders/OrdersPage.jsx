@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Edit, Trash2, Plus, FileText, Truck } from 'lucide-react'; // UPDATED: Icon
+import { Edit, Trash2, Plus, FileText, Truck } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import OrderForm from './OrderForm';
-import FulfillmentModal from './FulfillmentModal'; // NEW: Import
-import { addOrder, updateOrder, deleteOrder } from './ordersSlice';
-import { fulfillOrderWithSpecificBatches } from '../inventory/productsSlice'; // UPDATED: Import new thunk
+import FulfillmentModal from './FulfillmentModal';
+import { addOrder, updateOrder, deleteOrder, updateFulfilledItems, createBackorder } from './ordersSlice';
+import { fulfillOrderWithSpecificBatches } from '../inventory/productsSlice';
 import { generateInvoiceForOrder } from './invoicesSlice';
 import { showToast } from '../../lib/toast';
 import { Link } from 'react-router-dom';
@@ -23,7 +23,7 @@ const OrdersPage = () => {
     const products = useSelector((state) => state.products.items);
 
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-    const [isFulfillmentModalOpen, setIsFulfillmentModalOpen] = useState(false); // NEW: State for fulfillment modal
+    const [isFulfillmentModalOpen, setIsFulfillmentModalOpen] = useState(false);
     const [editingOrder, setEditingOrder] = useState(null);
     const [statusFilter, setStatusFilter] = useState('');
 
@@ -36,7 +36,6 @@ const OrdersPage = () => {
         setIsFormModalOpen(false);
     };
 
-    // NEW: Handlers for the fulfillment modal
     const handleOpenFulfillmentModal = (order) => {
         setEditingOrder(order);
         setIsFulfillmentModalOpen(true);
@@ -67,14 +66,50 @@ const OrdersPage = () => {
         }
     };
 
-    // UPDATED: This now handles the specific batch data from the fulfillment modal
     const handleConfirmFulfillment = async (fulfillmentData) => {
+        const itemsBeingFulfilled = fulfillmentData.items.map(item => ({
+            productId: item.productId,
+            quantity: item.allocations.reduce((sum, alloc) => sum + (alloc.allocated || 0), 0)
+        })).filter(item => item.quantity > 0);
+
+        if (itemsBeingFulfilled.length === 0) {
+            handleCloseFulfillmentModal();
+            return;
+        }
+
         try {
             await dispatch(fulfillOrderWithSpecificBatches({ order: editingOrder, fulfillmentData })).unwrap();
-            dispatch(updateOrder({ ...editingOrder, status: 'completed' }));
-            showToast(t('orderCompleted'), 'success');
+
+            if (fulfillmentData.strategy === 'backorder') {
+                dispatch(createBackorder({ orderId: editingOrder.id, fulfilledItems: itemsBeingFulfilled }));
+                showToast(t('backorderCreatedSuccessfully'), 'success');
+            } else {
+                dispatch(updateFulfilledItems({ orderId: editingOrder.id, fulfilledItems: itemsBeingFulfilled }));
+
+                const originalItemsMap = new Map(editingOrder.items.map(i => [i.productId, i.quantity]));
+                const fulfilledItemsMap = new Map();
+                (editingOrder.fulfilledItems || []).forEach(item => {
+                    fulfilledItemsMap.set(item.productId, (fulfilledItemsMap.get(item.productId) || 0) + item.quantity);
+                });
+                itemsBeingFulfilled.forEach(item => {
+                    fulfilledItemsMap.set(item.productId, (fulfilledItemsMap.get(item.productId) || 0) + item.quantity);
+                });
+
+                let isFullyFulfilled = true;
+                for (const [productId, quantity] of originalItemsMap) {
+                    if ((fulfilledItemsMap.get(productId) || 0) < quantity) {
+                        isFullyFulfilled = false;
+                        break;
+                    }
+                }
+
+                const newStatus = isFullyFulfilled ? 'completed' : 'partially fulfilled';
+                dispatch(updateOrder({ ...editingOrder, status: newStatus }));
+
+                showToast(t('orderFulfilledSuccessfully'), 'success');
+            }
         } catch (error) {
-            showToast(t('orderFailed', { error }), 'error');
+            showToast(t('orderFailed', { error: error.message }), 'error');
         } finally {
             handleCloseFulfillmentModal();
         }
@@ -85,7 +120,7 @@ const OrdersPage = () => {
             await dispatch(generateInvoiceForOrder(order)).unwrap();
             showToast(t('invoiceGenerated'), 'success');
         } catch (error) {
-            showToast(t('invoiceFailed', { error }), 'error');
+            showToast(t('invoiceFailed', { error: error.message }), 'error');
         }
     };
 
@@ -101,7 +136,14 @@ const OrdersPage = () => {
     const renderRow = (order) => {
         const customer = customers.find(c => c.id === order.customerId);
         const total = calculateOrderTotal(order.items, products);
-        const statusColors = { pending: 'status-pending', completed: 'status-completed', shipped: 'status-shipped', cancelled: 'status-cancelled' };
+        const statusColors = {
+            pending: 'status-pending',
+            completed: 'status-completed',
+            shipped: 'status-shipped',
+            cancelled: 'status-cancelled',
+            'partially fulfilled': 'status-pending',
+            backorder: 'status-pending'
+        };
 
         return (
             <tr key={order.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/5">
@@ -118,9 +160,8 @@ const OrdersPage = () => {
                 </td>
                 <td className="p-4">
                     <div className="flex space-x-4">
-                        {/* UPDATED: This button now opens the fulfillment modal */}
-                        {order.status === 'pending' && <Button onClick={() => handleOpenFulfillmentModal(order)} variant="ghost-glow" className="text-green-400" title={t('fulfillOrder')}><Truck size={16} /></Button>}
-                        {order.status === 'completed' && <Button onClick={() => handleGenerateInvoice(order)} variant="ghost-glow" className="text-yellow-400" title={t('generateInvoice')}><FileText size={16} /></Button>}
+                        {(order.status === 'pending' || order.status === 'partially fulfilled' || order.status === 'backorder') && <Button onClick={() => handleOpenFulfillmentModal(order)} variant="ghost-glow" className="text-green-400" title={t('fulfillOrder')}><Truck size={16} /></Button>}
+                        {(order.status === 'completed' || order.status === 'partially fulfilled') && <Button onClick={() => handleGenerateInvoice(order)} variant="ghost-glow" className="text-yellow-400" title={t('generateInvoice')}><FileText size={16} /></Button>}
                         <Button onClick={() => handleOpenFormModal(order)} variant="ghost-glow" className="text-custom-light-blue" title={t('edit')}><Edit size={16} /></Button>
                         <Button onClick={() => handleDelete(order.id)} variant="ghost-glow" className="text-red-400" title={t('delete')}><Trash2 size={16} /></Button>
                     </div>
@@ -140,6 +181,8 @@ const OrdersPage = () => {
                 >
                     <option value="">{t('allStatuses')}</option>
                     <option value="pending">{t('pending')}</option>
+                    <option value="backorder">{t('backorder')}</option>
+                    <option value="partially fulfilled">{t('partiallyFulfilled')}</option>
                     <option value="completed">{t('completed')}</option>
                     <option value="shipped">{t('shipped')}</option>
                     <option value="cancelled">{t('cancelled')}</option>
@@ -161,7 +204,6 @@ const OrdersPage = () => {
             <Modal title={editingOrder ? t('editOrder') : t('createNewOrder')} isOpen={isFormModalOpen} onClose={handleCloseFormModal} footer={<></>}>
                 <OrderForm order={editingOrder} onSave={handleSaveOrder} onCancel={handleCloseFormModal} customers={customers} products={products} />
             </Modal>
-            {/* NEW: Render the fulfillment modal */}
             <Modal title={`${t('fulfillOrder')} #${editingOrder?.id}`} isOpen={isFulfillmentModalOpen} onClose={handleCloseFulfillmentModal} footer={<></>}>
                 {editingOrder && <FulfillmentModal order={editingOrder} onCancel={handleCloseFulfillmentModal} onConfirm={handleConfirmFulfillment} />}
             </Modal>

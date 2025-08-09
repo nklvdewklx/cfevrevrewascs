@@ -7,6 +7,13 @@ import { storageService } from '../../services/storageService';
 export const generateInvoiceForOrder = createAsyncThunk(
     'invoices/generateForOrder',
     (order, { getState, rejectWithValue }) => {
+        // MODIFIED: Invoice is now based on fulfilled items
+        const itemsToInvoice = order.fulfilledItems || order.items;
+        
+        if (!itemsToInvoice || itemsToInvoice.length === 0) {
+            return rejectWithValue('Cannot generate an invoice for an order with no fulfilled items.');
+        }
+        
         const { invoices, products } = getState();
         
         const existingInvoice = invoices.items.find(inv => inv.orderId === order.id);
@@ -14,10 +21,12 @@ export const generateInvoiceForOrder = createAsyncThunk(
             return rejectWithValue(`Invoice #${existingInvoice.invoiceNumber} already exists for this order.`);
         }
 
-        const total = order.items.reduce((sum, item) => {
+        // MODIFIED: Calculate total based on fulfilled items
+        const total = itemsToInvoice.reduce((sum, item) => {
             const product = products.items.find(p => p.id === item.productId);
             const price = product?.pricingTiers[0]?.price || 0;
-            return sum + (price * item.quantity);
+            const quantity = item.quantityToFulfill || item.quantity; // Use quantity from fulfillment if available
+            return sum + (price * quantity);
         }, 0);
 
         const invoiceCount = invoices.items.length + 1;
@@ -29,7 +38,7 @@ export const generateInvoiceForOrder = createAsyncThunk(
             total: total,
             status: 'sent',
             invoiceNumber: `INV-2025-${String(invoiceCount).padStart(3, '0')}`,
-            appliedCredits: [] // NEW: Initialize appliedCredits array
+            appliedCredits: []
         };
 
         return newInvoice;
@@ -43,7 +52,6 @@ const invoicesSlice = createGenericSlice({
     name: 'invoices',
     initialState: initialState,
     reducers: {
-        // MODIFIED: Enhanced reducer to handle credit application
         applyCreditToInvoice: (state, action) => {
             const { invoiceId, creditAmount, creditNoteNumber } = action.payload;
             const invoice = state.items.find(inv => inv.id === invoiceId);
