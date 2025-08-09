@@ -16,28 +16,25 @@
     --color-glass-bg: rgba(30, 41, 59, 0.6);
     --color-accent: #a2d2ff;
 
-    /* NEW: Font weight variables */
     --font-normal: 400;
     --font-medium: 500;
     --font-bold: 700;
 }
 
-/* NEW: Light Theme */
 .theme-light {
     --color-primary-light: #60a5fa;
     --color-primary-dark: #3b82f6;
     --color-danger-light: #ef4444;
     --color-danger-dark: #dc2626;
-    --color-background: #f1f5f9; /* Lighter background */
-    --color-surface: #ffffff; /* White surface */
-    --color-text: #1e293b; /* Dark text */
+    --color-background: #f1f5f9;
+    --color-surface: #ffffff;
+    --color-text: #1e293b;
     --color-text-faded: #64748b;
     --color-glass-bg: rgba(255, 255, 255, 0.7);
     --color-accent: #2563eb;
 }
 
 body {
-    /* NEW: Use 'DM Sans' as the primary font */
     font-family: 'DM Sans', sans-serif;
     background-color: var(--color-background);
     color: var(--color-text);
@@ -57,20 +54,18 @@ body {
     to { background-position: 100% 100%; }
 }
 
-/* Glassmorphism effect for panels */
 .glass-panel {
     background-color: var(--color-glass-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
-/* NEW: Adjusted glass-panel for light theme */
+
 .theme-light .glass-panel {
     background-color: var(--color-glass-bg);
     border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
 }
@@ -85,7 +80,6 @@ body {
     background-color: rgba(0, 0, 0, 0.2);
 }
 
-/* Form inputs */
 .form-input,
 .form-select {
     background-color: rgba(0, 0, 0, 0.2);
@@ -108,7 +102,6 @@ body {
     box-shadow: 0 0 0 2px rgba(162, 210, 255, 0.5);
 }
 
-/* NEW: Refined Status Pills with fixed width */
 .status-pill {
     display: inline-block;
     padding: 4px 10px;
@@ -126,7 +119,6 @@ body {
 .status-cancelled { background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; }
 .status-shipped { background-color: rgba(59, 130, 246, 0.2); border-color: #3b82f6; }
 
-/* Animation for highlighting recently added/edited rows */
 @keyframes highlight {
     0% { background-color: rgba(162, 210, 255, 0.2); }
     100% { background-color: transparent; }
@@ -136,7 +128,6 @@ body {
     animation: highlight 2s ease-out;
 }
 
-/* NEW: Button Styles inspired by the provided image */
 @layer components {
     .btn-base {
         @apply shadow-xl transition-all duration-300;
@@ -205,7 +196,6 @@ body {
     }
 }
 
-/* Animation for the search bar */
 @keyframes search-glow-animation {
     0% {
         box-shadow: 0 0 5px rgba(167, 139, 250, 0), 0 0 10px rgba(167, 139, 250, 0), inset 0 0 0 1px rgba(167, 139, 250, 0.5);
@@ -222,7 +212,6 @@ body {
     animation: search-glow-animation 2.5s infinite;
 }
 
-/* Styles for enhanced sidebar navigation */
 .nav-link-active {
     color: white;
     font-weight: 500;
@@ -230,7 +219,6 @@ body {
     box-shadow: inset 2px 0 0 0 var(--color-accent);
 }
 
-/* NEW: Styles for Toast backgrounds */
 .toast-success {
     background-color: rgba(16, 185, 129, 0.25);
 }
@@ -239,4 +227,91 @@ body {
 }
 .toast-info {
     background-color: rgba(59, 130, 246, 0.25);
+}
+
+/* MODIFIED: Styles for the animated FAB Settings Menu */
+.settings-fab-container {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* NEW: RTL positioning for settings menu */
+html[dir="rtl"] .settings-fab-container {
+    right: auto;
+    left: 1rem;
+}
+
+.settings-fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 9999px;
+    background-color: var(--color-primary-dark);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    z-index: 10;
+}
+.settings-fab:hover {
+    background-color: var(--color-primary-light);
+}
+
+.settings-fab-option-wrapper {
+    position: absolute;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s;
+    opacity: 0;
+    pointer-events: none; /* Disable pointer events on the wrapper */
+}
+
+.settings-fab-option-wrapper[style*="opacity: 1"] {
+    pointer-events: auto; /* Enable pointer events only when visible */
+}
+
+.settings-fab-option {
+    width: 48px;
+    height: 48px;
+    border-radius: 9999px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.settings-tooltip {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #1e293b;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    pointer-events: none;
+}
+
+/* NEW: RTL positioning for tooltips */
+html[dir="rtl"] .settings-tooltip {
+    right: auto;
+    left: 60px;
+}
+
+.settings-fab-option-wrapper:hover .settings-tooltip {
+    opacity: 1;
+    visibility: visible;
 }

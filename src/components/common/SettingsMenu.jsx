@@ -19,42 +19,59 @@ const SettingsMenu = () => {
         i18n.changeLanguage(newLang);
     };
 
-    const isRtl = i18n.language === 'ar';
-
-    const flags = {
-        en: '🇺🇸',
-        ar: '🇪🇬',
-    };
+    const menuOptions = [
+        {
+            id: 'theme',
+            label: t('toggleTheme'),
+            icon: theme === 'dark' ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />,
+            action: handleThemeToggle,
+            colorClass: 'bg-gray-700/80 hover:bg-gray-600/80'
+        },
+        {
+            id: 'en',
+            label: 'English',
+            icon: <span className="font-bold text-sm">EN</span>,
+            action: () => handleLanguageChange('en'),
+            // NEW: Enhanced active class with a background color and ring
+            colorClass: `bg-gray-700/80 hover:bg-gray-600/80 ${language === 'en' ? 'bg-blue-600/50 ring-2 ring-blue-400' : ''}`
+        },
+        {
+            id: 'ar',
+            label: 'العربية',
+            icon: <span className="font-bold text-sm">AR</span>,
+            action: () => handleLanguageChange('ar'),
+            // NEW: Enhanced active class with a background color and ring
+            colorClass: `bg-gray-700/80 hover:bg-gray-600/80 ${language === 'ar' ? 'bg-blue-600/50 ring-2 ring-blue-400' : ''}`
+        }
+    ];
 
     return (
-        <div className={`fixed bottom-4 right-4 z-50 flex flex-col items-end transition-all duration-300 ${isOpen ? 'space-y-2' : ''}`}>
-            {isOpen && (
-                <div className={`glass-panel p-3 rounded-xl flex ${isRtl ? 'flex-row-reverse space-x-2' : 'space-x-2'}`}>
-                    {/* Theme Toggle */}
-                    <button
-                        onClick={handleThemeToggle}
-                        className="p-2 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-colors duration-200"
-                        title={theme === 'dark' ? t('switchToLight') : t('switchToDark')}
-                    >
-                        {theme === 'dark' ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-gray-200" />}
-                    </button>
+        <div className="settings-fab-container">
+            {menuOptions.map((option, index) => {
+                const angle = -90 - (index * 50);
+                const radius = 70;
+                const x = radius * Math.cos(angle * (Math.PI / 180));
+                const y = radius * Math.sin(angle * (Math.PI / 180));
 
-                    {/* Language Flags */}
-                    {Object.entries(flags).map(([langCode, flag]) => (
-                        <button
-                            key={langCode}
-                            onClick={() => handleLanguageChange(langCode)}
-                            className={`p-2 rounded-lg text-2xl transition-all duration-200 ${language === langCode ? 'bg-blue-600/50' : 'hover:bg-gray-600/50'}`}
-                            title={t('languageName', { lng: langCode })}
-                        >
-                            {flag}
+                const style = {
+                    transform: isOpen ? `translate(${x}px, ${y}px)` : 'translate(0, 0)',
+                    opacity: isOpen ? 1 : 0,
+                    transitionDelay: isOpen ? `${index * 0.05}s` : '0s'
+                };
+
+                return (
+                    <div key={option.id} className="settings-fab-option-wrapper" style={style}>
+                        <div className="settings-tooltip">{option.label}</div>
+                        <button onClick={option.action} className={`settings-fab-option ${option.colorClass}`}>
+                            {option.icon}
                         </button>
-                    ))}
-                </div>
-            )}
+                    </div>
+                );
+            })}
+
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`p-3 rounded-full text-white bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-lg ${isOpen ? 'rotate-45' : ''}`}
+                className={`settings-fab transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`}
             >
                 <Settings size={24} />
             </button>

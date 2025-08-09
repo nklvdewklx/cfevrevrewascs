@@ -5,7 +5,7 @@ import { logout } from '../../features/authentication/authSlice';
 import Sidebar from './Sidebar';
 import Button from '../common/Button';
 import SearchBar from '../common/SearchBar';
-import SearchResultsModal from '../common/SearchResultsModal'; // NEW
+import SearchResultsModal from '../common/SearchResultsModal';
 import { useTranslation } from 'react-i18next';
 
 const MainLayout = () => {
@@ -50,12 +50,12 @@ const MainLayout = () => {
                     </div>
                 </header>
 
-                <main className="flex-grow p-6 overflow-y-auto">
+                {/* MODIFIED: Added the custom-scrollbar class */}
+                <main className="flex-grow p-6 overflow-y-auto custom-scrollbar">
                     <Outlet />
                 </main>
             </div>
 
-            {/* NEW: Add the search results modal */}
             <SearchResultsModal />
         </div>
     );
